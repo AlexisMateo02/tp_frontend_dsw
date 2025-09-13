@@ -1,0 +1,104 @@
+[
+  {
+    "id": 1,
+    "image": "/assets/images/product-1-1.webp",
+    "secondImage": "/assets/images/product-1-2.webp",
+    "Productname": "Kayak Mantra Matrix",
+    "price": "$700",
+    "tag": "Oferta"
+  },
+  {
+    "id": 2,
+    "image": "/assets/images/product-2-1.webp",
+    "secondImage": "/assets/images/product-2-2.webp",
+    "Productname": "Chaleco salvavidas Aquafloat",
+    "price": "$52.000",
+    "oldPrice": "$65.000",
+    "tag": "Oferta"
+  },
+  {
+    "id": 3,
+    "image": "/assets/images/product-1-1.webp",
+    "secondImage": "/assets/images/product-1-2.webp",
+    "Productname": "Kayak Mantra Matrix",
+    "price": "$700",
+    "tag": "Oferta"
+  },
+  {
+    "id": 4,
+    "image": "/assets/images/product-2-1.webp",
+    "secondImage": "/assets/images/product-2-2.webp",
+    "Productname": "Chaleco salvavidas Aquafloat",
+    "price": "$52.000",
+    "oldPrice": "$65.000",
+    "tag": "Oferta"
+  },
+  {
+    "id": 5,
+    "image": "/assets/images/product-1-1.webp",
+    "secondImage": "/assets/images/product-1-2.webp",
+    "Productname": "Kayak Mantra Matrix",
+    "price": "$700",
+    "tag": "Oferta"
+  },
+  {
+    "id": 6,
+    "image": "/assets/images/product-2-1.webp",
+    "secondImage": "/assets/images/product-2-2.webp",
+    "Productname": "Chaleco salvavidas Aquafloat",
+    "price": "$52.000",
+    "oldPrice": "$65.000",
+    "tag": "Oferta"
+  },
+  {
+    "id": 7,
+    "image": "/assets/images/product-1-1.webp",
+    "secondImage": "/assets/images/product-1-2.webp",
+    "Productname": "Kayak Mantra Matrix",
+    "price": "$700",
+    "tag": "Oferta"
+  },
+  {
+    "id": 8,
+    "image": "/assets/images/product-2-1.webp",
+    "secondImage": "/assets/images/product-2-2.webp",
+    "Productname": "Chaleco salvavidas Aquafloat",
+    "price": "$52.000",
+    "oldPrice": "$65.000",
+    "tag": "Oferta"
+  },
+  {
+    "id": 9,
+    "image": "/assets/images/product-1-1.webp",
+    "secondImage": "/assets/images/product-1-2.webp",
+    "Productname": "Kayak Mantra Matrix",
+    "price": "$700",
+    "tag": "Oferta"
+  },
+  {
+    "id": 10,
+    "image": "/assets/images/product-2-1.webp",
+    "secondImage": "/assets/images/product-2-2.webp",
+    "Productname": "Chaleco salvavidas Aquafloat",
+    "price": "$52.000",
+    "oldPrice": "$65.000",
+    "tag": "Oferta"
+  },
+  {
+    "id": 11,
+    "image": "/assets/images/product-1-1.webp",
+    "secondImage": "/assets/images/product-1-2.webp",
+    "Productname": "Kayak Mantra Matrix",
+    "price": "$700",
+    "tag": "Oferta"
+  },
+  {
+    "id": 12,
+    "image": "/assets/images/product-2-1.webp",
+    "secondImage": "/assets/images/product-2-2.webp",
+    "Productname": "Chaleco salvavidas Aquafloat",
+    "price": "$52.000",
+    "oldPrice": "$65.000",
+    "tag": "Oferta"
+  }
+]

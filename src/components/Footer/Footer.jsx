@@ -1,0 +1,2 @@
+/* Aca vamos a definir una componente llamada Footer que va a representar el pie de pagina 
+de nuestra pagina web. */
