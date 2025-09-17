@@ -1,8 +1,8 @@
 /* Se utiliza para mostrar la lista de deseos del usuario. */
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router-dom";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -14,6 +14,7 @@ function Wishlist() {
     setWishlist(storedWishlist);
     setCart(storedCart);
   }, []);
+
   const removeFromWishlist = (productId) => {
     const updatedWishlist = wishlist.filter((item) => item.id !== productId);
     setWishlist(updatedWishlist);
@@ -21,6 +22,7 @@ function Wishlist() {
     window.dispatchEvent(new Event("wishlistUpdated"));
     toast.error("Producto eliminado de la lista de deseos");
   };
+
   const addToCart = (product) => {
     const existingProduct = cart.find((item) => item.id === product.id);
     let updatedCart;
@@ -52,14 +54,15 @@ function Wishlist() {
           <Link to="/">Inicio</Link>
         </li>
         <li className="position-relative active">
-          <a href="#" className="ps-5">
-            Lista de deseos
-          </a>
+          <Link to="#" className="ps-5">
+            Favoritos {/*antes habia escrito Kayaks*/}
+          </Link>
         </li>
       </ol>
 
       <div className="contain my-5">
-        <h2 className="text-center fw-bold mb-4">Tu lista de deseos</h2>
+        <h2 className="text-center fw-bold mb-4"> 💙 Lista de Deseos 💛</h2>
+
         {wishlist.length === 0 ? (
           <div className="text-center">
             <p className="lead text-muted">Tu lista de deseos está vacía.</p>
@@ -110,7 +113,7 @@ function Wishlist() {
                         onClick={() => removeFromWishlist(product.id)}
                       >
                         <i className="ri-shopping-cart-2-line me-1">
-                          Quitar de la lista de deseos
+                          Eliminar de favoritos
                         </i>
                       </button>
                     </div>

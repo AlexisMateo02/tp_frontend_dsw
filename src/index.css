@@ -394,3 +394,51 @@ body {
     height: 150px;
   }
 }
+/*Checkout Page*/
+.btn-form label {
+  height: 100%;
+  border: 2px solid #6c757d !important;
+  background-color: transparent !important;
+}
+
+.pickup-btn,
+.ship-btn {
+  color: var(--black-color);
+}
+
+/*Banner Section*/
+.banner-img {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: var(--transition-slow);
+}
+.banner-content {
+  width: 90%;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.banner-content h3 {
+  color: var(--black-color);
+  font-size: 1.3rem;
+}
+.banner-content h1 {
+  color: var(--black-color);
+  font-size: 2.2rem;
+}
+.banner-btn {
+  border-radius: 2px;
+  width: 200px;
+  height: 50px;
+}
+.banner-content2 p {
+  font-size: 1.2rem !important;
+  font-weight: 500;
+}
+
+@media (max-width: 991px) {
+  .banner-mt {
+    margin-top: 30px;
+  }
+}

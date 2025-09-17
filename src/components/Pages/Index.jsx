@@ -6,6 +6,12 @@ import "swiper/css";
 import "swiper/css/effect-fade";
 //Data
 import Products from "../../data/Product.json";
+import subBanner1 from "./../../assets/banner-1.webp";
+import subBanner2 from "./../../assets/banner-2.webp";
+import serviceImg1 from "./../../assets/service-icon-1.svg";
+import serviceImg2 from "./../../assets/service-icon-2.svg";
+import serviceImg3 from "./../../assets/service-icon-3.svg";
+import serviceImg4 from "./../../assets/service-icon-4.svg";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -187,9 +193,84 @@ function Index() {
           </Swiper>
         </div>
       </div>
+      {/*Banner*/}
+      <div className="banners py-5">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 banner-card overflow-hidden position-relative">
+              <img
+                className="img-fluid rounded banner-img"
+                src={subBanner1}
+                alt=""
+              />
+              <div className="banner-content position-absolute">
+                <h3>Nueva colección</h3>
+                <h1>
+                  Mantra <br />
+                  by Matrix <br />
+                </h1>
+                <button className="btn banner-btn mt-2">Explorar más </button>
+              </div>
+            </div>
+            <div className="col-lg-6 banner-card overflow-hidden position-relative banner-mt">
+              <img
+                className="img-fluid rounded banner-img"
+                src={subBanner2}
+                alt=""
+              />
+              <div className="banner-content banner-content2 position-absolute">
+                <h1>25% off en Toda la colección</h1>
+                <p>
+                  Aprovecha los descuentos por el mes de <br />
+                  Noviembre
+                </p>
+                <button className="btn banner-btn mt-2">COMPRAR AHORA</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/*Service*/}
+      <div className="container py-5 my-5">
+        <div className="row text-center">
+          <div className="col-lg-3 col-sm-6 mb-4">
+            <img src={serviceImg1} className="img-fluid" alt="" />
+            <h4 className="mt-3 mb-1">Envio gratis</h4>
+            <p className="text-muted fs-6 fw-semibold">
+              Envio gratis para ordenes mayores a $150.000
+            </p>
+          </div>
+          <div className="col-lg-3 col-sm-6 mb-4">
+            <img src={serviceImg2} className="img-fluid" alt="" />
+            <h4 className="mt-3 mb-1">Reembolsos</h4>
+            <p className="text-muted fs-6 fw-semibold">
+              Reembolso gratis dentro de los primeros 30 dias{" "}
+            </p>
+          </div>
+          <div className="col-lg-3 col-sm-6 mb-4">
+            <img src={serviceImg3} className="img-fluid" alt="" />
+            <h4 className="mt-3 mb-1">Soporte en linea </h4>
+            <p className="text-muted fs-6 fw-semibold">Las 24 horas del día </p>
+          </div>
+          <div className="col-lg-3 col-sm-6 mb-4">
+            <img src={serviceImg4} className="img-fluid" alt="" />
+            <h4 className="mt-3 mb-1">Pagos FLEXIBLES</h4>
+            <p className="text-muted fs-6 fw-semibold">
+              Todo tipo de Tarjetas de todos los Bancos{" "}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/*Seen in */}
+      <div className="text-center my-5 seen-in">
+        <div className="container"></div>
+      </div>
+
       <ToastContainer
         position="top-right"
-        autoClose={2000}
+        autoClose={3000}
         hideProgressBar={false}
         closeOnClick
         rtl={false}
