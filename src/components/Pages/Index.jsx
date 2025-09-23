@@ -12,6 +12,10 @@ import serviceImg1 from "./../../assets/service-icon-1.svg";
 import serviceImg2 from "./../../assets/service-icon-2.svg";
 import serviceImg3 from "./../../assets/service-icon-3.svg";
 import serviceImg4 from "./../../assets/service-icon-4.svg";
+import brand1 from "./../../assets/brand-1.png";
+import brand2 from "./../../assets/brand-2.png";
+import brand3 from "./../../assets/brand-3.png";
+import femalebanner from "./../../assets/banner-female.webp";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -265,8 +269,123 @@ function Index() {
 
       {/*Seen in */}
       <div className="text-center my-5 seen-in">
-        <div className="container"></div>
+        <div className="container">
+          <h1 className="mb-5 fw-semibold">Visto en</h1>
+          <div className="row pt-3 justify-content-center">
+            <div className="col-md-4 mb-4 seen-card">
+              <img src={brand1} alt="" className="img-fluid" />
+              <p className="text-dark fs-5 mt-2 fw-semibold">
+                "EL servicio al cliente es excelente!! Comprare devuelta "
+              </p>
+            </div>
+            <div className="col-md-4 mb-4 seen-card">
+              <img src={brand2} alt="" className="img-fluid" />
+              <p className="text-dark fs-5 mt-2 fw-semibold">
+                "Muy buen servicio al cliente, me ayudaron con mi compra"
+              </p>
+            </div>
+            <div className="col-md-4 mb-4 seen-card">
+              <img src={brand3} alt="" className="img-fluid" />
+              <p className="text-dark fs-5 mt-2 fw-semibold">
+                "EL envio fue muy rapido, y el producto llego en perfectas
+                condiciones"
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
+      {/*favourite beauty */}
+      <div className="favourite-beauty py-5 my-5">
+        <div className="container">
+          <div className="row">
+            <div className="section-title mb-5 favourite-beauty-title text-center ">
+              <h2 className="fw-semibold fs-1">
+                Esenciales y favoritos para la navegacion{" "}
+              </h2>
+              <p>
+                Descubri nuestros productos más populares y esenciales para
+                navegar seguro{" "}
+              </p>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-5">
+              <div className="favourite-beauty-banner mb-lg-0 mb-5 position-relative ">
+                <img src={femalebanner} className="img-fluid" alt="" />
+                <div className="favourite-beauty-banner-title">
+                  <h3 className="fs-2">Mejora tu navegacion</h3>
+                  <p className="fs-6">Mejora tu experiencia y tu pasion </p>
+                  <button className="btn btn-default">Explorar más</button>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-7">
+              <div className="row">
+                {Products.filter(
+                  (product) => product.id >= 2 && product.id <= 8
+                ).map((product) => (
+                  <div className="col-md-4 mb-0">
+                    <div key={product.id}>
+                      <div className="product-item mb-5 text-center position-relative">
+                        <div className="product-image w-100 position-relative overflow-hidden">
+                          <img
+                            src={product.image}
+                            alt="product"
+                            className="img-fluid"
+                          />
+                          <img
+                            src={product.secondImage}
+                            alt="product"
+                            className="img-fluid"
+                          />
+                          <div className="product-icons gap-3">
+                            <div
+                              className="product-icon"
+                              title="Agregar a favoritos"
+                              onClick={() => addToWishlist(product)}
+                            >
+                              <i className="bi bi-heart fs-5"></i>
+                            </div>
+                            <div
+                              className="product-icon"
+                              title="Agregar al carrito"
+                              onClick={() => addToCart(product)}
+                            >
+                              <i className="bi bi-cart3 fs-5"></i>
+                            </div>
+                          </div>
+                          <span
+                            className={`tag badge text-white ${
+                              product.tag === "Nuevo"
+                                ? "bg-danger"
+                                : "bg-success"
+                            }`}
+                          >
+                            {product.tag}
+                          </span>
+                        </div>
+                        <Link
+                          to={`/product/${product.id}`}
+                          className="text-decoration-none text-black "
+                        >
+                          <div className="product-content pt-3">
+                            <span className="price ">{product.price}</span>
+                            <h3 className="title pt-1">
+                              {product.Productname}
+                            </h3>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/*Discover Section*/}
 
       <ToastContainer
         position="top-right"
