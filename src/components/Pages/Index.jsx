@@ -16,6 +16,13 @@ import brand1 from "./../../assets/brand-1.png";
 import brand2 from "./../../assets/brand-2.png";
 import brand3 from "./../../assets/brand-3.png";
 import femalebanner from "./../../assets/banner-female.webp";
+import discover1 from "./../../assets/discover-1.webp";
+import discover2 from "./../../assets/discover-2.webp";
+import socialImage1 from "./../../assets/social-image-1.jpg";
+import socialImage2 from "./../../assets/social-image-2.jpg";
+import socialImage3 from "./../../assets/social-image-3.jpg";
+import socialImage4 from "./../../assets/social-image-4.jpg";
+import socialImage5 from "./../../assets/social-image-5.jpg";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -322,7 +329,7 @@ function Index() {
             <div className="col-lg-7">
               <div className="row">
                 {Products.filter(
-                  (product) => product.id >= 2 && product.id <= 8
+                  (product) => product.id >= 1 && product.id <= 9
                 ).map((product) => (
                   <div className="col-md-4 mb-0">
                     <div key={product.id}>
@@ -386,6 +393,88 @@ function Index() {
       </div>
 
       {/*Discover Section*/}
+      <div className="discover container py-5">
+        <div className="section-title mb-5 favourite-beauty-title text-center ">
+          <h2 className="fw-semibold fs-1">Descubri más</h2>
+          <p className="text-center">
+            Explora nuestra colección y encontra todo <br /> lo que necesitas
+          </p>
+        </div>
+        <div className="row g-5">
+          <div className="col-md-6 discover-card text-center">
+            <div className="discover-img section-image rounded">
+              <img
+                src={discover1}
+                alt="Coleccion de verano"
+                className="img-fluid rounded"
+              />
+            </div>
+            <div className="discover-info mt-3">
+              <div>Coleccion de Verano</div>
+              <button className="btn mt-2">
+                Comprar ahora <i className="bi bi-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+          <div className="col-md-6 discover-card text-center">
+            <div className="discover-img section-image rounded">
+              <img
+                src={discover2}
+                alt="Sobre nosotros"
+                className="img-fluid rounded"
+              />
+            </div>
+            <div className="discover-info mt-3">
+              <div>Coleccion de Verano</div>
+              <button className="btn mt-2">
+                Leer más <i className="bi bi-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/*Social Image*/}
+      <div className="social-image-container py-5 px-5 mx-auto mt-5">
+        <div className="row g-4">
+          <div className="col-lg-2 col-md-4">
+            <div className="social-wrapper position-relative overflow-hidden">
+              <img src={socialImage1} alt="" className="img-fluid" />
+              <i className="bi bi-instagram"></i>
+            </div>
+          </div>
+          <div className="col-lg-2 col-md-4">
+            <div className="social-wrapper position-relative overflow-hidden">
+              <img src={socialImage2} alt="" className="img-fluid" />
+              <i className="bi bi-instagram"></i>
+            </div>
+          </div>
+          <div className="col-lg-2 col-md-4">
+            <div className="social-wrapper position-relative overflow-hidden">
+              <img src={socialImage3} alt="" className="img-fluid" />
+              <i className="bi bi-instagram"></i>
+            </div>
+          </div>
+          <div className="col-lg-2 col-md-4">
+            <div className="social-wrapper position-relative overflow-hidden">
+              <img src={socialImage4} alt="" className="img-fluid" />
+              <i className="bi bi-instagram"></i>
+            </div>
+          </div>
+          <div className="col-lg-2 col-md-4">
+            <div className="social-wrapper position-relative overflow-hidden">
+              <img src={socialImage5} alt="" className="img-fluid" />
+              <i className="bi bi-instagram"></i>
+            </div>
+          </div>
+          <div className="col-lg-2 col-md-4">
+            <div className="social-wrapper position-relative overflow-hidden">
+              <img src={socialImage1} alt="" className="img-fluid" />
+              <i className="bi bi-instagram"></i>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <ToastContainer
         position="top-right"

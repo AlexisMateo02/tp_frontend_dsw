@@ -6,6 +6,7 @@ import ProductDetails from "./components/Pages/ProductDetails";
 import Wishlist from "./components/Pages/Wishlist.jsx";
 import Cart from "./components/Pages/Cart.jsx";
 import Checkout from "./components/Pages/Checkout.jsx";
+import Footer from "./components/Footer/Footer.jsx";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />}></Route>
       </Routes>
+      <Footer />
     </>
   );
 }

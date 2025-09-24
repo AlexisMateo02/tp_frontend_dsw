@@ -477,3 +477,125 @@ body {
   padding: 50px;
   color: var(--white-color);
 }
+
+/*Discover section*/
+
+.section-image {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+discover-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-regular);
+}
+.discover-card:hover img {
+  transform: scale(1.1);
+}
+.discover-info div {
+  font-size: 2.5rem;
+}
+.discover-info button {
+  width: 200px;
+  font-size: 1.2rem;
+}
+.section-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    128deg,
+    rgba(255, 255, 255, 0) 28%,
+    rgba(255, 255, 255, 0.384) 50%,
+    rgba(255, 255, 255, 0) 71%
+  );
+  pointer-events: none;
+}
+.discover-card:hover .section-image::after {
+  animation: shine 0.8s ease forwards;
+}
+@keyframes shine {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 100%;
+  }
+}
+/*Social Image*/
+.social-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+.social-wrapper img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+.social-wrapper i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  color: var(--white-color);
+  z-index: 1;
+  opacity: 0;
+  transition: var(--transition-regular);
+}
+
+.social-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  opacity: 0;
+  transition: var(--transition-regular);
+}
+.social-wrapper:hover i,
+.social-wrapper:hover::after {
+  opacity: 1;
+}
+
+/*Footer*/
+
+.footer {
+  background-color: #f8f8f8;
+}
+
+.footer h3 {
+  color: var(--black-color);
+  font-size: 20px;
+  font-family: var(--Plus-Jakarta_font);
+}
+.footer p {
+  color: #333333;
+}
+.footer ul li a {
+  font-family: var(--Poppins);
+  color: #333333;
+  cursor: pointer;
+  transition: var(--transition-slow);
+}
+.footer ul li a:hover {
+  color: var(--black-color);
+  margin-left: 10px;
+}
+.footer .suscribe-box input {
+  color: var(--text-color);
+  background-color: var(--white-color);
+  border: 1px solid #eeeee0;
+  box-shadow: none;
+  padding: 10px 18px;
+  font-size: 16px;
+}
