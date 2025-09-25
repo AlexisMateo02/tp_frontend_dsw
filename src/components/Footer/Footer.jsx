@@ -2,6 +2,13 @@
 de nuestra pagina web. */
 import React from "react";
 
+import payment1 from "./../../assets/payment-1.svg";
+import payment2 from "./../../assets/payment-2.svg";
+import payment3 from "./../../assets/payment-3.svg";
+import payment4 from "./../../assets/payment-4.svg";
+import payment5 from "./../../assets/payment-5.svg";
+import payment6 from "./../../assets/payment-6.svg";
+
 function Footer() {
   return (
     <>
@@ -112,7 +119,24 @@ function Footer() {
               </div>
               <div className="col-lg-4">
                 <div className="footer-logo text-center">
-                  <a href="#" className="navbar-brand mx-auto order-0"></a>
+                  <a href="#" className="navbar-brand mx-auto order-0">
+                    <h3
+                      className="m-0 fw-bold"
+                      style={{ letterSpacing: "2px" }}
+                    >
+                      KBR
+                    </h3>
+                  </a>
+                </div>
+              </div>
+              <div className="col-lg-4">
+                <div className="payment-img mt-4 mt-xl-0 d-flex gap-2 justify-content-center justify-content-lg-end">
+                  <img src={payment1} alt="" className="img-fluid" />
+                  <img src={payment2} alt="" className="img-fluid" />
+                  <img src={payment3} alt="" className="img-fluid" />
+                  <img src={payment4} alt="" className="img-fluid" />
+                  <img src={payment5} alt="" className="img-fluid" />
+                  <img src={payment6} alt="" className="img-fluid" />
                 </div>
               </div>
             </div>

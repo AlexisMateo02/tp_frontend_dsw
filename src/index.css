@@ -599,3 +599,135 @@ discover-img img {
   padding: 10px 18px;
   font-size: 16px;
 }
+/*About page*/
+.about-glowing-section {
+  min-height: 80vh;
+  background-image: url(assets/bg-about.webp);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: right center;
+}
+
+.about-section {
+  padding: 4rem 0;
+  background-color: var(--white-color);
+  font-family: "Helvetica Neue", sans-serif;
+}
+.about-img1 {
+  height: 500px;
+}
+.about-img1 img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.about-section h2,
+.about-section h4 {
+  color: #111;
+}
+.about-section h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.about-section h4 {
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+.about-section p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #555;
+}
+.about-section .text-block {
+  padding: 0 1rem;
+}
+@media (max-width: 767px) {
+  .about-section h2 {
+    font-size: 1.5rem;
+  }
+  .about-section h4 {
+    font-size: 1.25rem;
+  }
+  .about-section p {
+    font-size: 0.95rem;
+  }
+}
+
+.brand-img img {
+  opacity: 0.5;
+  transition: var(--transition-slow);
+}
+.brands-img img:hover {
+  opacity: 1;
+}
+
+/*Teams Section*/
+.team-section {
+  padding: 40px 20px;
+  background-color: var(--white-color);
+  text-align: center;
+}
+.team-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+.team-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+}
+.team-member {
+  width: 300px;
+  position: relative;
+  overflow: hidden;
+}
+.team-image-wrapper {
+  position: relative;
+}
+.team-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+.team-social {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px 0;
+  font-size: 20px;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.3s ease;
+}
+.team-member:hover .team-social {
+  opacity: 1;
+  transform: translateY(0%);
+}
+.team-social a {
+  color: #333333;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.team-social a:hover {
+  color: var(--black-color);
+}
+.team-name {
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.team-role {
+  font-size: 14px;
+  color: gray;
+}
