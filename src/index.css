@@ -758,3 +758,111 @@ discover-img img {
 .section-banner li.active span {
   color: var(--black-color) !important;
 }
+/*Blog Page*/
+
+.blog-image {
+  height: 450px;
+}
+.bolg-image img {
+  height: 100% !important;
+  object-fit: cover;
+}
+.blog-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.blog-content ul li {
+  color: var(--text-color);
+}
+.blog-content ul li span.active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1%;
+  height: 100%;
+  background-color: var(--black-color);
+}
+.blog-image img {
+  transition: var(--transition-slow);
+}
+.blog-image:hover img {
+  transform: scale(1.1);
+}
+.blog-content .blog-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.blog-content .blog-title span {
+  background-color: #f5f5f5;
+  color: var(--black-color);
+  width: fit-content;
+  padding: 4px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 4px;
+  transform: translateY(-20px);
+}
+
+@media screen and (max-width: 1199px) {
+  .blog-content h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/*Contact Page*/
+.contact-section {
+  padding: 60px 20px;
+  text-align: center;
+}
+.section-title {
+  font-weight: bold;
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+.section-subtitle {
+  color: #777;
+  font-size: 1rem;
+  margin-bottom: 40px;
+}
+.contact-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+.contact-col {
+  flex: 1;
+  min-width: 250px;
+}
+.contact-box {
+  text-align: left;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+.contact-box .icon {
+  font-size: 28px;
+  color: #4c6c5d;
+  margin-bottom: 10px;
+  display: block;
+}
+.contact-box h5 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+.contact-box p {
+  margin: 5px;
+  color: #333;
+}
+.contact-box .link {
+  text-decoration: underline;
+  font-weight: 500;
+  color: var(--black-color);
+}

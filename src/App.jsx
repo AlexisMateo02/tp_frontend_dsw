@@ -11,6 +11,7 @@ import About from "./components/Pages/About.jsx";
 import Shop from "./components/Pages/Shop.jsx";
 import Stores from "./components/Pages/Stores.jsx";
 import Blog from "./components/Pages/Blog.jsx";
+import Contact from "./components/Pages/Contact.jsx";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/stores" element={<Stores />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
       <Footer />
     </>
