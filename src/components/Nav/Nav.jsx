@@ -119,7 +119,7 @@ function Nav() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/products" className="nav-link">
+                <Link to="/shop" className="nav-link">
                   Productos
                 </Link>
               </li>

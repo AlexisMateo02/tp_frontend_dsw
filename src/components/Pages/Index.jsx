@@ -2,6 +2,10 @@
 import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Navigation } from "swiper/modules";
+import { useNavigate, Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 import "swiper/css";
 import "swiper/css/effect-fade";
 //Data
@@ -23,9 +27,6 @@ import socialImage2 from "./../../assets/social-image-2.jpg";
 import socialImage3 from "./../../assets/social-image-3.jpg";
 import socialImage4 from "./../../assets/social-image-4.jpg";
 import socialImage5 from "./../../assets/social-image-5.jpg";
-import { useNavigate, Link } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 function Index() {
   // Componente Index

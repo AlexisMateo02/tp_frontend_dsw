@@ -208,7 +208,7 @@ const About = () => {
         <div className="team-row">
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team1} alt="" className="team-image" />
+              <img src={team1} alt="Santi" className="team-image" />
               <div className="team-social">
                 <a href="#">
                   <i className="ri-instagram-line"></i>
@@ -227,11 +227,9 @@ const About = () => {
             <h3 className="team-name">Santiago Martina</h3>
             <p className="team-role">Fundador</p>
           </div>
-        </div>
-        <div className="team-row">
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team2} alt="" className="team-image" />
+              <img src={team2} alt="Ale" className="team-image" />
               <div className="team-social">
                 <a href="#">
                   <i className="ri-instagram-line"></i>
@@ -250,11 +248,10 @@ const About = () => {
             <h3 className="team-name">Alexis Mateo</h3>
             <p className="team-role">Fundador</p>
           </div>
-        </div>
-        <div className="team-row">
+
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team3} alt="" className="team-image" />
+              <img src={team3} alt="Rafi" className="team-image" />
               <div className="team-social">
                 <a href="#">
                   <i className="ri-instagram-line"></i>
@@ -273,11 +270,10 @@ const About = () => {
             <h3 className="team-name">Rafi Boveri</h3>
             <p className="team-role">Fundadores</p>
           </div>
-        </div>
-        <div className="team-row">
+
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team4} alt="" className="team-image" />
+              <img src={team4} alt="Laza" className="team-image" />
               <div className="team-social">
                 <a href="#">
                   <i className="ri-instagram-line"></i>

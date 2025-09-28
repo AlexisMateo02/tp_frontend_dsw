@@ -731,3 +731,30 @@ discover-img img {
   font-size: 14px;
   color: gray;
 }
+/*Shop Page*/
+.section-banner {
+  background-color: #f5f5f5;
+  color: var(--text-color);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-top: 80px;
+}
+.section-banner li a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+.section-banner li.active::after {
+  content: "";
+  position: absolute;
+  height: 1%;
+  width: 30px;
+  left: 8px;
+  top: 50%;
+  background-color: var(--black-color);
+}
+.section-banner li.active span {
+  color: var(--black-color) !important;
+}

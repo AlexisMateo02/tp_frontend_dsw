@@ -8,6 +8,8 @@ import Cart from "./components/Pages/Cart.jsx";
 import Checkout from "./components/Pages/Checkout.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import About from "./components/Pages/About.jsx";
+import Shop from "./components/Pages/Shop.jsx";
+import Stores from "./components/Pages/Stores.jsx";
 
 function App() {
   return (
@@ -16,10 +18,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/Wishlist" element={<Wishlist />} />
-        <Route path="/Cart" element={<Cart />} />
-        <Route path="/Checkout" element={<Checkout />} />
-        <Route path="/About" element={<About />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/stores" element={<Stores />} />
       </Routes>
       <Footer />
     </>
