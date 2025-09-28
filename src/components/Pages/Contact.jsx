@@ -59,6 +59,34 @@ function Contact() {
           </div>
         </div>
       </section>
+
+      <div className="contact-page">
+        {/*Map Section*/}
+        <section className="map-section container">
+          <iframe
+            title="Nuestra Ubicacion"
+            className="map rounded"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d214269.0913165688!2d-60.696639499999996!3d-32.9522093!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95b6539335d7d75b%3A0xec4086e90258a557!2sRosario%2C%20Santa%20Fe!5e0!3m2!1ses-419!2sar!4v1759095119655!5m2!1ses-419!2sar"
+            allowfullscreen=""
+          ></iframe>
+        </section>
+        {/*Contact Form Section */}
+        <section className="message-section">
+          <h2 className="form-title">Enviar mensaje </h2>
+          <form className="contact-form">
+            <div className="row">
+              <input type="text" placeholder="Name" className="input" />
+              <input type="email" placeholder="Email" className="input" />
+            </div>
+            <div className="row">
+              <textarea placeholder="Mesaage" className="textarea"></textarea>
+            </div>
+            <button type="sumbit" className="btn px-5">
+              Enviar
+            </button>
+          </form>
+        </section>
+      </div>
     </>
   );
 }
