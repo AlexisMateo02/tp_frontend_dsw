@@ -1,9 +1,13 @@
 /*traigo fuente personalizada de google (Google Fonts)*/
 @import url("https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&family=Mozilla+Headline:wght@200..700&display=swap");
 
+.main-content {
+  margin-top: 80px; /* Ajusta según la altura real de tu nav */
+}
 /*El bloque * {
   ...
 } es un reset CSS que limpia estilos predeterminados y aplica tu tipografía a todo el sitio.*/
+
 * {
   margin: 0; /* Elimina el margen predeterminado de todos los elementos */
   padding: 0; /* Elimina el relleno predeterminado de todos los elementos */
@@ -112,10 +116,11 @@ body {
   background-color: var(--primary-color) !important;
   color: var(--white-color) !important;
 }
+
 /*Hero Section*/
 /*Hero Section*/
 .hero {
-  margin-top: 80px;
+  margin-top: 90px;
 }
 .hero-wrap {
   height: 90vh;
@@ -204,6 +209,7 @@ body {
 }
 /*Product section*/
 .section-tittle p {
+  margin-top: 90px;
   font-size: 1.2rem;
   font-weight: 500 !important;
   color: var(--text-color) !important;
@@ -919,4 +925,20 @@ discover-img img {
   .textarea {
     width: 100%;
   }
+}
+
+/*Articles*/
+.article-btn-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 10px;
+}
+
+.article-btn-img:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
 }

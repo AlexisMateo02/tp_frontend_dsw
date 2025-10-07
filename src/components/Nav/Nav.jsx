@@ -45,8 +45,8 @@ function Nav() {
   return (
     <>
       {/* Navbar principal */}
-      <div className="nav w-100 fixed-top bd-white shadow-sm">
-        <nav className="navbar navbar-expand-lg py-3 justify-content-between align-items-center w-100 nav-wrapper">
+      <div className="nav w-100 fixed-top bd-white shadow-sm mb-10">
+        <nav className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper">
           {/* Toggle button */}
           <button
             className="navbar-toggler"
@@ -124,13 +124,18 @@ function Nav() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/accessories" className="nav-link">
-                  Accesorios
+                <Link to="/articles" className="nav-link">
+                  Artículos
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/contacts" className="nav-link">
+                <Link to="/contact" className="nav-link">
                   Contactos
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/stores" className="nav-link">
+                  Tiendas
                 </Link>
               </li>
             </ul>

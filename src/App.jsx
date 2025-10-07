@@ -10,26 +10,28 @@ import Footer from "./components/Footer/Footer.jsx";
 import About from "./components/Pages/About.jsx";
 import Shop from "./components/Pages/Shop.jsx";
 import Stores from "./components/Pages/Stores.jsx";
-import Blog from "./components/Pages/Blog.jsx";
 import Contact from "./components/Pages/Contact.jsx";
+import Articles from "./components/Pages/Articles.jsx";
 
 function App() {
   return (
     <>
       <Nav />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/stores" element={<Stores />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/contact" element={<Contact />} />
-      </Routes>
-      <Footer />
+      <div className="main-content">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/articles" element={<Articles />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/stores" element={<Stores />} />
+        </Routes>
+        <Footer />
+      </div>
     </>
   );
 }

@@ -22,8 +22,8 @@ const About = () => {
   return (
     <>
       {/*About Header*/}
-      <section className="about-glowing-section d-flex align-items-center">
-        <div className="container">
+      <section className="about-glowing-section d-flex align-items-center ">
+        <div className="container ">
           <div className="row">
             <div className="col-md-6 text-md-start text-center">
               <p className="text-uppercase text-muted small mb-2">

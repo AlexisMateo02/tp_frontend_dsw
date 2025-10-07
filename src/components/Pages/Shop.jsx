@@ -73,7 +73,7 @@ function Shop() {
         </li>
       </ol>
 
-      <div className="shop-container">
+      <div className="shop-container mt-5">
         <div className="container">
           <h1 className="text-center py-4 fw-semibold">Productos</h1>
           <div className="container my-4">
