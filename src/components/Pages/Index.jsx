@@ -153,7 +153,7 @@ function Index() {
             className="mt-4 swiper position-relative"
           >
             {Products.filter(
-              (product) => product.id >= 2 && product.id <= 8
+              (product) => product.id >= 1 && product.id <= 7
             ).map((product) => (
               <SwiperSlide key={product.id}>
                 <div className="product-item text-center position-relative">

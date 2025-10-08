@@ -1,11 +1,13 @@
 [
   {
     "id": 1,
+
     "image": "/assets/images/product-1-1.webp",
     "secondImage": "/assets/images/product-1-2.webp",
     "Productname": "Kayak Mantra Matrix",
-    "price": "$700",
-    "tag": "Oferta"
+    "price": "$900.000",
+    "tag": "Nuevo",
+    "category": "Kayaks"
   },
   {
     "id": 2,
@@ -15,7 +17,7 @@
     "price": "$500.000",
     "oldPrice": "$650.000",
     "tag": "Oferta",
-    "category": "KAYAK"
+    "category": "Kayaks"
   },
   {
     "id": 3,
@@ -23,7 +25,7 @@
     "secondImage": "/assets/images/product-3-2.jpeg",
     "Productname": "Chaleco salvavidas Aquafloat",
     "price": "$70.000",
-    "category": "ACCESORIES"
+    "category": "Artículos"
   },
   {
     "id": 4,
@@ -61,17 +63,16 @@
     "Productname": "Kayak Kronos V",
     "price": "300.000",
     "tag": "Nuevo",
-    "category": "KAYAK"
+    "category": "Kayaks"
   },
   {
     "id": 8,
-
     "image": "/assets/images/product-1-1.webp",
     "secondImage": "/assets/images/product-1-2.webp",
     "Productname": "Kayak Mantra Matrix",
-    "price": "$900.000",
-    "tag": "Nuevo",
-    "category": "KAYAK"
+    "price": "$700",
+    "tag": "Oferta",
+    "category": "Kayaks"
   },
   {
     "id": 9,
