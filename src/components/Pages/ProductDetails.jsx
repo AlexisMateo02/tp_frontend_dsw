@@ -70,15 +70,24 @@ function ProductDetails() {
                       mainImage === img ? "border-dark" : ""
                     }`}
                     style={{
-                      width: 60,
-                      height: 80,
+                      width: "90px",
+                      height: "100px",
                       objectFit: "cover",
                       cursor: "pointer",
                     }}
                   />
                 ))}
               </div>
-              <img src={mainImage} className="img-fluid" alt="main" />
+              <img
+                src={mainImage}
+                className="img-fluid"
+                alt="main"
+                style={{
+                  width: "450px",
+                  height: "300px",
+                  objectFit: "cover",
+                }}
+              />
             </div>
           </div>
           <div className="col-xl-6">
@@ -94,6 +103,7 @@ function ProductDetails() {
                     backgroundColor: color,
                     width: 25,
                     height: 25,
+                    objectFit: "cover",
                     borderRadius: "50%",
                     cursor: "pointer",
                     border: "1px solid #ccc",

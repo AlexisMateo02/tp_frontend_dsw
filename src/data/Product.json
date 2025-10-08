@@ -11,68 +11,75 @@
     "id": 2,
     "image": "/assets/images/product-2-1.webp",
     "secondImage": "/assets/images/product-2-2.webp",
-    "Productname": "Chaleco salvavidas Aquafloat",
-    "price": "$52.000",
-    "oldPrice": "$65.000",
-    "tag": "Oferta"
+    "Productname": "Kayak Aloha ",
+    "price": "$500.000",
+    "oldPrice": "$650.000",
+    "tag": "Oferta",
+    "category": "KAYAK"
   },
   {
     "id": 3,
-    "image": "/assets/images/product-1-1.webp",
-    "secondImage": "/assets/images/product-1-2.webp",
-    "Productname": "Kayak Mantra Matrix",
-    "price": "$700",
-    "tag": "Oferta"
+    "image": "/assets/images/product-3-1.webp",
+    "secondImage": "/assets/images/product-3-2.jpeg",
+    "Productname": "Chaleco salvavidas Aquafloat",
+    "price": "$70.000",
+    "category": "ACCESORIES"
   },
   {
     "id": 4,
-    "image": "/assets/images/product-2-1.webp",
-    "secondImage": "/assets/images/product-2-2.webp",
-    "Productname": "Chaleco salvavidas Aquafloat",
-    "price": "$52.000",
-    "oldPrice": "$65.000",
-    "tag": "Oferta"
+    "image": "/assets/images/product-4-1.webp",
+    "secondImage": "/assets/images/product-4-2.webp",
+    "Productname": "Tabla de SUP",
+    "price": "$320.000",
+    "oldPrice": "$350.000",
+    "tag": "Oferta",
+    "category": "SUP"
   },
   {
     "id": 5,
-    "image": "/assets/images/product-1-1.webp",
-    "secondImage": "/assets/images/product-1-2.webp",
-    "Productname": "Kayak Mantra Matrix",
-    "price": "$700",
-    "tag": "Oferta"
+    "image": "/assets/images/product-5-1.webp",
+    "secondImage": "/assets/images/product-5-2.jpeg",
+    "Productname": "Tabla de SUP",
+    "price": "$400.000",
+    "tag": "Nuevo",
+    "category": "SUP"
   },
   {
     "id": 6,
-    "image": "/assets/images/product-2-1.webp",
-    "secondImage": "/assets/images/product-2-2.webp",
-    "Productname": "Chaleco salvavidas Aquafloat",
-    "price": "$52.000",
-    "oldPrice": "$65.000",
-    "tag": "Oferta"
+    "image": "/assets/images/product-6-1.webp",
+    "secondImage": "/assets/images/product-6-1.webp",
+    "Productname": "Tabla de SUP",
+    "price": "$250.000",
+    "oldPrice": "$280.000",
+    "tag": "Oferta",
+    "category": "SUP"
   },
   {
     "id": 7,
-    "image": "/assets/images/product-1-1.webp",
-    "secondImage": "/assets/images/product-1-2.webp",
-    "Productname": "Kayak Mantra Matrix",
-    "price": "$700",
-    "tag": "Oferta"
+    "image": "/assets/images/product-7-1.jpeg",
+    "secondImage": "/assets/images/product-7-2.jpeg",
+    "Productname": "Kayak Kronos V",
+    "price": "300.000",
+    "tag": "Nuevo",
+    "category": "KAYAK"
   },
   {
     "id": 8,
+
+    "image": "/assets/images/product-1-1.webp",
+    "secondImage": "/assets/images/product-1-2.webp",
+    "Productname": "Kayak Mantra Matrix",
+    "price": "$900.000",
+    "tag": "Nuevo",
+    "category": "KAYAK"
+  },
+  {
+    "id": 9,
     "image": "/assets/images/product-2-1.webp",
     "secondImage": "/assets/images/product-2-2.webp",
     "Productname": "Chaleco salvavidas Aquafloat",
     "price": "$52.000",
     "oldPrice": "$65.000",
-    "tag": "Oferta"
-  },
-  {
-    "id": 9,
-    "image": "/assets/images/product-1-1.webp",
-    "secondImage": "/assets/images/product-1-2.webp",
-    "Productname": "Kayak Mantra Matrix",
-    "price": "$700",
     "tag": "Oferta"
   },
   {

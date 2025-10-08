@@ -1,7 +1,7 @@
 /*representa el componente que muestra la informacion sobre la pagina web,
 por ejemplo en Quienes Somos?*/
 import React, { useState } from "react";
-import head from "../../assets/about-head-shape.webp";
+import head from "../../assets/about-head-shape.jpeg";
 import about1 from "../../assets/banner-female-2.webp";
 import about2 from "../../assets/discover-1.webp";
 import client1 from "../../assets/brand-logo-1.png";
@@ -26,9 +26,7 @@ const About = () => {
         <div className="container ">
           <div className="row">
             <div className="col-md-6 text-md-start text-center">
-              <p className="text-uppercase text-muted small mb-2">
-                Conociendonos!
-              </p>
+              <p className="text-uppercase text-muted small ">Conociendonos!</p>
               <h1 className="fw-bold display-5">
                 Sobre Kayaks Brokers Rosario
               </h1>
@@ -38,9 +36,9 @@ const About = () => {
       </section>
       {/*Main About*/}
       <section className="py-5">
-        <div className="container text-center mb-5">
-          <img src={head} alt="decorative leaf" />
-          <h2 className="fw-bold">
+        <div className="container text-center mb-4">
+          <img src={head} alt="decorative leaf " className="mb-4 w-50 h-40" />
+          <h2 className="fw-bold mb-3">
             Somos una empresa dedicada a la venta de kayaks, lanchas, articulos
             maritimos y mucho más... <br /> en Rosario, Argentina.
           </h2>

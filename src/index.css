@@ -226,8 +226,22 @@ body {
   transition-duration: 0.5s;
 }
 .product-image {
+  position: relative;
   width: 100%;
-  cursor: pointer;
+  height: 220px; /* ajustar según diseño */
+  overflow: hidden;
+  border-radius: 6px; /* opcional */
+}
+
+.product-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* cover llena y recorta, use contain si prefiere ver toda la imagen */
+  display: block;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .product-image img:nth-child(2) {
   position: absolute;

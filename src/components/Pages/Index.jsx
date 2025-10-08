@@ -157,12 +157,16 @@ function Index() {
             ).map((product) => (
               <SwiperSlide key={product.id}>
                 <div className="product-item text-center position-relative">
-                  <div className="product-image w-100 position-relative overflow-hidden">
-                    <img src={product.image} alt="" className="img-fluid" />
+                  <div className="product-image w-60 h-40 object-fit-contain position-relative overflow-hidden">
+                    <img
+                      src={product.image}
+                      alt=""
+                      className="img-fluid w-60 h-40 object-fit-cover"
+                    />
                     <img
                       src={product.secondImage}
                       alt=""
-                      className="img-fluid"
+                      className="img-fluid w-60 h-40 object-fit-cover "
                     />
                     <div className="product-icons gap-3">
                       <div
@@ -330,7 +334,7 @@ function Index() {
             <div className="col-lg-7">
               <div className="row">
                 {Products.filter(
-                  (product) => product.id >= 1 && product.id <= 9
+                  (product) => product.id >= 1 && product.id <= 6
                 ).map((product) => (
                   <div className="col-md-4 mb-0">
                     <div key={product.id}>
