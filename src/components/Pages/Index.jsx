@@ -440,7 +440,7 @@ function Index() {
           <br />
           <button className="btn btn-default mt-2 w-80 h-80 position-center">
             <a href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==">
-              @kayakbrokers
+              <h1>@kayakbrokers</h1>
             </a>
           </button>
         </h2>
