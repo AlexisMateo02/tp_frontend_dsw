@@ -219,13 +219,19 @@ function Index() {
                 src={subBanner1}
                 alt=""
               />
-              <div className="banner-content position-absolute">
+              <div
+                className="banner-content position-absolute color-white
+               background-opacity-1 p-3 rounded"
+              >
                 <h3>Nueva colección</h3>
                 <h1>
                   Mantra <br />
                   by Matrix <br />
                 </h1>
-                <button className="btn banner-btn mt-2">Explorar más </button>
+                <p>
+                  Descubre la nueva colección de Mantra, diseñada para inspirar
+                  y empoderar.
+                </p>
               </div>
             </div>
             <div className="col-lg-6 banner-card overflow-hidden position-relative banner-mt">
@@ -240,7 +246,6 @@ function Index() {
                   Aprovecha los descuentos por el mes de <br />
                   Noviembre
                 </p>
-                <button className="btn banner-btn mt-2">COMPRAR AHORA</button>
               </div>
             </div>
           </div>
@@ -325,9 +330,10 @@ function Index() {
               <div className="favourite-beauty-banner mb-lg-0 mb-5 position-relative ">
                 <img src={femalebanner} className="img-fluid" alt="" />
                 <div className="favourite-beauty-banner-title">
-                  <h3 className="fs-2">Mejora tu navegacion</h3>
-                  <p className="fs-6">Mejora tu experiencia y tu pasion </p>
-                  <button className="btn btn-default">Explorar más</button>
+                  <button className="btn btn-default mt-2  position-center">
+                    ¡¡ Suma experiencias <br />
+                    Con nuestros productos !!
+                  </button>
                 </div>
               </div>
             </div>
@@ -400,10 +406,9 @@ function Index() {
       {/*Discover Section*/}
       <div className="discover container py-5">
         <div className="section-title mb-5 favourite-beauty-title text-center ">
-          <h2 className="fw-semibold fs-1">Descubri más</h2>
-          <p className="text-center">
-            Explora nuestra colección y encontra todo <br /> lo que necesitas
-          </p>
+          <h2 className="fw-semibold fs-1">
+            Explora nuestro perfil de Instagram
+          </h2>
         </div>
         <div className="row g-5">
           <div className="col-md-6 discover-card text-center">
@@ -414,12 +419,6 @@ function Index() {
                 className="img-fluid rounded"
               />
             </div>
-            <div className="discover-info mt-3">
-              <div>Coleccion de Verano</div>
-              <button className="btn mt-2">
-                Comprar ahora <i className="bi bi-arrow-right ms-2"></i>
-              </button>
-            </div>
           </div>
           <div className="col-md-6 discover-card text-center">
             <div className="discover-img section-image rounded">
@@ -429,18 +428,23 @@ function Index() {
                 className="img-fluid rounded"
               />
             </div>
-            <div className="discover-info mt-3">
-              <div>Coleccion de Verano</div>
-              <button className="btn mt-2">
-                Leer más <i className="bi bi-arrow-right ms-2"></i>
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
       {/*Social Image*/}
+
       <div className="social-image-container py-5 px-5 mx-auto mt-5">
+        <h2 className="text-center">
+          ¡Seguinos en Instagram!
+          <br />
+          <button className="btn btn-default mt-2 w-80 h-80 position-center">
+            <a href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==">
+              @kayakbrokers
+            </a>
+          </button>
+        </h2>
+
         <div className="row g-4">
           <div className="col-lg-2 col-md-4">
             <div className="social-wrapper position-relative overflow-hidden">
