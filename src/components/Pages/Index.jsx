@@ -84,7 +84,7 @@ function Index() {
                   Aquafloat
                 </h1>
                 <p className="my-3">Todos los talles disponibles </p>
-                <a href="#" className="btn hero-btn mt-3">
+                <a href="/product/3" className="btn hero-btn mt-3">
                   Comprar Ahora
                 </a>
               </div>
@@ -228,10 +228,7 @@ function Index() {
                   Mantra <br />
                   by Matrix <br />
                 </h1>
-                <p>
-                  Descubre la nueva colección de Mantra, diseñada para inspirar
-                  y empoderar.
-                </p>
+                <p>Descubre la nueva colección de Matrix</p>
               </div>
             </div>
             <div className="col-lg-6 banner-card overflow-hidden position-relative banner-mt">
@@ -241,7 +238,7 @@ function Index() {
                 alt=""
               />
               <div className="banner-content banner-content2 position-absolute">
-                <h1>25% off en Toda la colección</h1>
+                <h1>25% off en Toda la Web</h1>
                 <p>
                   Aprovecha los descuentos por el mes de <br />
                   Noviembre
@@ -439,8 +436,11 @@ function Index() {
           ¡Seguinos en Instagram!
           <br />
           <button className="btn btn-default mt-2 w-80 h-80 position-center">
-            <a href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==">
-              <h1>@kayakbrokers</h1>
+            <a
+              style={{ textDecoration: "none", color: "inherit" }}
+              href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+            >
+              <h2>@kayakbrokers</h2>
             </a>
           </button>
         </h2>

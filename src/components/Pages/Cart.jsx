@@ -78,7 +78,7 @@ function Cart() {
         {cartItems.length === 0 ? (
           <div className="text-center">
             <p className="lead">Tu carrito está vacío</p>
-            <Link to="/shop" className="btn mt-3">
+            <Link to="/articles" className="btn mt-3">
               Buscar Productos
             </Link>
           </div>

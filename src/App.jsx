@@ -1,5 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Nav from "./components/Nav/Nav.jsx";
 import Index from "./components/Pages/Index.jsx";
 import ProductDetails from "./components/Pages/ProductDetails";

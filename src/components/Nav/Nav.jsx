@@ -120,12 +120,12 @@ function Nav() {
               </li>
               <li className="nav-item">
                 <Link to="/shop" className="nav-link">
-                  Productos
+                  Vender productos
                 </Link>
               </li>
               <li className="nav-item">
                 <Link to="/articles" className="nav-link">
-                  Artículos
+                  Productos
                 </Link>
               </li>
               <li className="nav-item">

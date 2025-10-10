@@ -1,191 +1,225 @@
-/* Mostrar la tienda o catálogo de productos dentro de la aplicación. 
-En esta página, los usuarios pueden ver los productos disponibles, sus descripciones, precios y, 
-en muchos casos, añadirlos al carrito de compras o realizar una compra.*/
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Products from "../../data/Product.json";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-//Data
-import productsData from "../../data/Product.json";
-
-function Shop() {
-  const [filterSortOption, setFilterSortOption] = useState("all");
+export default function AddProduct() {
   const navigate = useNavigate();
+  const [form, setForm] = useState({
+    Productname: "",
+    price: "",
+    oldPrice: "",
+    tag: "",
+    category: "",
+    image: "",
+    secondImage: "",
+    description: "",
+    owner: "",
+    includes: "",
+  });
 
-  const handleFilterSort = () => {
-    let filtered = [...productsData];
-    if (filterSortOption === "new" || filterSortOption === "Sale") {
-      filtered = filtered.filter((product) => product.tag === filterSortOption);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const nextId = () => {
+    const local = JSON.parse(localStorage.getItem("userProducts") || "[]");
+    const maxJson = Math.max(0, ...Products.map((p) => Number(p.id) || 0));
+    const maxLocal = Math.max(0, ...local.map((p) => Number(p.id) || 0));
+    return Math.max(maxJson, maxLocal) + 1;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (
+      !form.Productname.trim() ||
+      !form.price.trim() ||
+      !form.category.trim()
+    ) {
+      toast.error("Completa nombre, precio y categoría");
+      return;
     }
-    if (filterSortOption === "low") {
-      filtered.sort(
-        (a, b) =>
-          parseFloat(a.price.replace("$", "")) -
-          parseFloat(b.price.replace("$", ""))
+
+    const newProduct = {
+      id: nextId(),
+      Productname: form.Productname.trim(),
+      price: form.price.trim(),
+      oldPrice: form.oldPrice.trim() || undefined,
+      tag: form.tag.trim() || undefined,
+      category: form.category.trim(),
+      image: form.image.trim() || "/assets/placeholder.webp",
+      secondImage: form.secondImage.trim() || undefined,
+      description: form.description.trim() || undefined,
+      owner: form.owner.trim() || undefined,
+      includes: form.includes.trim() || undefined,
+    };
+
+    try {
+      const userProducts = JSON.parse(
+        localStorage.getItem("userProducts") || "[]"
       );
-    }
-    if (filterSortOption === "high") {
-      filtered.sort(
-        (a, b) =>
-          parseFloat(b.price.replace("$", "")) -
-          parseFloat(a.price.replace("$", ""))
-      );
-    }
-    return filtered;
-  };
-
-  const displayedProducts = handleFilterSort();
-
-  const addToWishlist = (product) => {
-    const existing = JSON.parse(localStorage.getItem("wishlist")) || [];
-    if (!existing.some((p) => p.id === product.id)) {
-      const updated = [...existing, product];
-      localStorage.setItem("wishlist", JSON.stringify(updated));
-      window.dispatchEvent(new Event("wishlistUpdates"));
-      toast.success(`${product.Productname} agregado a la lista de deseos`);
-    } else {
-      toast.info(`${product.Productname} ya está en la lista de deseos`);
+      userProducts.push(newProduct);
+      localStorage.setItem("userProducts", JSON.stringify(userProducts));
+      // emitir evento para actualizar listados que escuchen
+      window.dispatchEvent(new Event("productsUpdated"));
+      toast.success("Producto creado correctamente");
+      // redirigir a Shop o Articles
+      navigate("/shop");
+    } catch (err) {
+      console.error(err);
+      toast.error("No se pudo guardar el producto");
     }
   };
-  const addToCart = (product) => {
-    const existing = JSON.parse(localStorage.getItem("cart")) || [];
-    const alreadyInCart = existing.find((p) => p.id === product.id);
 
-    if (!alreadyInCart) {
-      const updatedProduct = { ...product, quantity: 1 };
-      const updatedCart = [...existing, updatedProduct];
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-      window.dispatchEvent(new Event("cartUpdated"));
-      toast.success(`${product.Productname} agregado al carrito`);
-    } else {
-      toast.info(`${product.Productname} ya está en el carrito`);
-    }
-  };
   return (
-    <>
-      <ol className="section-banner py-3 position-relative">
-        <li className="position-relative">
-          <Link to="/">Inicio</Link>
-        </li>
-        <li className="position-relative active">
-          <span className="ps-5">Products</span>
-        </li>
-      </ol>
+    <div className="container py-5">
+      <h2 className="mb-4">Alta de producto</h2>
 
-      <div className="shop-container mt-5">
-        <div className="container">
-          <h1 className="text-center py-4 fw-semibold">Productos</h1>
-          <div className="container my-4">
-            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-              <div className="text-muted" style={{ fontSize: "1.1rem" }}>
-                Showing <strong>{displayedProducts.length}</strong> product
-                {displayedProducts.length != 1 && "s"} for "
-                {filterSortOption === "all"
-                  ? "All"
-                  : filterSortOption.charAt(0).toUpperCase() +
-                    filterSortOption.slice(1)}
-                "
-              </div>
-              <div>
-                <select
-                  className="form-select py-2 fs-6"
-                  style={{
-                    minWidth: "260px",
-                    backgroundColor: "#f5f5f5",
-                    border: "0px",
-                  }}
-                  value={filterSortOption}
-                  onChange={(e) => setFilterSortOption(e.target.value)}
-                >
-                  <option value="all">Todos los Productos</option>
-                  <option value="new">Nuevos</option>
-                  <option value="sale">En Oferta</option>
-                  <option value="low">Precio: Bajo a Alto</option>
-                  <option value="high">Precio: Alto a Bajo</option>
-                </select>
-              </div>
+      <form onSubmit={handleSubmit}>
+        <div className="row g-3">
+          <div className="col-md-6">
+            <label className="form-label">Nombre *</label>
+            <input
+              name="Productname"
+              className="form-control"
+              value={form.Productname}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-md-3">
+            <label className="form-label">Precio *</label>
+            <input
+              name="price"
+              className="form-control"
+              value={form.price}
+              onChange={handleChange}
+              placeholder="$0"
+            />
+          </div>
+
+          <div className="col-md-3">
+            <label className="form-label">Precio anterior</label>
+            <input
+              name="oldPrice"
+              className="form-control"
+              value={form.oldPrice}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label">Categoría *</label>
+            <input
+              name="category"
+              className="form-control"
+              value={form.category}
+              onChange={handleChange}
+              placeholder="kayaks / sup / articulos"
+            />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label">Tag</label>
+            <input
+              name="tag"
+              className="form-control"
+              value={form.tag}
+              onChange={handleChange}
+              placeholder="Nuevo / Oferta"
+            />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label">Owner</label>
+            <input
+              name="owner"
+              className="form-control"
+              value={form.owner}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label">Imagen principal (URL)</label>
+            <input
+              name="image"
+              className="form-control"
+              value={form.image}
+              onChange={handleChange}
+              placeholder="/assets/imagen.webp"
+            />
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label">Imagen secundaria (URL)</label>
+            <input
+              name="secondImage"
+              className="form-control"
+              value={form.secondImage}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-12">
+            <label className="form-label">Descripción</label>
+            <textarea
+              name="description"
+              className="form-control"
+              rows="4"
+              value={form.description}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-12">
+            <label className="form-label">Incluye (opcional)</label>
+            <input
+              name="includes"
+              className="form-control"
+              value={form.includes}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-12 d-flex gap-2">
+            <button type="submit" className="btn btn-primary">
+              Guardar producto
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => navigate(-1)}
+            >
+              Cancelar
+            </button>
+            <div className="ms-auto">
+              <small className="text-muted">
+                Los productos creados quedan en localStorage (userProducts).
+              </small>
             </div>
           </div>
-          <div className="row">
-            {displayedProducts.map((product) => (
-              <div className="col-md-3 mb-4 " key={product.id}>
-                <div key={product.id}>
-                  <div className="product-item mb-5 text-center position-relative">
-                    <div className="product-image w-100 position-relative overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt="product"
-                        className="img-fluid"
-                      />
-                      <img
-                        src={product.secondImage}
-                        alt="product"
-                        className="img-fluid"
-                      />
-                      <div className="product-icons gap-3">
-                        <div
-                          className="product-icon"
-                          title="Agregar a favoritos"
-                          onClick={() => addToWishlist(product)}
-                        >
-                          <i className="bi bi-heart fs-5"></i>
-                        </div>
-                        <div
-                          className="product-icon"
-                          title="Agregar al carrito"
-                          onClick={() => addToCart(product)}
-                        >
-                          <i className="bi bi-cart3 fs-5"></i>
-                        </div>
-                      </div>
-                      <span
-                        className={`tag badge text-white ${
-                          product.tag === "Nuevo" ? "bg-danger" : "bg-success"
-                        }`}
-                      >
-                        {product.tag}
-                      </span>
-                    </div>
-                    <Link
-                      to={`/product/${product.id}`}
-                      className="text-decoration-none text-black "
-                    >
-                      <div className="product-content pt-3">
-                        {product.oldPrice ? (
-                          <div className="price">
-                            <span className="text-muted text-decoration-line-through me-2">
-                              {product.oldPrice}
-                            </span>
-                            <span className="fw-bold text-muted ">
-                              {product.price}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="price">{product.price}</span>
-                        )}
-                        <h3 className="title pt-1">{product.Productname}</h3>
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        </div>
+      </form>
+
+      <hr className="my-4" />
+
+      <h5>Previsualización</h5>
+      <div className="card p-3" style={{ maxWidth: 420 }}>
+        <img
+          src={form.image || "/assets/placeholder.webp"}
+          alt="preview"
+          className="img-fluid mb-2"
+          style={{ height: 180, objectFit: "cover", width: "100%" }}
+        />
+        <div>
+          <strong>{form.Productname || "Nombre del producto"}</strong>
+          <div>{form.price || "Precio"}</div>
+          <div className="text-muted">{form.category}</div>
         </div>
       </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-    </>
+    </div>
   );
 }
-
-export default Shop;

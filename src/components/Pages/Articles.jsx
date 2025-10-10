@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import Products from "../../data/Product.json";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const buttons = [
   { label: "Artículos", img: "src/assets/Articulos.webp" },
@@ -9,112 +11,114 @@ const buttons = [
   { label: "Kayaks", img: "src/assets/Kayaks.webp" },
 ];
 
-function ProductCard({ product }) {
-  const navigate = useNavigate();
-  const [mainImage, setMainImage] = useState(
-    product.image || "/assets/placeholder.webp"
-  );
-  const [qty, setQty] = useState(1);
-
-  const thumbnails = [product.image, product.secondImage].filter(Boolean);
-
-  return (
-    <div className="card h-100">
-      <div className="d-flex flex-column">
-        <img
-          src={mainImage}
-          alt={product.Productname}
-          style={{ objectFit: "cover", height: 220, width: "100%" }}
-        />
-        <div className="d-flex gap-2 p-2">
-          {thumbnails.map((t, i) => (
-            <img
-              key={i}
-              src={t}
-              alt={`thumb-${i}`}
-              onClick={() => setMainImage(t)}
-              style={{
-                width: 60,
-                height: 60,
-                objectFit: "cover",
-                cursor: "pointer",
-                border:
-                  mainImage === t ? "2px solid #0d6efd" : "1px solid #ddd",
-              }}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="card-body d-flex flex-column">
-        <h5 className="card-title">{product.Productname || "Sin título"}</h5>
-        <p className="text-muted mb-2">{product.price || ""}</p>
-
-        <div className="d-flex align-items-center gap-2 mb-3">
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
-          >
-            -
-          </button>
-          <input
-            className="form-control text-center"
-            style={{ width: 60 }}
-            value={qty}
-            readOnly
-          />
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => setQty((q) => q + 1)}
-          >
-            +
-          </button>
-        </div>
-
-        <div className="mt-auto d-flex gap-2">
-          <button
-            className="btn btn-primary w-100"
-            onClick={() => {
-              // Aquí iría la lógica real de addToCart (context/dispatch)
-              // Ejemplo temporal:
-              console.log("Agregar al carrito:", product.id, "cantidad:", qty);
-            }}
-          >
-            Agregar al carrito
-          </button>
-          <button
-            className="btn btn-outline-primary"
-            onClick={() => navigate(`/product/${product.id}`)}
-          >
-            Ver detalle
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+function parsePrice(s) {
+  if (!s) return 0;
+  const digits = String(s).replace(/[^\d]/g, "");
+  return Number(digits) || 0;
 }
 
 export default function Articles() {
   const [activeCategory, setActiveCategory] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [filterSortOption, setFilterSortOption] = useState("all");
+  const [sortOption, setSortOption] = useState("none");
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const categories = useMemo(() => {
+    return [
+      ...new Set(
+        Products.map((p) =>
+          p.category ? String(p.category).trim().toLowerCase() : null
+        ).filter(Boolean)
+      ),
+    ];
+  }, []);
 
   const toggleCategory = (label) => {
-    setActiveCategory((prev) => (prev === label ? null : label));
-    // opcional: hacer scroll hasta la sección
+    const lower = label.toLowerCase();
+    const newActive = activeCategory === label ? null : label;
+    setActiveCategory(newActive);
+    setCategoryFilter(newActive ? lower : "all");
     setTimeout(() => {
       const el = document.querySelector(".category-panel");
       if (el) el.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
-  const productsFor = (label) => {
-    if (!label) return [];
-    const key = label.toLowerCase();
-    return Products.filter(
-      (p) =>
-        (p.tag && p.tag.toLowerCase().includes(key)) ||
-        (p.Productname && p.Productname.toLowerCase().includes(key)) ||
-        (p.category && p.category.toLowerCase() === key)
-    );
+  const filteredProducts = useMemo(() => {
+    const keyCat =
+      categoryFilter === "all" ? null : categoryFilter.toLowerCase();
+    const q = search.trim().toLowerCase();
+
+    let items = Products.filter((p) => {
+      if (keyCat && (!p.category || p.category.toLowerCase() !== keyCat))
+        return false;
+
+      if (filterSortOption === "new") {
+        if (!p.tag) return false;
+        const t = String(p.tag).toLowerCase();
+        if (t !== "nuevo" && t !== "new") return false;
+      }
+      if (filterSortOption === "sale") {
+        if (!p.tag) return false;
+        const t = String(p.tag).toLowerCase();
+        if (t !== "oferta" && t !== "sale") return false;
+      }
+
+      if (q) {
+        const name = p.Productname ? p.Productname.toLowerCase() : "";
+        const tag = p.tag ? p.tag.toLowerCase() : "";
+        return name.includes(q) || tag.includes(q);
+      }
+      return true;
+    });
+
+    if (sortOption === "price-asc")
+      items.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+    if (sortOption === "price-desc")
+      items.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+
+    return items;
+  }, [categoryFilter, filterSortOption, search, sortOption]);
+
+  const addToCart = (product, qty = 1) => {
+    try {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const idx = cart.findIndex((p) => p.id === product.id);
+      if (idx >= 0) {
+        cart[idx].quantity = (cart[idx].quantity || 1) + qty;
+        toast.info(`${product.Productname} actualizado en el carrito`);
+      } else {
+        cart.push({ ...product, quantity: qty });
+        toast.success(`${product.Productname} agregado al carrito`);
+      }
+      localStorage.setItem("cart", JSON.stringify(cart));
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (e) {
+      console.error(e);
+      toast.error("Error al agregar al carrito");
+    }
   };
+
+  const addToWishlist = (product) => {
+    try {
+      const w = JSON.parse(localStorage.getItem("wishlist")) || [];
+      if (!w.find((p) => p.id === product.id)) {
+        w.push(product);
+        localStorage.setItem("wishlist", JSON.stringify(w));
+        window.dispatchEvent(new Event("wishlistUpdated"));
+        toast.success(`${product.Productname} agregado a favoritos`);
+      } else {
+        toast.info(`${product.Productname} ya está en favoritos`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Error al agregar a favoritos");
+    }
+  };
+
+  const displayedProducts = filteredProducts; // nombre solicitado en tu ejemplo
 
   return (
     <div className="container py-5">
@@ -160,25 +164,136 @@ export default function Articles() {
         ))}
       </div>
 
-      {activeCategory && (
-        <section className="category-panel mb-5">
-          <h3 className="mb-3">Mostrando: {activeCategory}</h3>
+      {/* filtros estilo Shop */}
+      <div className="row mb-3 align-items-center g-2">
+        <div className="col-md-4">
+          <input
+            type="search"
+            className="form-control"
+            placeholder="Buscar..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-          <div className="row">
-            {productsFor(activeCategory).length === 0 ? (
-              <div className="col-12">
-                No hay productos para esta categoría.
-              </div>
-            ) : (
-              productsFor(activeCategory).map((p) => (
-                <div className="col-12 col-md-6 col-lg-4 mb-4" key={p.id}>
-                  <ProductCard product={p} />
-                </div>
-              ))
-            )}
+        <div className="col-md-4">
+          <select
+            className="form-select"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="all">Todas las categorías</option>
+            {categories.map((c) => (
+              <option value={c} key={c}>
+                {c.charAt(0).toUpperCase() + c.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="col-md-4">
+          <select
+            className="form-select"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="none">Orden predeterminado</option>
+            <option value="price-asc">Precio: bajo a alto</option>
+            <option value="price-desc">Precio: alto a bajo</option>
+          </select>
+        </div>
+      </div>
+
+      {/* grid como en tu ejemplo */}
+      <div className="row">
+        {displayedProducts.length === 0 ? (
+          <div className="col-12">
+            No hay productos para los filtros seleccionados.
           </div>
-        </section>
-      )}
+        ) : (
+          displayedProducts.map((product) => (
+            <div
+              className="col-md-3 mb-4"
+              key={product.id ?? JSON.stringify(product)}
+            >
+              <div>
+                <div className="product-item mb-5 text-center position-relative">
+                  <div className="product-image w-100 position-relative overflow-hidden">
+                    <img
+                      src={product.image || "/assets/placeholder.webp"}
+                      alt="product"
+                      className="img-fluid"
+                    />
+                    {product.secondImage && (
+                      <img
+                        src={product.secondImage}
+                        alt="product"
+                        className="img-fluid"
+                      />
+                    )}
+                    <div className="product-icons gap-3">
+                      <div
+                        className="product-icon"
+                        title="Agregar a favoritos"
+                        onClick={() => addToWishlist(product)}
+                      >
+                        <i className="bi bi-heart fs-5"></i>
+                      </div>
+                      <div
+                        className="product-icon"
+                        title="Agregar al carrito"
+                        onClick={() => addToCart(product)}
+                      >
+                        <i className="bi bi-cart3 fs-5"></i>
+                      </div>
+                    </div>
+                    <span
+                      className={`tag badge text-white ${
+                        product.tag === "Nuevo" ? "bg-danger" : "bg-success"
+                      }`}
+                    >
+                      {product.tag}
+                    </span>
+                  </div>
+
+                  <Link
+                    to={`/product/${product.id}`}
+                    className="text-decoration-none text-black "
+                  >
+                    <div className="product-content pt-3">
+                      {product.oldPrice ? (
+                        <div className="price">
+                          <span className="text-muted text-decoration-line-through me-2">
+                            {product.oldPrice}
+                          </span>
+                          <span className="fw-bold text-muted ">
+                            {product.price}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="price">{product.price}</span>
+                      )}
+                      <h3 className="title pt-1">{product.Productname}</h3>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Toast container (si ya lo tienes global en App.jsx, elimina esta instancia) */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }
