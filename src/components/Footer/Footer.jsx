@@ -1,13 +1,13 @@
 /* Aca vamos a definir una componente llamada Footer que va a representar el pie de pagina 
 de nuestra pagina web. */
-import React from "react";
+import React from 'react';
 
-import payment1 from "./../../assets/payment-1.svg";
-import payment2 from "./../../assets/payment-2.svg";
-import payment3 from "./../../assets/payment-3.svg";
-import payment4 from "./../../assets/payment-4.svg";
-import payment5 from "./../../assets/payment-5.svg";
-import payment6 from "./../../assets/payment-6.svg";
+import payment1 from './../../assets/payment-1.svg';
+import payment2 from './../../assets/payment-2.svg';
+import payment3 from './../../assets/payment-3.svg';
+import payment4 from './../../assets/payment-4.svg';
+import payment5 from './../../assets/payment-5.svg';
+import payment6 from './../../assets/payment-6.svg';
 
 function Footer() {
   return (
@@ -89,7 +89,7 @@ function Footer() {
               <h3 className="mb-4">Enterate de Todo</h3>
               <p className="mb-5">
                 Ingresa tu email para ser el primero en enterarte que arribaron
-                los nuevos productos{" "}
+                los nuevos productos{' '}
               </p>
               <div className="subscribe-box d-flex">
                 <input
@@ -122,7 +122,7 @@ function Footer() {
                   <a href="#" className="navbar-brand mx-auto order-0">
                     <h3
                       className="m-0 fw-bold"
-                      style={{ letterSpacing: "2px" }}
+                      style={{ letterSpacing: '2px' }}
                     >
                       KBR
                     </h3>
