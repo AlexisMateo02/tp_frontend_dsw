@@ -1,28 +1,28 @@
-import React, { useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import Products from "../../data/Product.json";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useMemo, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import Products from '../../data/Product.json';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const buttons = [
-  { label: "Artículos", img: "src/assets/Articulos.webp" },
-  { label: "Embarcaciones", img: "src/assets/Embarcaciones.png" },
-  { label: "SUP", img: "src/assets/SUP.webp" },
-  { label: "Kayaks", img: "src/assets/Kayaks.webp" },
+  { label: 'Artículos', img: 'src/assets/Articulos.webp' },
+  { label: 'Embarcaciones', img: 'src/assets/Embarcaciones.png' },
+  { label: 'SUP', img: 'src/assets/SUP.webp' },
+  { label: 'Kayaks', img: 'src/assets/Kayaks.webp' },
 ];
 
 function parsePrice(s) {
   if (!s) return 0;
-  const digits = String(s).replace(/[^\d]/g, "");
+  const digits = String(s).replace(/[^\d]/g, '');
   return Number(digits) || 0;
 }
 
 export default function Articles() {
   const [activeCategory, setActiveCategory] = useState(null);
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [filterSortOption, setFilterSortOption] = useState("all");
-  const [sortOption, setSortOption] = useState("none");
-  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [filterSortOption, setFilterSortOption] = useState('all');
+  const [sortOption, setSortOption] = useState('none');
+  const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
   const categories = useMemo(() => {
@@ -39,44 +39,44 @@ export default function Articles() {
     const lower = label.toLowerCase();
     const newActive = activeCategory === label ? null : label;
     setActiveCategory(newActive);
-    setCategoryFilter(newActive ? lower : "all");
+    setCategoryFilter(newActive ? lower : 'all');
     setTimeout(() => {
-      const el = document.querySelector(".category-panel");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      const el = document.querySelector('.category-panel');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   };
 
   const filteredProducts = useMemo(() => {
     const keyCat =
-      categoryFilter === "all" ? null : categoryFilter.toLowerCase();
+      categoryFilter === 'all' ? null : categoryFilter.toLowerCase();
     const q = search.trim().toLowerCase();
 
     let items = Products.filter((p) => {
       if (keyCat && (!p.category || p.category.toLowerCase() !== keyCat))
         return false;
 
-      if (filterSortOption === "new") {
+      if (filterSortOption === 'new') {
         if (!p.tag) return false;
         const t = String(p.tag).toLowerCase();
-        if (t !== "nuevo" && t !== "new") return false;
+        if (t !== 'nuevo' && t !== 'new') return false;
       }
-      if (filterSortOption === "sale") {
+      if (filterSortOption === 'sale') {
         if (!p.tag) return false;
         const t = String(p.tag).toLowerCase();
-        if (t !== "oferta" && t !== "sale") return false;
+        if (t !== 'oferta' && t !== 'sale') return false;
       }
 
       if (q) {
-        const name = p.Productname ? p.Productname.toLowerCase() : "";
-        const tag = p.tag ? p.tag.toLowerCase() : "";
+        const name = p.Productname ? p.Productname.toLowerCase() : '';
+        const tag = p.tag ? p.tag.toLowerCase() : '';
         return name.includes(q) || tag.includes(q);
       }
       return true;
     });
 
-    if (sortOption === "price-asc")
+    if (sortOption === 'price-asc')
       items.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-    if (sortOption === "price-desc")
+    if (sortOption === 'price-desc')
       items.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
 
     return items;
@@ -84,7 +84,7 @@ export default function Articles() {
 
   const addToCart = (product, qty = 1) => {
     try {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
       const idx = cart.findIndex((p) => p.id === product.id);
       if (idx >= 0) {
         cart[idx].quantity = (cart[idx].quantity || 1) + qty;
@@ -93,28 +93,28 @@ export default function Articles() {
         cart.push({ ...product, quantity: qty });
         toast.success(`${product.Productname} agregado al carrito`);
       }
-      localStorage.setItem("cart", JSON.stringify(cart));
-      window.dispatchEvent(new Event("cartUpdated"));
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (e) {
       console.error(e);
-      toast.error("Error al agregar al carrito");
+      toast.error('Error al agregar al carrito');
     }
   };
 
   const addToWishlist = (product) => {
     try {
-      const w = JSON.parse(localStorage.getItem("wishlist")) || [];
+      const w = JSON.parse(localStorage.getItem('wishlist')) || [];
       if (!w.find((p) => p.id === product.id)) {
         w.push(product);
-        localStorage.setItem("wishlist", JSON.stringify(w));
-        window.dispatchEvent(new Event("wishlistUpdated"));
+        localStorage.setItem('wishlist', JSON.stringify(w));
+        window.dispatchEvent(new Event('wishlistUpdated'));
         toast.success(`${product.Productname} agregado a favoritos`);
       } else {
         toast.info(`${product.Productname} ya está en favoritos`);
       }
     } catch (e) {
       console.error(e);
-      toast.error("Error al agregar a favoritos");
+      toast.error('Error al agregar a favoritos');
     }
   };
 
@@ -136,25 +136,25 @@ export default function Articles() {
               style={{
                 height: 220,
                 backgroundImage: `url(${btn.img})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 border:
                   activeCategory === btn.label
-                    ? "3px solid #0d6efd"
-                    : "2px solid #0d6efd",
-                overflow: "hidden",
+                    ? '3px solid #0d6efd'
+                    : '2px solid #0d6efd',
+                overflow: 'hidden',
               }}
             >
               <span
                 style={{
-                  background: "rgba(0,0,0,0.5)",
-                  width: "100%",
-                  padding: "10px 0",
-                  position: "absolute",
+                  background: 'rgba(0,0,0,0.5)',
+                  width: '100%',
+                  padding: '10px 0',
+                  position: 'absolute',
                   bottom: 0,
                   left: 0,
                   fontWeight: 700,
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 {btn.label}
@@ -220,7 +220,7 @@ export default function Articles() {
                 <div className="product-item mb-5 text-center position-relative">
                   <div className="product-image w-100 position-relative overflow-hidden">
                     <img
-                      src={product.image || "/assets/placeholder.webp"}
+                      src={product.image || '/assets/placeholder.webp'}
                       alt="product"
                       className="img-fluid"
                     />
@@ -249,7 +249,7 @@ export default function Articles() {
                     </div>
                     <span
                       className={`tag badge text-white ${
-                        product.tag === "Nuevo" ? "bg-danger" : "bg-success"
+                        product.tag === 'Nuevo' ? 'bg-danger' : 'bg-success'
                       }`}
                     >
                       {product.tag}

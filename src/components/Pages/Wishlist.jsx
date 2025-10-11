@@ -1,16 +1,16 @@
 /* Se utiliza para mostrar la lista de deseos del usuario. */
-import React, { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Link } from 'react-router-dom';
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const storedWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
     setWishlist(storedWishlist);
     setCart(storedCart);
   }, []);
@@ -18,9 +18,9 @@ function Wishlist() {
   const removeFromWishlist = (productId) => {
     const updatedWishlist = wishlist.filter((item) => item.id !== productId);
     setWishlist(updatedWishlist);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
-    window.dispatchEvent(new Event("wishlistUpdated"));
-    toast.error("Producto eliminado de la lista de deseos");
+    localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+    window.dispatchEvent(new Event('wishlistUpdated'));
+    toast.error('Producto eliminado de la lista de deseos');
   };
 
   const addToCart = (product) => {
@@ -34,10 +34,10 @@ function Wishlist() {
       updatedCart = [...cart, { ...product, quantity: 1 }];
     }
     setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event("cartUpdated"));
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event('cartUpdated'));
     toast.success(`${product.ProductName} agregado al carrito`, {
-      position: "top-right",
+      position: 'top-right',
       autoClose: 2000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -66,7 +66,7 @@ function Wishlist() {
         {wishlist.length === 0 ? (
           <div className="text-center">
             <p className="lead text-muted">Tu lista de deseos está vacía.</p>
-            <Link to="/shop" className="btn">
+            <Link to="/articles" className="btn">
               <i className="ri-shopping-bag-line me-2"></i> Buscar productos
             </Link>
           </div>
@@ -77,7 +77,7 @@ function Wishlist() {
                 <div className="card h-100 shadow-sm border-0">
                   <div
                     className="position-relative overflow-hidden"
-                    style={{ height: "250px", backgroundColor: "#f8f9fa" }}
+                    style={{ height: '250px', backgroundColor: '#f8f9fa' }}
                   >
                     <img
                       src={product.image}
@@ -87,7 +87,7 @@ function Wishlist() {
                     {product.tag && (
                       <span
                         className={`badge position-absolute top-0 end-0 m-2 ${
-                          product.tag === "New" ? "bg-danger" : "bg-success"
+                          product.tag === 'New' ? 'bg-danger' : 'bg-success'
                         }`}
                       >
                         {product.tag}
