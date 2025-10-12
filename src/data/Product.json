@@ -265,5 +265,15 @@
     "price": "$37.500.000.000",
     "description": "ECLIPSE 21 SR: lancha deportiva de alta velocidad, con diseño aerodinámico y tecnología avanzada para una experiencia emocionante en el agua.",
     "category": "Embarcaciones"
+  },
+
+  {
+    "id": 26,
+    "image": "/assets/images/product-22-1.webp",
+    "secondImage": "/assets/images/product-22-2.webp",
+    "Productname": "Lancha Saxdor 200 Sport",
+    "price": "$12.500.000",
+    "description": "Lancha Saxdor 200 Sport: lancha rápida y ágil, ideal para deportes acuáticos y paseos en familia, con diseño moderno y funcional.",
+    "category": "Embarcaciones"
   }
 ]
