@@ -27,6 +27,9 @@
   --black-color: #000;
   --white-color: #fff;
   --transition-regular: all 0.3s ease;
+
+  /* altura de la barra de navegación fija -> ajustar si tu nav es más alto */
+  --nav-height: 80px;
 }
 
 .html,
@@ -35,10 +38,29 @@ body {
 }
 
 .nav-wrapper {
-  padding: 0 5%; /* Espaciado horizontal del 5% a ambos lados */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  padding: 0 5%;
+  background-color: var(
+    --white-color
+  ); /* asegúrate que tenga fondo para que no se vea a través */
+  z-index: 1050; /* más alto que el contenido para que quede por encima */
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+.main-content {
+  margin-top: var(--nav-height);
+  /* si ya tenía margin-top: 80px lo reemplazamos por la variable */
+}
+.section-banner {
+  margin-top: 0; /* el espacio ya lo aporta .main-content */
 }
 
-.cart-qount {
+.cart-count {
   /* Clase para el contador del carrito */
   font-size: 15px; /* Tamaño de fuente para el contador del carrito */
   display: flex !important; /* Asegura que el elemento se comporte como un contenedor flexible */

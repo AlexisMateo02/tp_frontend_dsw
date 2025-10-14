@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 //Data
-import Products from '../../data/Product.json';
+import Products from "../../data/Product.json";
 // Swiper imports (si no los usás, puedes eliminarlos)
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade, Navigation } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/effect-fade';
-import { ToastContainer, toast } from 'react-toastify';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-fade";
+import { ToastContainer, toast } from "react-toastify";
 
 function ProductDetails() {
   const { id } = useParams();
 
   // Hooks: declarar siempre (no después de un return condicional)
-  const [mainImage, setMainImage] = useState('/assets/placeholder.webp');
+  const [mainImage, setMainImage] = useState("/assets/placeholder.webp");
   const [images, setImages] = useState([]);
   const [quantity, setQuantity] = useState(1);
 
@@ -27,7 +27,7 @@ function ProductDetails() {
           product.secondImage ||
           product.thirdImage ||
           product.fourthImage ||
-          '/assets/placeholder.webp'
+          "/assets/placeholder.webp"
       );
       setImages(
         [
@@ -40,31 +40,31 @@ function ProductDetails() {
       setQuantity(1);
     } else {
       // si no hay producto, dejamos valores por defecto
-      setMainImage('/assets/placeholder.webp');
+      setMainImage("/assets/placeholder.webp");
       setImages([]);
       setQuantity(1);
     }
   }, [product]);
   const addToCart = (product) => {
-    const existing = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = JSON.parse(localStorage.getItem("cart")) || [];
     const alreadyInCart = existing.find((p) => p.id === product.id);
 
     if (!alreadyInCart) {
       const updatedProduct = { ...product, quantity: 1 };
       const updatedCart = [...existing, updatedProduct];
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      window.dispatchEvent(new Event('cartUpdated'));
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      window.dispatchEvent(new Event("cartUpdated"));
       toast.success(`${product.Productname} agregado al carrito`);
     } else {
       toast.info(`${product.Productname} ya está en el carrito`);
     }
   };
   const addToWishlist = (product) => {
-    const existing = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const existing = JSON.parse(localStorage.getItem("wishlist")) || [];
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
-      localStorage.setItem('wishlist', JSON.stringify(updated));
-      window.dispatchEvent(new Event('wishlistUpdates'));
+      localStorage.setItem("wishlist", JSON.stringify(updated));
+      window.dispatchEvent(new Event("wishlistUpdates"));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
@@ -83,7 +83,7 @@ function ProductDetails() {
     );
   }
 
-  const colors = ['#000000', '#02007bff', '#bbc89bff'];
+  const colors = ["#000000", "#02007bff", "#bbc89bff"];
 
   return (
     <>
@@ -113,13 +113,13 @@ function ProductDetails() {
                     alt={`Thumb${idx}`}
                     onClick={() => setMainImage(img)}
                     className={`img-thumbnail ${
-                      mainImage === img ? 'border-dark' : ''
+                      mainImage === img ? "border-dark" : ""
                     }`}
                     style={{
-                      width: '90px',
-                      height: '100px',
-                      objectFit: 'cover',
-                      cursor: 'pointer',
+                      width: "90px",
+                      height: "100px",
+                      objectFit: "cover",
+                      cursor: "pointer",
                     }}
                   />
                 ))}
@@ -129,10 +129,10 @@ function ProductDetails() {
                 className="img-fluid"
                 alt="main"
                 style={{
-                  width: '100%',
+                  width: "100%",
                   maxWidth: 450,
                   height: 300,
-                  objectFit: 'cover',
+                  objectFit: "cover",
                 }}
               />
             </div>
@@ -151,9 +151,9 @@ function ProductDetails() {
                     backgroundColor: color,
                     width: 25,
                     height: 25,
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                    border: '1px solid #ccc',
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    border: "1px solid #ccc",
                   }}
                 />
               ))}
@@ -163,7 +163,7 @@ function ProductDetails() {
             <div className="d-flex align-items-center gap-3 mb-4 quantity">
               <div
                 className="d-flex align-items-center Quantity-box"
-                style={{ maxWidth: '200px' }}
+                style={{ maxWidth: "200px" }}
               >
                 <button
                   className="btn-count border-0"
@@ -192,21 +192,24 @@ function ProductDetails() {
               </button>
             </div>
 
-            <button className="btn-custome2 w-100 border-0">
-              <a href="/cart" style={{ color: '#fff', textDecoration: 'none' }}>
+            <button
+              className="btn-custome2 w-100 border-0"
+              onClick={() => addToCart(product)}
+            >
+              <a href="/cart" style={{ color: "#fff", textDecoration: "none" }}>
                 Comprar ahora
               </a>
             </button>
             <hr />
             <p>
-              <strong>Dueño:</strong> {product.owner || 'KBR'}
+              <strong>Dueño:</strong> {product.owner || "KBR"}
             </p>
             <p>
-              <strong>Descripción:</strong>{' '}
-              {product.description || 'Sin descripción'}
+              <strong>Descripción:</strong>{" "}
+              {product.description || "Sin descripción"}
             </p>
             <p>
-              <strong>Agregados:</strong> {product.includes || '—'}
+              <strong>Agregados:</strong> {product.includes || "—"}
             </p>
           </div>
         </div>
