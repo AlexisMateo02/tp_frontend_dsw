@@ -83,8 +83,6 @@ function ProductDetails() {
     );
   }
 
-  const colors = ["#000000", "#02007bff", "#bbc89bff"];
-
   return (
     <>
       <ol className="section-banner py-3 position-relative">
@@ -141,23 +139,6 @@ function ProductDetails() {
           <div className="col-xl-6">
             <h5 className="fw-bold">{product.price}</h5>
             <h2 className="mb-4 fw-semibold">{product.Productname}</h2>
-            <p className="mb-1 fw-semibold">Color: Black</p>
-            <div className="d-flex gap-2 mb-4">
-              {colors.map((color, idx) => (
-                <div
-                  key={idx}
-                  className="color-option"
-                  style={{
-                    backgroundColor: color,
-                    width: 25,
-                    height: 25,
-                    borderRadius: "50%",
-                    cursor: "pointer",
-                    border: "1px solid #ccc",
-                  }}
-                />
-              ))}
-            </div>
 
             <p className="fw-semibold mb-1">Cantidad</p>
             <div className="d-flex align-items-center gap-3 mb-4 quantity">
