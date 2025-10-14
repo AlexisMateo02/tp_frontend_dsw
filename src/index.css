@@ -2,7 +2,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&family=Mozilla+Headline:wght@200..700&display=swap");
 
 .main-content {
-  margin-top: 80px; /* Ajusta según la altura real de tu nav */
+  margin-top: var(--nav-height);
+  /* si ya tenía margin-top: 80px lo reemplazamos por la variable */
 }
 /*El bloque * {
   ...
@@ -31,6 +32,9 @@
   /* altura de la barra de navegación fija -> ajustar si tu nav es más alto */
   --nav-height: 80px;
 }
+.section-banner {
+  margin-top: 0; /* el espacio ya lo aporta .main-content */
+}
 
 .html,
 body {
@@ -52,15 +56,8 @@ body {
   z-index: 1050; /* más alto que el contenido para que quede por encima */
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
 }
-.main-content {
-  margin-top: var(--nav-height);
-  /* si ya tenía margin-top: 80px lo reemplazamos por la variable */
-}
-.section-banner {
-  margin-top: 0; /* el espacio ya lo aporta .main-content */
-}
 
-.cart-count {
+.cart-qount {
   /* Clase para el contador del carrito */
   font-size: 15px; /* Tamaño de fuente para el contador del carrito */
   display: flex !important; /* Asegura que el elemento se comporte como un contenedor flexible */
