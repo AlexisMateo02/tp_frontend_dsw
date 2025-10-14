@@ -191,7 +191,7 @@ export default function AddProduct() {
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
           <div className="col-md-6">
-            <label className="form-label">Nombre *</label>
+            <label className="form-label">Nombre </label>
             <input
               name="Productname"
               className="form-control"
@@ -201,7 +201,7 @@ export default function AddProduct() {
           </div>
 
           <div className="col-md-3">
-            <label className="form-label">Precio *</label>
+            <label className="form-label">Precio </label>
             <input
               name="price"
               className="form-control"
@@ -222,7 +222,7 @@ export default function AddProduct() {
           </div>
 
           <div className="col-md-4">
-            <label className="form-label">Categoría *</label>
+            <label className="form-label">Categoría </label>
             <input
               name="category"
               className="form-control"

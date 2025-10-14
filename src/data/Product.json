@@ -203,7 +203,7 @@
     "image": "/assets/images/product-19-1.webp",
     "secondImage": "/assets/images/product-19-2.webp",
     "Productname": "Otam 90 gts",
-    "price": "$120.000.000.000",
+    "price": "$120.000.000",
     "description": "Yate de alta gama de alto rendimiento, con diseño deportivo y acabados premium, tecnología de navegación avanzada y amplios espacios interiores y exteriores para máximo confort en largas travesías.",
     "includes": "Flybridge, camarotes en suite, salón principal, cocina completa, plataforma hidráulica de baño, estabilizadores, generador, aire acondicionado, joystick de maniobra y electrónica de última generación",
     "category": "Embarcaciones"
@@ -214,7 +214,7 @@
     "image": "/assets/images/product-20-1.webp",
     "secondImage": "/assets/images/product-20-2.webp",
     "Productname": "Tracker TR 520 open",
-    "price": "$8.500.000.000",
+    "price": "$8.500.000",
     "description": "Lancha de motor abierta, ideal para paseos y actividades recreativas en el agua, con diseño práctico y funcional.",
     "category": "Embarcaciones"
   },
@@ -226,7 +226,7 @@
     "thirdImage": "/assets/images/product-21-3.webp",
     "fourthImage": "/assets/images/product-21-4.webp",
     "Productname": "ECLIPSE 21 SR",
-    "price": "$37.500.000.000",
+    "price": "$37.500.000",
     "description": "Lancha deportiva de alta velocidad, con diseño aerodinámico y tecnología avanzada para una experiencia emocionante en el agua.",
     "category": "Embarcaciones"
   },

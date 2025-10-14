@@ -279,7 +279,7 @@ function Checkout() {
 
               <div className="mt-5 border-top pt-3">
                 <a
-                  href="#"
+                  href="/terms"
                   className="text-decoration-none small text-decoration-underline"
                 >
                   Política de privacidad

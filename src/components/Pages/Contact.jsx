@@ -86,8 +86,7 @@ function Contact() {
           <iframe
             title="Nuestra Ubicacion"
             className="map rounded"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d214269.0913165688!2d-60.696639499999996!3d-32.9522093!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95b6539335d7d75b%3A0xec4086e90258a557!2sRosario%2C%20Santa%20Fe!5e0!3m2!1ses-419!2sar!4v1759095119655!5m2!1ses-419!2sar"
-            allowfullscreen=""
+            src="https://www.google.com/maps/embed?pb=!1m26!1m12!1m3!1d942.9713838910083!2d-60.64404054782861!3d-32.9545006518788!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m11!3e6!4m3!3m2!1d-32.954482899999995!2d-60.643856199999995!4m5!1s0x95b7ab11d0eb49c3%3A0x11f1d3d54f950dd0!2s2000%2C%20Zeballos%201341%2C%20S2000%20Rosario%2C%20Santa%20Fe!3m2!1d-32.9545032!2d-60.643819!5e0!3m2!1sen!2sar!4v1760470609915!5m2!1sen!2sar"
           ></iframe>
         </section>
         {/*Contact Form Section */}
