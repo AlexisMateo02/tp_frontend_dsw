@@ -48,7 +48,7 @@ function Footer() {
                   <h3 className="mb-3">Politica de Privacidad</h3>
                   <ul className="list-unstyled d-inline-block text-start">
                     <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
+                      <a href="/terms" className="text-decoration-none">
                         - Terminos y Condiciones
                       </a>
                     </li>

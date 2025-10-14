@@ -79,9 +79,9 @@ function Nav() {
               </a>
             </li>
             <li className="nav-item">
-              <a href="#" data-bs-toggle="modal" data-bs-target="#SignUpModal">
+              <Link to="/login">
                 <i className="bi bi-person fs-5 text-dark"></i>
-              </a>
+              </Link>
             </li>
             <li className="nav-item position-relative">
               <a href="#">
@@ -154,11 +154,7 @@ function Nav() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="#"
-                  data-bs-toggle="modal"
-                  data-bs-target="#SignUpModal"
-                >
+                <Link to="/login">
                   <i className="bi bi-person fs-5 text-dark"></i>
                 </Link>
               </li>
@@ -183,83 +179,80 @@ function Nav() {
         </nav>
       </div>
 
-      {/*Sign Up Modal*/}
-      <div
-        className="modal fade"
-        id="SignUpModal"
-        tabIndex="-1"
-        aria-labelledby="SignUpModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content p-4">
-            <div className="modal-header border-0">
-              <h5 className="modal-title fw-bold" id="SignUpModalLabel">
-                Ingresa con su cuenta
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="mb-3">
-                  <label className="form-label">Usuario</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Ingresa tu nombre"
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Ingresa correo electronico"
-                    required
-                  />
-                  <label className="form-label">Contraseña</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="Ingresa contraseña"
-                    required
-                  />
-                </div>
-                <p className="text-muted">
-                  Al ingresar, aceptas nuestros&nbsp;
-                  <a href="#" className="text-success text-decoration-none">
-                    Términos
-                  </a>
-                  &nbsp;y&nbsp;
-                  <a href="#" className="text-success text-decoration-none">
-                    Política de Privacidad
-                  </a>
-                  .
-                </p>
+      {/*
+        Sign Up Modal (deshabilitado):
+        <div
+          className="modal fade"
+          id="SignUpModal"
+          tabIndex="-1"
+          aria-labelledby="SignUpModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content p-4">
+              <div className="modal-header border-0">
+                <h5 className="modal-title fw-bold" id="SignUpModalLabel">
+                  Ingresa con su cuenta
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form>
+                  <div className="mb-3">
+                    <label className="form-label">Usuario</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Ingresa tu nombre"
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Email</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      placeholder="Ingresa correo electronico"
+                      required
+                    />
+                    <label className="form-label">Contraseña</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      placeholder="Ingresa contraseña"
+                      required
+                    />
+                  </div>
+                  <p className="text-muted">
+                    Al ingresar, aceptas nuestros&nbsp;
+                    <a href="/terms" className="text-success text-decoration-none">
+                      Términos
+                    </a>
+                    &nbsp;y&nbsp;
+                    <a href="/terms" className="text-success text-decoration-none">
+                      Política de Privacidad
+                    </a>
+                    .
+                  </p>
 
-                <button type="button" className="btn btn-dark w-100">
-                  Ingresar
-                </button>
-              </form>
-              <div className="text-center mt-3">
-                <p>
-                  Ya tiene una cuenta?
-                  <a href="#" className="text-success fw-bold">
-                    {' '}
-                    Registrarse
-                  </a>
-                </p>
+                  <button type="button" className="btn btn-dark w-100">Ingresar</button>
+                </form>
+                <div className="text-center mt-3">
+                  <p>
+                    Ya tiene una cuenta?
+                    <a href="/register" className="text-success fw-bold"> Registrarse</a>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      */}
     </>
   );
 }
