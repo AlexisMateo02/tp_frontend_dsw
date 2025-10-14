@@ -17,7 +17,7 @@ function Footer() {
           <div className="row gy-4">
             <div className="col-lg-8">
               <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-4 text-center">
                   <h3 className="mb-3">Centros de distribucion</h3>
                   <p className="mb-0">Encontra uno cerca de tu ubicacion</p>
                   <p className="mb-4">
@@ -28,74 +28,46 @@ function Footer() {
                   </p>
                   <p>hello@domain.com</p>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-4 text-center">
                   <h3 className="mb-3">Links Utiles</h3>
-                  <ul className="list-unstyled">
+                  <ul className="list-unstyled d-inline-block text-start">
                     <li className="mb-2">
                       <a href="#" className="text-decoration-none">
-                        - Nuevos Productos
+                        - Instagram
                       </a>
                     </li>
                     <li className="mb-2">
                       <a href="#" className="text-decoration-none">
-                        - Más Vendidos
-                      </a>
-                    </li>
-                    <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
-                        - Ofertas y Descuentos
-                      </a>
-                    </li>
-                    <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
-                        - Gift Cards Online
+                        - Facebook
                       </a>
                     </li>
                   </ul>
                 </div>
-                <div className="col-md-4">
-                  <h3 className="mb-3">Informacion</h3>
-                  <ul className="list-unstyled">
-                    <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
-                        - Devoluciones
-                      </a>
-                    </li>
-                    <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
-                        - Contactanos
-                      </a>
-                    </li>
-                    <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
-                        - Envios
-                      </a>
-                    </li>
+
+                <div className="col-md-4 text-center">
+                  <h3 className="mb-3">Politica de Privacidad</h3>
+                  <ul className="list-unstyled d-inline-block text-start">
                     <li className="mb-2">
                       <a href="#" className="text-decoration-none">
                         - Terminos y Condiciones
-                      </a>
-                    </li>
-                    <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
-                        - Politicas de Privacidad
                       </a>
                     </li>
                   </ul>
                 </div>
               </div>
             </div>
-            <div className="col-lg-4">
+            <div className="col-lg-4 text-center">
               <h3 className="mb-4">Enterate de Todo</h3>
               <p className="mb-5">
                 Ingresa tu email para ser el primero en enterarte que arribaron
                 los nuevos productos{' '}
               </p>
-              <div className="subscribe-box d-flex">
+              <div className="subscribe-box d-flex justify-content-center">
                 <input
                   type="email"
-                  className="form-control"
+                  className="form-control me-2"
                   placeholder="Ingresa tu direccion email"
+                  style={{ maxWidth: '280px' }}
                 />
                 <button className="btn">Suscribite!</button>
               </div>

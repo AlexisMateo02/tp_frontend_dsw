@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"; //Importa libreria React
-import "bootstrap/dist/js/bootstrap.bundle.min.js"; //Importa Bootstrap JS para funcionalidades interactivas
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react'; //Importa libreria React
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; //Importa Bootstrap JS para funcionalidades interactivas
+import { Link } from 'react-router-dom';
 
 function Nav() {
   //Componente Nav
@@ -10,8 +10,8 @@ function Nav() {
   const [wishlistCount, setWishlistCount] = useState(0);
 
   const updateCounts = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
     const totalCartItems = cart.reduce(
       (acc, item) => acc + (item.quantity || 1),
       0
@@ -25,20 +25,20 @@ function Nav() {
     const handleCartUpdate = () => updateCounts();
     const handleWishlistUpdate = () => updateCounts();
 
-    window.addEventListener("cartUpdated", handleCartUpdate);
-    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
 
     const onStorageChange = (e) => {
-      if (e.key === "cart" || e.key === "wishlist") {
+      if (e.key === 'cart' || e.key === 'wishlist') {
         updateCounts();
       }
     };
-    window.addEventListener("storage", onStorageChange);
+    window.addEventListener('storage', onStorageChange);
 
     return () => {
-      window.removeEventListener("cartUpdated", handleCartUpdate);
-      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
-      window.removeEventListener("storage", onStorageChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+      window.removeEventListener('storage', onStorageChange);
     };
   }, []);
 
@@ -65,8 +65,8 @@ function Nav() {
             to="/"
             className="navbar-brand mx-auto order-0 d-lg-none d-flex"
           >
-            <h2 className="m-0 fw-bold" style={{ letterSpacing: "2px" }}>
-              {" "}
+            <h2 className="m-0 fw-bold" style={{ letterSpacing: '2px' }}>
+              {' '}
               KAYAKS BROKERS
             </h2>
           </Link>
@@ -141,7 +141,7 @@ function Nav() {
             </ul>
             {/* Center Logo */}
             <Link to="/" className="navbar-brand order-@ d-none d-lg-flex">
-              <h2 className="m-@ fw-bold" style={{ letterSpacing: "2px" }}>
+              <h2 className="m-@ fw-bold" style={{ letterSpacing: '2px' }}>
                 KAYAKS BROKERS
               </h2>
             </Link>
@@ -149,7 +149,7 @@ function Nav() {
             {/* Right Icons */}
             <ul className="navbar-nav d-none d-lg-flex align-items-center gap-4">
               <li className="nav-item">
-                <Link to="#" className="nav-link">
+                <Link to="/articles" className="nav-link">
                   <i className="bi bi-search fs-5 text-dark"></i>
                 </Link>
               </li>
@@ -251,7 +251,7 @@ function Nav() {
                 <p>
                   Ya tiene una cuenta?
                   <a href="#" className="text-success fw-bold">
-                    {" "}
+                    {' '}
                     Registrarse
                   </a>
                 </p>

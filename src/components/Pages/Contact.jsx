@@ -2,9 +2,29 @@
 del sitio, como formularios de contacto, direcciones de correo electrónico, teléfonos o 
 enlaces a redes sociales.
 */
-import React from "react";
+import React, { useState } from 'react';
 
 function Contact() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Número destinatario en formato internacional sin signos: 5493416475580
+    const phone = '5493416475580';
+    const text = `Nombre: ${name}%0AEmail: ${email}%0AMensaje: ${encodeURIComponent(
+      message
+    )}`;
+    // Abrir WhatsApp Web / App
+    const url = `https://wa.me/${phone}?text=${text}`;
+    window.open(url, '_blank');
+    // Limpiar formulario
+    setName('');
+    setEmail('');
+    setMessage('');
+  };
+
   return (
     <>
       <section className="contact-section mt-5">
@@ -73,16 +93,36 @@ function Contact() {
         {/*Contact Form Section */}
         <section className="message-section">
           <h2 className="form-title">Enviar mensaje </h2>
-          <form className="contact-form">
+          <form className="contact-form" onSubmit={handleSubmit}>
             <div className="row">
-              <input type="text" placeholder="Name" className="input" />
-              <input type="email" placeholder="Email" className="input" />
+              <input
+                type="text"
+                placeholder="Name"
+                className="input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="row">
-              <textarea placeholder="Mesaage" className="textarea"></textarea>
+              <textarea
+                placeholder="Mensaje"
+                className="textarea"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+              ></textarea>
             </div>
-            <button type="sumbit" className="btn px-5">
-              Enviar
+            <button type="submit" className="btn px-5">
+              Enviar por WhatsApp
             </button>
           </form>
         </section>

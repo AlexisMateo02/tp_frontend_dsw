@@ -1,34 +1,50 @@
 /* Se utiliza para gestionar el proceso de pago o finalización de la compra. 
 En esta página, los usuarios suelen ingresar sus datos de envío, seleccionar métodos de pago 
 y confirmar la compra de los productos que tienen en el carrito.*/
-import React, { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Link } from 'react-router-dom';
 
 function Checkout() {
-  const [deliveryOption, setDeliveryOption] = useState("ship");
+  const [deliveryOption, setDeliveryOption] = useState('ship');
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
     setCartItems(savedCart);
   }, []);
 
   const handlePlaceOrder = () => {
-    toast.success("Pedido realizado con éxito");
+    toast.success('Pedido realizado con éxito');
   };
 
   // Calcular precio total (soporta cantidad opcional y ausencia de precio)
+  // Normaliza strings de precio como "$900.000" o "$900,000.00" a number
+  const parsePriceString = (priceStr) => {
+    if (!priceStr && priceStr !== 0) return 0;
+    const s = priceStr.toString().replace(/\$/g, '').trim();
+    // Remover puntos (miles) y cambiar coma decimal por punto si existe
+    const cleaned = s.replace(/\./g, '').replace(/,/g, '.');
+    const n = parseFloat(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
+
   const totalPrice = cartItems.reduce((acc, item) => {
-    const raw = (item?.price || "0").toString().replace("$", "").trim();
-    const price = parseFloat(raw) || 0;
-    const qty = item?.quantity || 1;
+    const price = parsePriceString(item?.price || '0');
+    const qty = Number(item?.quantity || 1);
     return acc + price * qty;
   }, 0);
 
   const estimatedTax = +(totalPrice * 0.1).toFixed(2);
-  const grandTotal = (totalPrice + estimatedTax).toFixed(2);
 
   return (
     <>
@@ -65,8 +81,8 @@ function Checkout() {
                     className="btn-check"
                     name="deliveryOption"
                     id="ship"
-                    checked={deliveryOption === "ship"}
-                    onChange={() => setDeliveryOption("ship")}
+                    checked={deliveryOption === 'ship'}
+                    onChange={() => setDeliveryOption('ship')}
                   />
                   <label className="btn ship-btn" htmlFor="ship">
                     Envío a domicilio
@@ -77,15 +93,15 @@ function Checkout() {
                     className="btn-check"
                     name="deliveryOption"
                     id="pickup"
-                    checked={deliveryOption === "pickup"}
-                    onChange={() => setDeliveryOption("pickup")}
+                    checked={deliveryOption === 'pickup'}
+                    onChange={() => setDeliveryOption('pickup')}
                   />
                   <label className="btn pickup-btn" htmlFor="pickup">
                     Retirar en tienda
                   </label>
                 </div>
               </div>
-              {deliveryOption === "ship" && (
+              {deliveryOption === 'ship' && (
                 <div className="row mb-3">
                   <div className="mb-3">
                     <select className="form-select">
@@ -110,7 +126,7 @@ function Checkout() {
                   </div>
                 </div>
               )}
-              {deliveryOption === "pickup" && (
+              {deliveryOption === 'pickup' && (
                 <div className="container my-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h6 className="fw-semibold mb-0">Ubicación de la tienda</h6>
@@ -122,9 +138,9 @@ function Checkout() {
                     className="alert alert-danger d-flex flex-column rounded-3"
                     role="alert"
                     style={{
-                      color: "#7b1c1c",
-                      backgroundColor: "#fef6f6",
-                      border: "1px solid rgba(145, 137, 137, 0.59)",
+                      color: '#7b1c1c',
+                      backgroundColor: '#fef6f6',
+                      border: '1px solid rgba(145, 137, 137, 0.59)',
                     }}
                   >
                     <div className="d-flex align-items-center mb-1">
@@ -137,7 +153,7 @@ function Checkout() {
                       <a
                         href="#"
                         className="text-decoration-underline"
-                        style={{ color: "#7b1c1c" }}
+                        style={{ color: '#7b1c1c' }}
                       >
                         Enviar a dirección
                       </a>
@@ -191,8 +207,8 @@ function Checkout() {
             <div
               className="rounded-3 p-3 d-flex justify-content-between align-items-center mb-4"
               style={{
-                border: "1px solid darkblue",
-                backgroundColor: "#f0f5ff",
+                border: '1px solid darkblue',
+                backgroundColor: '#f0f5ff',
               }}
             >
               <span> Estándar </span>
@@ -208,7 +224,7 @@ function Checkout() {
                   <span className="fw-semibold">Tarjeta de crédito</span>
                   <div
                     className="bg-warning text-white rounded px-2 fw-bold"
-                    style={{ fontSize: "0.9rem" }}
+                    style={{ fontSize: '0.9rem' }}
                   >
                     B
                   </div>
@@ -274,43 +290,45 @@ function Checkout() {
           <div className="col-lg-5">
             <div className="card border-0 shadow-sm rounded-4 p-4">
               <h5 className="fw-bold mb-3">
-                <i className="ri-shopping-cart-2-line me-2 text-info"></i>{" "}
+                <i className="ri-shopping-cart-2-line me-2 text-info"></i>{' '}
                 Pedido
               </h5>
               {cartItems.length === 0 ? (
                 <p className="text-muted">¡Tu carrito está vacío!</p>
               ) : (
-                cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="d-flex align-items-center mb-3 border-bottom pb-2"
-                  >
-                    <img
-                      src={item.image}
-                      className="rounded"
-                      width="60"
-                      height="60"
-                      style={{ objectFit: "cover", marginRight: "10px" }}
-                      alt=""
-                    />
-                    <div className="flex-grow-1">
-                      <h6 className="mb-1">{item.Productname}</h6>
-                      <small className="text-muted">
-                        Cantidad: {item.quantity}
-                      </small>
+                cartItems.map((item) => {
+                  const unit = parsePriceString(item.price || '0');
+                  const lineTotal = unit * Number(item.quantity || 1);
+                  return (
+                    <div
+                      key={item.id}
+                      className="d-flex align-items-center mb-3 border-bottom pb-2"
+                    >
+                      <img
+                        src={item.image}
+                        className="rounded"
+                        width="60"
+                        height="60"
+                        style={{ objectFit: 'cover', marginRight: '10px' }}
+                        alt=""
+                      />
+                      <div className="flex-grow-1">
+                        <h6 className="mb-1">{item.Productname}</h6>
+                        <small className="text-muted">
+                          Cantidad: {item.quantity}
+                        </small>
+                      </div>
+                      <div className="fw-semibold">
+                        {formatCurrency(lineTotal)}
+                      </div>
                     </div>
-                    <div className="fw-semibold">
-                      {`$${(
-                        parseFloat(item.price.replace("$", "")) * item.quantity
-                      ).toFixed(2)}`}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
               <hr />
               <div className="d-flex justify-content-between small mb-1">
                 <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>{formatCurrency(totalPrice)}</span>
               </div>
               <div className="d-flex justify-content-between small mb-1">
                 <span>Envío</span>
@@ -318,9 +336,7 @@ function Checkout() {
               </div>
               <div className="d-flex justify-content-between small mb-1">
                 <span>Total</span>
-                <span>
-                  ${(totalPrice + parseFloat(estimatedTax)).toFixed(2)}
-                </span>
+                <span>{formatCurrency(totalPrice + estimatedTax)}</span>
               </div>
               <button className="btn w-100 mt-3" onClick={handlePlaceOrder}>
                 <i className="ri-secure-payment-line me-2"></i> Realizar pedido

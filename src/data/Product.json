@@ -7,7 +7,7 @@
     "Productname": "Kayak Mantra Matrix",
     "price": "$900.000",
     "tag": "Nuevo",
-    "description": "Kayak Mantra Matrix: kayak de alto rendimiento, diseñado para la velocidad y la estabilidad en el agua.",
+    "description": "Kayak de alto rendimiento, diseñado para la velocidad y la estabilidad en el agua.",
     "category": "Kayaks"
   },
   {
@@ -18,7 +18,7 @@
     "price": "$500.000",
     "oldPrice": "$650.000",
     "tag": "Oferta",
-    "description": "Kayak Aloha: kayak de diseño clásico, ideal para paseos en familia y actividades recreativas.",
+    "description": "Kayak de diseño clásico, ideal para paseos en familia y actividades recreativas.",
     "category": "Kayaks"
   },
   {
@@ -27,7 +27,7 @@
     "secondImage": "/assets/images/product-3-2.jpeg",
     "Productname": "Chaleco salvavidas Aquafloat",
     "price": "$70.000",
-    "description": "Chaleco salvavidas Aquafloat: chaleco salvavidas de alta calidad, diseñado para brindar seguridad y comodidad en el agua.",
+    "description": "Chaleco salvavidas de alta calidad, diseñado para brindar seguridad y comodidad en el agua.",
     "category": "Artículos"
   },
   {
@@ -38,7 +38,7 @@
     "price": "$320.000",
     "oldPrice": "$350.000",
     "tag": "Oferta",
-    "description": "Tabla de SUP: tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
+    "description": "Tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
     "category": "SUP"
   },
   {
@@ -48,7 +48,7 @@
     "Productname": "Tabla de SUP",
     "price": "$400.000",
     "tag": "Nuevo",
-    "description": "Tabla de SUP: tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
+    "description": "Tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
     "category": "SUP"
   },
   {
@@ -59,7 +59,7 @@
     "price": "$250.000",
     "oldPrice": "$280.000",
     "tag": "Oferta",
-    "description": "Tabla de SUP: tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
+    "description": "Tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
     "category": "SUP"
   },
   {
@@ -69,7 +69,7 @@
     "Productname": "Kayak Kronos V",
     "price": "300.000",
     "tag": "Nuevo",
-    "description": "Kayak Kronos V: kayak versátil y ligero, ideal para aventuras en aguas tranquilas.",
+    "description": "Kayak versátil y ligero, ideal para aventuras en aguas tranquilas.",
     "category": "Kayaks"
   },
   {
@@ -92,7 +92,7 @@
     "price": "$300.000",
     "oldPrice": "$250.000",
     "tag": "Oferta",
-    "description": "Tabla de SUP: tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
+    "description": "Tabla de paddle surf de alta calidad, diseñada para estabilidad y rendimiento en el agua.",
     "category": "SUP"
   },
 
@@ -104,7 +104,7 @@
     "price": "$10.300.000",
     "oldPrice": "$11.000.000",
     "tag": "Oferta",
-    "description": "Lancha Amarinta 620 Cuddy: lancha de diseño elegante y moderno, ideal para paseos en familia y actividades recreativas.",
+    "description": "Lancha de diseño elegante y moderno, ideal para paseos en familia y actividades recreativas.",
     "category": "Embarcaciones"
   },
 
@@ -114,7 +114,7 @@
     "secondImage": "/assets/images/product-10-2.webp",
     "Productname": "Real Powerboats-415",
     "price": "$80.500.000",
-    "description": "Real Powerboats-415: lancha deportiva de lujo, diseño moderno, equipada con tecnología avanzada para navegación y confort.",
+    "description": "Lancha deportiva de lujo, diseño moderno, equipada con tecnología avanzada para navegación y confort.",
     "category": "Embarcaciones"
   },
 
@@ -126,7 +126,7 @@
     "fourthImage": "/assets/images/product-11-4.webp",
     "Productname": " 2026 Prestige F5.7",
     "price": "$90.500.000",
-    "description": "Prestige F5.7 2026: lancha de alta gama, diseño elegante, equipada para confort y rendimiento en largas travesías.",
+    "description": "Lancha de alta gama, diseño elegante, equipada para confort y rendimiento en largas travesías.",
     "category": "Embarcaciones"
   },
 
@@ -136,7 +136,7 @@
     "secondImage": "/assets/images/product-13-2.webp",
     "Productname": "Aquaglide Deschutes 130 - Kayak Inflable de Travesía",
     "price": "$600.000",
-    "description": "El Deschutes 130 es un kayak de travesía con cubierta abierta de 13 pies diseñado para expediciones en el agua. Un diseño de casco de balancín bajo aumenta el área de la superficie del agua que, cuando se combina con su longitud, rigidez y peso ligero, da como resultado un mejor seguimiento, más deslizamiento y remar sin esfuerzo. Con solo 22 libras, el Deschutes 130 se guarda fácilmente en la bolsa de almacenamiento estilo mochila incluida para un transporte y almacenamiento convenientes.",
+    "description": "Kayak de travesía con cubierta abierta de 13 pies diseñado para expediciones en el agua. Un diseño de casco de balancín bajo aumenta el área de la superficie del agua que, cuando se combina con su longitud, rigidez y peso ligero, da como resultado un mejor seguimiento, más deslizamiento y remar sin esfuerzo. Con solo 22 libras, el Deschutes 130 se guarda fácilmente en la bolsa de almacenamiento estilo mochila incluida para un transporte y almacenamiento convenientes.",
     "category": "Kayaks"
   },
 
@@ -169,7 +169,7 @@
     "thirdImage": "/assets/images/product-16-3.webp",
     "Productname": "Kayak Doble Oceanus",
     "price": "$950.000",
-    "description": "El Kayak Doble Oceanus by Kano es un kayak rígido familiar que tiene cómodos asientos tándem para dos adultos con la posibilidad de acomodar a 1 niño adicional. Además, gracias a su gran capacidad de soportar más de 200 kg y una excelente estabilidad, es uno de los kayaks más populares del mercado. El Oceanus es la mejor opción para pescar en familia y con amigos por su gran seguridad, ya sea en paseos por la costa, lagos o ríos de aguas tranquilas. También brinda una enorme área de almacenamiento para que puedas guardar todo lo que necesites durante la navegación: equipaje, comida, agua, celular, cámara, etc.",
+    "description": "Kayak rígido familiar que tiene cómodos asientos tándem para dos adultos con la posibilidad de acomodar a 1 niño adicional. Además, gracias a su gran capacidad de soportar más de 200 kg y una excelente estabilidad, es uno de los kayaks más populares del mercado. El Oceanus es la mejor opción para pescar en familia y con amigos por su gran seguridad, ya sea en paseos por la costa, lagos o ríos de aguas tranquilas. También brinda una enorme área de almacenamiento para que puedas guardar todo lo que necesites durante la navegación: equipaje, comida, agua, celular, cámara, etc.",
     "includes": "Estanco delantero con tapa, consola central con tapa, porta caña fijos, timón instalado y asiento Aluminum Frame instalado",
     "category": "Kayaks"
   },
@@ -181,7 +181,7 @@
     "thirdImage": "/assets/images/product-17-3.webp",
     "Productname": "Kayak de Pesca Big Dace Pro 12 Angler",
     "price": "$850.000",
-    "description": "El Big Dace Pro 12 es un kayak de pesca inflable de alta calidad diseñado para pescadores que buscan una embarcación portátil y fácil de transportar. Con una longitud de 12 pies, este kayak ofrece un amplio espacio para el equipo de pesca y una mayor estabilidad en el agua.",
+    "description": "Kayak de pesca inflable de alta calidad diseñado para pescadores que buscan una embarcación portátil y fácil de transportar. Con una longitud de 12 pies, este kayak ofrece un amplio espacio para el equipo de pesca y una mayor estabilidad en el agua.",
     "includes": "Estanco delantero con tapa, consola central con tapa, porta caña fijos, timón instalado y asiento Aluminum Frame instalado",
     "category": "Kayaks"
   },
@@ -193,7 +193,7 @@
     "thirdImage": "/assets/images/product-18-3.webp",
     "Productname": "Lancha Pro Piccini",
     "price": "$90.050.000",
-    "description": "El Big Dace Pro 14 es una lancha de pesca de alta calidad diseñada para quienes buscan una embarcación portátil y fácil de transportar. Con una eslora de 14 pies, ofrece amplio espacio para el equipo de pesca y gran estabilidad en el agua.",
+    "description": "Lancha de pesca de alta calidad diseñada para quienes buscan una embarcación portátil y fácil de transportar. Con una eslora de 14 pies, ofrece amplio espacio para el equipo de pesca y gran estabilidad en el agua.",
     "includes": "Consola con timón, asientos acolchados, compartimentos de almacenamiento y porta cañas instalados",
     "category": "Embarcaciones"
   },
@@ -204,7 +204,7 @@
     "secondImage": "/assets/images/product-19-2.webp",
     "Productname": "Otam 90 gts",
     "price": "$120.000.000.000",
-    "description": "Otam 90 gts: yate de alta gama de alto rendimiento, con diseño deportivo y acabados premium, tecnología de navegación avanzada y amplios espacios interiores y exteriores para máximo confort en largas travesías.",
+    "description": "Yate de alta gama de alto rendimiento, con diseño deportivo y acabados premium, tecnología de navegación avanzada y amplios espacios interiores y exteriores para máximo confort en largas travesías.",
     "includes": "Flybridge, camarotes en suite, salón principal, cocina completa, plataforma hidráulica de baño, estabilizadores, generador, aire acondicionado, joystick de maniobra y electrónica de última generación",
     "category": "Embarcaciones"
   },
@@ -215,7 +215,7 @@
     "secondImage": "/assets/images/product-20-2.webp",
     "Productname": "Tracker TR 520 open",
     "price": "$8.500.000.000",
-    "description": "Tracker TR 520 open: lancha de motor abierta, ideal para paseos y actividades recreativas en el agua, con diseño práctico y funcional.",
+    "description": "Lancha de motor abierta, ideal para paseos y actividades recreativas en el agua, con diseño práctico y funcional.",
     "category": "Embarcaciones"
   },
 
@@ -227,7 +227,7 @@
     "fourthImage": "/assets/images/product-21-4.webp",
     "Productname": "ECLIPSE 21 SR",
     "price": "$37.500.000.000",
-    "description": "ECLIPSE 21 SR: lancha deportiva de alta velocidad, con diseño aerodinámico y tecnología avanzada para una experiencia emocionante en el agua.",
+    "description": "Lancha deportiva de alta velocidad, con diseño aerodinámico y tecnología avanzada para una experiencia emocionante en el agua.",
     "category": "Embarcaciones"
   },
 
@@ -237,7 +237,7 @@
     "secondImage": "/assets/images/product-22-2.webp",
     "Productname": "Lancha Saxdor 200 Sport",
     "price": "$12.500.000",
-    "description": "Lancha Saxdor 200 Sport: lancha rápida y ágil, ideal para deportes acuáticos y paseos en familia, con diseño moderno y funcional.",
+    "description": "Lancha rápida y ágil, ideal para deportes acuáticos y paseos en familia, con diseño moderno y funcional.",
     "category": "Embarcaciones"
   },
 
