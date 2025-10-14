@@ -396,5 +396,15 @@
     "price": "$90.500.000",
     "description": "Yate de lujo de alta calidad, diseñado para la navegación y el confort en el agua.",
     "category": "Embarcaciones"
+  },
+
+  {
+    "id": 42,
+    "image": "/assets/images/product-38-1.webp",
+    "secondImage": "/assets/images/product-38-2.webp",
+    "Productname": "Kayak Matrix Transparente",
+    "price": "$420.500",
+    "description": "Kayak de una persona transparente para aventuras en el agua.",
+    "category": "Kayaks"
   }
 ]
