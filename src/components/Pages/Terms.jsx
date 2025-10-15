@@ -1,5 +1,5 @@
 /*Pagina de Terminos y Condiciones*/
-import React from 'react';
+import React from "react";
 
 function Terms() {
   return (
@@ -9,9 +9,9 @@ function Terms() {
       <div
         className="border rounded p-4 mb-3"
         style={{
-          maxHeight: '420px',
-          overflowY: 'auto',
-          whiteSpace: 'pre-wrap',
+          maxHeight: "420px",
+          overflowY: "auto",
+          whiteSpace: "pre-wrap",
         }}
       >
         <h4>1. Objeto</h4>

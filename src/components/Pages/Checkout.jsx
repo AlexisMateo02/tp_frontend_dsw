@@ -1,45 +1,148 @@
 /* Se utiliza para gestionar el proceso de pago o finalización de la compra. 
 En esta página, los usuarios suelen ingresar sus datos de envío, seleccionar métodos de pago 
 y confirmar la compra de los productos que tienen en el carrito.*/
-import React, { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router-dom";
 
 function Checkout() {
-  const [deliveryOption, setDeliveryOption] = useState('ship');
+  const [deliveryOption, setDeliveryOption] = useState("ship");
   const [cartItems, setCartItems] = useState([]);
+  // Form fields (controlled)
+  const [contactValue, setContactValue] = useState("");
+  const [saveInfo, setSaveInfo] = useState(false);
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+
+  // Payment fields
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+  const [nameOnCard, setNameOnCard] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartItems(savedCart);
+    // prefill contact if previously saved
+    const savedContact = localStorage.getItem("checkout_contact") || "";
+    if (savedContact) setContactValue(savedContact);
   }, []);
 
   const handlePlaceOrder = () => {
-    toast.success('Pedido realizado con éxito');
+    if (!validateOrder()) return;
+    setIsSubmitting(true);
+    // Simulate order processing (instant for this demo)
+    try {
+      // clear cart
+      localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("cartUpdated"));
+      if (saveInfo && contactValue)
+        localStorage.setItem("checkout_contact", contactValue);
+      toast.success("Pedido realizado con éxito");
+      setCartItems([]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Helpers: validation utilities
+  const isEmail = (s) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s).trim());
+  };
+  const isPhone = (s) => {
+    // simple phone check: digits, allow spaces, +, parentheses, dashes
+    return /^[+()\d\s-]{7,20}$/.test(String(s).trim());
+  };
+
+  // Luhn algorithm to validate typical card numbers
+  const luhnCheck = (num) => {
+    const s = String(num).replace(/\D/g, "");
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = s.length - 1; i >= 0; i--) {
+      let digit = Number(s.charAt(i));
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return sum % 10 === 0;
+  };
+
+  const validateExpiry = (value) => {
+    // accept formats: MM/AA, MM/YY, MM/YYYY, MM - AA
+    const cleaned = String(value).replace(/\s/g, "").replace("-", "/");
+    const parts = cleaned.split("/");
+    if (parts.length !== 2) return false;
+    let [mm, yy] = parts;
+    if (!/^\d{1,2}$/.test(mm) || !/^\d{2,4}$/.test(yy)) return false;
+    const month = Number(mm);
+    let year = Number(yy);
+    if (yy.length === 2) year += 2000;
+    if (month < 1 || month > 12) return false;
+    const now = new Date();
+    const exp = new Date(year, month - 1 + 1, 1); // first day of month after expiry
+    return exp > now;
+  };
+
+  const validateOrder = () => {
+    const errors = [];
+    if (!cartItems || cartItems.length === 0)
+      errors.push("El carrito está vacío");
+    if (!contactValue || (!isEmail(contactValue) && !isPhone(contactValue))) {
+      errors.push("Ingrese un email o teléfono válido");
+    }
+    if (deliveryOption === "ship") {
+      if (!address.trim())
+        errors.push("La dirección es obligatoria para envío a domicilio");
+      if (!city.trim())
+        errors.push("La ciudad es obligatoria para envío a domicilio");
+    }
+    // Card validations (basic)
+    const cardDigits = String(cardNumber).replace(/\s/g, "");
+    if (!/^[0-9]{13,19}$/.test(cardDigits) || !luhnCheck(cardDigits)) {
+      errors.push("Número de tarjeta inválido");
+    }
+    if (!validateExpiry(cardExpiry))
+      errors.push("Fecha de vencimiento inválida o vencida");
+    if (!/^[0-9]{3,4}$/.test(String(cardCvc)))
+      errors.push("Código CVC inválido");
+    if (!nameOnCard.trim()) errors.push("Nombre en la tarjeta es obligatorio");
+
+    if (errors.length) {
+      // show combined errors
+      toast.error(errors.join(" · "), { autoClose: 5000 });
+      return false;
+    }
+    return true;
   };
 
   // Calcular precio total (soporta cantidad opcional y ausencia de precio)
   // Normaliza strings de precio como "$900.000" o "$900,000.00" a number
   const parsePriceString = (priceStr) => {
     if (!priceStr && priceStr !== 0) return 0;
-    const s = priceStr.toString().replace(/\$/g, '').trim();
+    const s = priceStr.toString().replace(/\$/g, "").trim();
     // Remover puntos (miles) y cambiar coma decimal por punto si existe
-    const cleaned = s.replace(/\./g, '').replace(/,/g, '.');
+    const cleaned = s.replace(/\./g, "").replace(/,/g, ".");
     const n = parseFloat(cleaned);
     return Number.isFinite(n) ? n : 0;
   };
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
       maximumFractionDigits: 2,
     }).format(value);
   };
 
   const totalPrice = cartItems.reduce((acc, item) => {
-    const price = parsePriceString(item?.price || '0');
+    const price = parsePriceString(item?.price || "0");
     const qty = Number(item?.quantity || 1);
     return acc + price * qty;
   }, 0);
@@ -59,6 +162,8 @@ function Checkout() {
                 type="text"
                 className="form-control"
                 placeholder="Email o número de teléfono"
+                value={contactValue}
+                onChange={(e) => setContactValue(e.target.value)}
               />
             </div>
 
@@ -81,8 +186,8 @@ function Checkout() {
                     className="btn-check"
                     name="deliveryOption"
                     id="ship"
-                    checked={deliveryOption === 'ship'}
-                    onChange={() => setDeliveryOption('ship')}
+                    checked={deliveryOption === "ship"}
+                    onChange={() => setDeliveryOption("ship")}
                   />
                   <label className="btn ship-btn" htmlFor="ship">
                     Envío a domicilio
@@ -93,15 +198,15 @@ function Checkout() {
                     className="btn-check"
                     name="deliveryOption"
                     id="pickup"
-                    checked={deliveryOption === 'pickup'}
-                    onChange={() => setDeliveryOption('pickup')}
+                    checked={deliveryOption === "pickup"}
+                    onChange={() => setDeliveryOption("pickup")}
                   />
                   <label className="btn pickup-btn" htmlFor="pickup">
                     Retirar en tienda
                   </label>
                 </div>
               </div>
-              {deliveryOption === 'ship' && (
+              {deliveryOption === "ship" && (
                 <div className="row mb-3">
                   <div className="mb-3">
                     <select className="form-select">
@@ -126,7 +231,7 @@ function Checkout() {
                   </div>
                 </div>
               )}
-              {deliveryOption === 'pickup' && (
+              {deliveryOption === "pickup" && (
                 <div className="container my-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h6 className="fw-semibold mb-0">Ubicación de la tienda</h6>
@@ -138,9 +243,9 @@ function Checkout() {
                     className="alert alert-danger d-flex flex-column rounded-3"
                     role="alert"
                     style={{
-                      color: '#7b1c1c',
-                      backgroundColor: '#fef6f6',
-                      border: '1px solid rgba(145, 137, 137, 0.59)',
+                      color: "#7b1c1c",
+                      backgroundColor: "#fef6f6",
+                      border: "1px solid rgba(145, 137, 137, 0.59)",
                     }}
                   >
                     <div className="d-flex align-items-center mb-1">
@@ -153,7 +258,7 @@ function Checkout() {
                       <a
                         href="#"
                         className="text-decoration-underline"
-                        style={{ color: '#7b1c1c' }}
+                        style={{ color: "#7b1c1c" }}
                       >
                         Enviar a dirección
                       </a>
@@ -167,6 +272,8 @@ function Checkout() {
                 type="text"
                 className="form-control"
                 placeholder="Dirección"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
               />
             </div>
             <div className="mb-3">
@@ -182,6 +289,8 @@ function Checkout() {
                   type="text"
                   className="form-control"
                   placeholder="Ciudad"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
                 />
               </div>
               <div className="col">
@@ -189,6 +298,8 @@ function Checkout() {
                   type="text"
                   className="form-control"
                   placeholder="Código Postal (opcional)"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
                 />
               </div>
             </div>
@@ -197,6 +308,8 @@ function Checkout() {
                 type="checkbox"
                 className="form-check-input"
                 id="saveInfo"
+                checked={saveInfo}
+                onChange={(e) => setSaveInfo(e.target.checked)}
               />
               <label htmlFor="saveInfo" className="form-check-label">
                 Guardar esta información para la próxima vez
@@ -207,8 +320,8 @@ function Checkout() {
             <div
               className="rounded-3 p-3 d-flex justify-content-between align-items-center mb-4"
               style={{
-                border: '1px solid darkblue',
-                backgroundColor: '#f0f5ff',
+                border: "1px solid darkblue",
+                backgroundColor: "#f0f5ff",
               }}
             >
               <span> Estándar </span>
@@ -224,7 +337,7 @@ function Checkout() {
                   <span className="fw-semibold">Tarjeta de crédito</span>
                   <div
                     className="bg-warning text-white rounded px-2 fw-bold"
-                    style={{ fontSize: '0.9rem' }}
+                    style={{ fontSize: "0.9rem" }}
                   >
                     B
                   </div>
@@ -235,6 +348,8 @@ function Checkout() {
                       type="text"
                       className="form-control"
                       placeholder="Número de tarjeta"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
                     />
                   </div>
                   <div className="row">
@@ -243,6 +358,8 @@ function Checkout() {
                         type="text"
                         className="form-control"
                         placeholder="Fecha de vencimiento (MM / AA)"
+                        value={cardExpiry}
+                        onChange={(e) => setCardExpiry(e.target.value)}
                       />
                     </div>
                     <div className="col-md-6 mb-3">
@@ -250,6 +367,8 @@ function Checkout() {
                         type="text"
                         className="form-control"
                         placeholder="Código de seguridad"
+                        value={cardCvc}
+                        onChange={(e) => setCardCvc(e.target.value)}
                       />
                     </div>
                   </div>
@@ -258,6 +377,8 @@ function Checkout() {
                       type="text"
                       className="form-control"
                       placeholder="Nombre en la tarjeta"
+                      value={nameOnCard}
+                      onChange={(e) => setNameOnCard(e.target.value)}
                     />
                   </div>
                   <div className="form-check mb-3">
@@ -273,8 +394,12 @@ function Checkout() {
                   </div>
                 </div>
               </div>
-              <button className="btn w-100 mt-4 py-2 fw-semibold">
-                Pagar ahora
+              <button
+                className="btn w-100 mt-4 py-2 fw-semibold"
+                onClick={handlePlaceOrder}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Procesando..." : "Pagar ahora"}
               </button>
 
               <div className="mt-5 border-top pt-3">
@@ -290,14 +415,14 @@ function Checkout() {
           <div className="col-lg-5">
             <div className="card border-0 shadow-sm rounded-4 p-4">
               <h5 className="fw-bold mb-3">
-                <i className="ri-shopping-cart-2-line me-2 text-info"></i>{' '}
+                <i className="ri-shopping-cart-2-line me-2 text-info"></i>{" "}
                 Pedido
               </h5>
               {cartItems.length === 0 ? (
                 <p className="text-muted">¡Tu carrito está vacío!</p>
               ) : (
                 cartItems.map((item) => {
-                  const unit = parsePriceString(item.price || '0');
+                  const unit = parsePriceString(item.price || "0");
                   const lineTotal = unit * Number(item.quantity || 1);
                   return (
                     <div
@@ -309,7 +434,7 @@ function Checkout() {
                         className="rounded"
                         width="60"
                         height="60"
-                        style={{ objectFit: 'cover', marginRight: '10px' }}
+                        style={{ objectFit: "cover", marginRight: "10px" }}
                         alt=""
                       />
                       <div className="flex-grow-1">
