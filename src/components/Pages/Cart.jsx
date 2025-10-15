@@ -1,54 +1,73 @@
 /* Carrito */
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+// Data
+import Products from '../../data/Product.json';
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]"); // ← seguro
-    setCartItems(savedCart);
+    const savedCart = JSON.parse(localStorage.getItem('cart') || '[]'); // ← seguro
+
+    // Actualizar precios del carrito según src/data/Product.json (por id)
+    if (Array.isArray(savedCart) && savedCart.length > 0) {
+      const prodMap = Object.fromEntries(
+        Products.map((p) => [String(p.id), p])
+      );
+      const updated = savedCart.map((item) => {
+        const p = prodMap[String(item.id)];
+        if (p && p.price) {
+          return { ...item, price: p.price };
+        }
+        return item;
+      });
+      setCartItems(updated);
+      localStorage.setItem('cart', JSON.stringify(updated));
+    } else {
+      setCartItems(savedCart);
+    }
 
     // (opcional) si el carrito cambia desde otro componente, sincronizá
     const onCartUpdated = () => {
-      const next = JSON.parse(localStorage.getItem("cart") || "[]");
+      const next = JSON.parse(localStorage.getItem('cart') || '[]');
       setCartItems(next);
     };
-    window.addEventListener("cartUpdated", onCartUpdated);
-    return () => window.removeEventListener("cartUpdated", onCartUpdated);
+    window.addEventListener('cartUpdated', onCartUpdated);
+    return () => window.removeEventListener('cartUpdated', onCartUpdated);
   }, []);
 
   const updateQuantity = (id, type) => {
     const updated = cartItems.map((item) => {
       if (item.id === id) {
         const q = Number(item.quantity ?? 1);
-        if (type === "increase") return { ...item, quantity: q + 1 };
-        if (type === "decrease" && q > 1) return { ...item, quantity: q - 1 };
+        if (type === 'increase') return { ...item, quantity: q + 1 };
+        if (type === 'decrease' && q > 1) return { ...item, quantity: q - 1 };
       }
       return item;
     });
 
     setCartItems(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
-    window.dispatchEvent(new Event("cartUpdated")); // ← como en el video
+    localStorage.setItem('cart', JSON.stringify(updated));
+    window.dispatchEvent(new Event('cartUpdated')); // ← como en el video
   };
 
   const removeItem = (id) => {
     const updated = cartItems.filter((item) => item.id !== id);
     setCartItems(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
-    window.dispatchEvent(new Event("cartUpdated"));
-    toast.error("Item removido del carrito!");
+    localStorage.setItem('cart', JSON.stringify(updated));
+    window.dispatchEvent(new Event('cartUpdated'));
+    toast.error('Item removido del carrito!');
   };
 
   // Para que entienda "$52.000" o "$1.556,00"
   const parsePrice = (p) => {
     const clean = String(p)
-      .replace(/[^\d,.-]/g, "") // saca "$" y texto
-      .replace(/\.(?=\d{3}(?:\D|$))/g, "") // quita puntos de miles
-      .replace(",", "."); // coma a punto
+      .replace(/[^\d,.-]/g, '') // saca "$" y texto
+      .replace(/\.(?=\d{3}(?:\D|$))/g, '') // quita puntos de miles
+      .replace(',', '.'); // coma a punto
     const num = Number(clean);
     return Number.isFinite(num) ? num : 0;
   };
@@ -114,14 +133,14 @@ function Cart() {
                       <div className="d-flex align-items-center gap-3 mt-3 mt-md-0">
                         <button
                           className="btn btn-sm"
-                          onClick={() => updateQuantity(item.id, "decrease")}
+                          onClick={() => updateQuantity(item.id, 'decrease')}
                         >
                           -
                         </button>
                         <span>{item.quantity ?? 1}</span>
                         <button
                           className="btn btn-sm"
-                          onClick={() => updateQuantity(item.id, "increase")}
+                          onClick={() => updateQuantity(item.id, 'increase')}
                         >
                           +
                         </button>

@@ -256,7 +256,7 @@ function Index() {
             <img src={serviceImg1} className="img-fluid" alt="" />
             <h4 className="mt-3 mb-1">Envio gratis</h4>
             <p className="text-muted fs-6 fw-semibold">
-              Envio gratis para ordenes mayores a $150.000
+              Envio gratis para ordenes mayores a $200.000
             </p>
           </div>
           <div className="col-lg-3 col-sm-6 mb-4">
@@ -268,14 +268,16 @@ function Index() {
           </div>
           <div className="col-lg-3 col-sm-6 mb-4">
             <img src={serviceImg3} className="img-fluid" alt="" />
-            <h4 className="mt-3 mb-1">Soporte en linea </h4>
-            <p className="text-muted fs-6 fw-semibold">Las 24 horas del día </p>
+            <h4 className="mt-3 mb-1">Comunicacion</h4>
+            <p className="text-muted fs-6 fw-semibold">
+              Contactate con nosotros para más información
+            </p>
           </div>
           <div className="col-lg-3 col-sm-6 mb-4">
             <img src={serviceImg4} className="img-fluid" alt="" />
-            <h4 className="mt-3 mb-1">Pagos FLEXIBLES</h4>
+            <h4 className="mt-3 mb-1">Pagos Permitidos</h4>
             <p className="text-muted fs-6 fw-semibold">
-              Todo tipo de Tarjetas de todos los Bancos{' '}
+              Paga fácil con Mercado Pago
             </p>
           </div>
         </div>
