@@ -406,5 +406,16 @@
     "price": "$1",
     "description": "Kayak de una persona transparente para aventuras en el agua.",
     "category": "Kayaks"
+  },
+
+  {
+    "id": 43,
+    "image": "/assets/images/product-39-1.webp",
+    "secondImage": "/assets/images/product-39-2.webp",
+    "thirdImage": "/assets/images/product-39-3.webp",
+    "Productname": "Silvato Guardavidas Acuatico Nautico Profesional",
+    "price": "$1",
+    "description": "Silbato de guardavidas acuático profesional, ideal para seguridad en el agua.",
+    "category": "Artículos"
   }
 ]

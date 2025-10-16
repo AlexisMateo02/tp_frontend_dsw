@@ -100,7 +100,7 @@ function Index() {
                   Weir
                 </h1>
                 <p className="my-3">Diferentes colores disponibles </p>
-                <a href="#" className="btn hero-btn mt-3">
+                <a href="/product/27" className="btn hero-btn mt-3">
                   Comprar Ahora
                 </a>
               </div>
@@ -116,7 +116,7 @@ function Index() {
                   Aquafloat
                 </h1>
                 <p className="my-3">Variedad en colores</p>
-                <a href="#" className="btn hero-btn mt-3">
+                <a href="/product/43" className="btn hero-btn mt-3">
                   Comprar Ahora
                 </a>
               </div>
