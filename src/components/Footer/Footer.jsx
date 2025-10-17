@@ -1,13 +1,9 @@
 /* Aca vamos a definir una componente llamada Footer que va a representar el pie de pagina 
 de nuestra pagina web. */
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-import payment1 from './../../assets/payment-1.svg';
-import payment2 from './../../assets/payment-2.svg';
-import payment3 from './../../assets/payment-3.svg';
-import payment4 from './../../assets/payment-4.svg';
-import payment5 from './../../assets/payment-5.svg';
-import payment6 from './../../assets/payment-6.svg';
+/*Aca estaba lo de las tarjetas y lo tuve sacar*/
 
 function Footer() {
   return (
@@ -21,7 +17,15 @@ function Footer() {
                   <h3 className="mb-3">Centros de distribucion</h3>
                   <p className="mb-0">Encontra uno cerca de tu ubicacion</p>
                   <p className="mb-4">
-                    Vos. Mira <strong>nuestros centros</strong>
+                    Vos. Mira{' '}
+                    <strong>
+                      <Link
+                        to="/stores"
+                        className="text-dark text-decoration-none"
+                      >
+                        nuestros centros
+                      </Link>
+                    </strong>
                   </p>
                   <p className="mb-0">
                     <strong>+54 9 341 6666992</strong>
@@ -32,12 +36,22 @@ function Footer() {
                   <h3 className="mb-3">Links Utiles</h3>
                   <ul className="list-unstyled d-inline-block text-start">
                     <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
+                      <a
+                        href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                        className="text-decoration-none"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         - Instagram
                       </a>
                     </li>
                     <li className="mb-2">
-                      <a href="#" className="text-decoration-none">
+                      <a
+                        href="https://www.facebook.com/rosario.kayaks.2025"
+                        className="text-decoration-none"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         - Facebook
                       </a>
                     </li>
@@ -82,7 +96,14 @@ function Footer() {
                 >
                   <p>KBR 2025| Powered by KBR</p>
                   <div className="footer-icons d-flex gap-2">
-                    <i className="ri-instagram-line"></i>
+                    <a
+                      href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-reset"
+                    >
+                      <i className="ri-instagram-line"></i>
+                    </a>
                     <i className="ri-twitter-x-line"></i>
                     <i className="ri-facebook-circle-fill"></i>
                     <i className="ri-youtube-fill"></i>
@@ -99,16 +120,6 @@ function Footer() {
                       KBR
                     </h3>
                   </a>
-                </div>
-              </div>
-              <div className="col-lg-4">
-                <div className="payment-img mt-4 mt-xl-0 d-flex gap-2 justify-content-center justify-content-lg-end">
-                  <img src={payment1} alt="" className="img-fluid" />
-                  <img src={payment2} alt="" className="img-fluid" />
-                  <img src={payment3} alt="" className="img-fluid" />
-                  <img src={payment4} alt="" className="img-fluid" />
-                  <img src={payment5} alt="" className="img-fluid" />
-                  <img src={payment6} alt="" className="img-fluid" />
                 </div>
               </div>
             </div>

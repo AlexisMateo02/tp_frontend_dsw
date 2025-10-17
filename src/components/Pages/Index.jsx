@@ -22,11 +22,12 @@ import brand3 from './../../assets/brand-3.png';
 import femalebanner from './../../assets/banner-female.webp';
 import discover1 from './../../assets/discover-1.webp';
 import discover2 from './../../assets/discover-2.webp';
-import socialImage1 from './../../assets/social-image-1.jpg';
-import socialImage2 from './../../assets/social-image-2.jpg';
-import socialImage3 from './../../assets/social-image-3.jpg';
-import socialImage4 from './../../assets/social-image-4.jpg';
-import socialImage5 from './../../assets/social-image-5.jpg';
+import socialImage1 from './../../assets/link-1.webp';
+import socialImage2 from './../../assets/link-2.webp';
+import socialImage3 from './../../assets/link-3.webp';
+import socialImage4 from './../../assets/link-4.webp';
+import socialImage5 from './../../assets/link-5.webp';
+import socialImage6 from './../../assets/link-6.webp';
 
 function Index() {
   // Componente Index
@@ -329,10 +330,13 @@ function Index() {
               <div className="favourite-beauty-banner mb-lg-0 mb-5 position-relative ">
                 <img src={femalebanner} className="img-fluid" alt="" />
                 <div className="favourite-beauty-banner-title">
-                  <button className="btn btn-default mt-2  position-center">
+                  <Link
+                    to="/articles"
+                    className="btn btn-default mt-2 position-center text-decoration-none"
+                  >
                     ¡¡ Suma experiencias <br />
                     Con nuestros productos !!
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -405,9 +409,7 @@ function Index() {
       {/*Discover Section*/}
       <div className="discover container py-5">
         <div className="section-title mb-5 favourite-beauty-title text-center ">
-          <h2 className="fw-semibold fs-1">
-            Explora nuestro perfil de Instagram
-          </h2>
+          <h2 className="fw-semibold fs-1">Proximamente en Kayak Brokers</h2>
         </div>
         <div className="row g-5">
           <div className="col-md-6 discover-card text-center">
@@ -441,6 +443,8 @@ function Index() {
             <a
               style={{ textDecoration: 'none', color: 'inherit' }}
               href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <h2>@kayakbrokers</h2>
             </a>
@@ -449,40 +453,70 @@ function Index() {
 
         <div className="row g-4">
           <div className="col-lg-2 col-md-4">
-            <div className="social-wrapper position-relative overflow-hidden">
+            <a
+              href="https://www.instagram.com/p/DNDl5HMM7X0/?img_index=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-wrapper position-relative overflow-hidden d-block"
+            >
               <img src={socialImage1} alt="" className="img-fluid" />
               <i className="bi bi-instagram"></i>
-            </div>
+            </a>
           </div>
           <div className="col-lg-2 col-md-4">
-            <div className="social-wrapper position-relative overflow-hidden">
+            <a
+              href="https://www.instagram.com/p/DM-FwGPMhJa/?img_index=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-wrapper position-relative overflow-hidden d-block"
+            >
               <img src={socialImage2} alt="" className="img-fluid" />
               <i className="bi bi-instagram"></i>
-            </div>
+            </a>
           </div>
           <div className="col-lg-2 col-md-4">
-            <div className="social-wrapper position-relative overflow-hidden">
+            <a
+              href="https://www.instagram.com/p/DMve76EvIXU/?img_index=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-wrapper position-relative overflow-hidden d-block"
+            >
               <img src={socialImage3} alt="" className="img-fluid" />
               <i className="bi bi-instagram"></i>
-            </div>
+            </a>
           </div>
           <div className="col-lg-2 col-md-4">
-            <div className="social-wrapper position-relative overflow-hidden">
+            <a
+              href="https://www.instagram.com/p/DMgjcegsnfb/?img_index=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-wrapper position-relative overflow-hidden d-block"
+            >
               <img src={socialImage4} alt="" className="img-fluid" />
               <i className="bi bi-instagram"></i>
-            </div>
+            </a>
           </div>
           <div className="col-lg-2 col-md-4">
-            <div className="social-wrapper position-relative overflow-hidden">
+            <a
+              href="https://www.instagram.com/p/DLPvrtxx9FE/?img_index=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-wrapper position-relative overflow-hidden d-block"
+            >
               <img src={socialImage5} alt="" className="img-fluid" />
               <i className="bi bi-instagram"></i>
-            </div>
+            </a>
           </div>
           <div className="col-lg-2 col-md-4">
-            <div className="social-wrapper position-relative overflow-hidden">
-              <img src={socialImage1} alt="" className="img-fluid" />
+            <a
+              href="https://www.instagram.com/p/DMgOoGYy8K4/?img_index=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-wrapper position-relative overflow-hidden d-block"
+            >
+              <img src={socialImage6} alt="" className="img-fluid" />
               <i className="bi bi-instagram"></i>
-            </div>
+            </a>
           </div>
         </div>
       </div>

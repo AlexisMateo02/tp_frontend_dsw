@@ -1,22 +1,23 @@
 /*representa el componente que muestra la informacion sobre la pagina web,
 por ejemplo en Quienes Somos?*/
-import React, { useState } from "react";
-import head from "../../assets/about-head-shape.jpeg";
-import about1 from "../../assets/banner-female-2.webp";
-import about2 from "../../assets/discover-1.webp";
-import client1 from "../../assets/brand-logo-1.png";
-import client2 from "../../assets/brand-logo-2.png";
-import client3 from "../../assets/brand-logo-3.png";
-import client4 from "../../assets/brand-logo-4.png";
-import client5 from "../../assets/brand-logo-5.png";
-import client6 from "../../assets/brand-logo-6.png";
-import team1 from "../../assets/team-1.webp";
-import team2 from "../../assets/team-2.webp";
-import team3 from "../../assets/team-3.webp";
-import team4 from "../../assets/team-4.webp";
+import React, { useState } from 'react';
+import head from '../../assets/about-head-shape.jpeg';
+import about1 from '../../assets/banner-female-2.webp';
+import about2 from '../../assets/discover-1.webp';
+import client1 from '../../assets/brand-logo-1.png';
+import client2 from '../../assets/brand-logo-2.png';
+import client3 from '../../assets/brand-logo-3.png';
+import client4 from '../../assets/brand-logo-4.png';
+import client5 from '../../assets/brand-logo-5.png';
+import client6 from '../../assets/brand-logo-6.png';
+import santi from '../../assets/santi.webp';
+import ale from '../../assets/ale.webp';
+import rafa from '../../assets/rafa.webp';
+import laza from '../../assets/laza.webp';
+
 const About = () => {
   const [quote, setQuote] = useState(
-    "La vida es mejor en el agua, y un kayak es la llave para desbloquear aventuras inolvidables."
+    'La vida es mejor en el agua, y un kayak es la llave para desbloquear aventuras inolvidables.'
   );
 
   return (
@@ -42,7 +43,7 @@ const About = () => {
             Somos una empresa dedicada a la venta de kayaks, lanchas, articulos
             maritimos y mucho más... <br /> en Rosario, Argentina.
           </h2>
-          <p className="text-muted mx-auto" style={{ maxWidth: "600px" }}>
+          <p className="text-muted mx-auto" style={{ maxWidth: '600px' }}>
             Fundada en 2023, Kayaks Brokers Rosario se ha convertido en un
             referente para los entusiastas de los deportes acuáticos y la
             navegación en la región. Nuestro compromiso es ofrecer productos de
@@ -93,7 +94,7 @@ const About = () => {
           <div
             className="mx-auto"
             style={{
-              maxWidth: "800px",
+              maxWidth: '800px',
             }}
           >
             <p className="fs-4 mb-4 fw-bold">{quote}</p>
@@ -103,94 +104,94 @@ const About = () => {
               className="col-6 col-sm-4 col-md-2 d-flex justify-content-center brands-img"
               onClick={() =>
                 setQuote(
-                  "Navegar es vivir, y con un kayak de Kayaks Brokers Rosario, cada viaje es una aventura inolvidable."
+                  'Navegar es vivir, y con un kayak de Kayaks Brokers Rosario, cada viaje es una aventura inolvidable.'
                 )
               }
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={client1}
                 alt="Goodness"
                 className="img-fluid"
-                style={{ maxHeight: "60px", objectFit: "contain" }}
+                style={{ maxHeight: '60px', objectFit: 'contain' }}
               />
             </div>
             <div
               className="col-6 col-sm-4 col-md-2 d-flex justify-content-center brands-img"
               onClick={() =>
                 setQuote(
-                  "Explora nuevos horizontes y descubre la libertad del agua con los kayaks y lanchas de Kayaks Brokers Rosario."
+                  'Explora nuevos horizontes y descubre la libertad del agua con los kayaks y lanchas de Kayaks Brokers Rosario.'
                 )
               }
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={client2}
                 alt="Grand Golden Gallery"
                 className="img-fluid"
-                style={{ maxHeight: "60px", objectFit: "contain" }}
+                style={{ maxHeight: '60px', objectFit: 'contain' }}
               />
             </div>
             <div
               className="col-6 col-sm-4 col-md-2 d-flex justify-content-center brands-img"
               onClick={() =>
                 setQuote(
-                  "La vida es mejor en el agua, y un kayak es la llave para desbloquear aventuras inolvidables."
+                  'La vida es mejor en el agua, y un kayak es la llave para desbloquear aventuras inolvidables.'
                 )
               }
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={client3}
                 alt="Parker & Co."
                 className="img-fluid"
-                style={{ maxHeight: "60px", objectFit: "contain" }}
+                style={{ maxHeight: '60px', objectFit: 'contain' }}
               />
             </div>
             <div
               className="col-6 col-sm-4 col-md-2 d-flex justify-content-center brands-img"
               onClick={() =>
                 setQuote(
-                  "Disfrutar es vivir, y con un kayak de Kayaks Brokers Rosario, cada aventura nos representa un goce inolvidable."
+                  'Disfrutar es vivir, y con un kayak de Kayaks Brokers Rosario, cada aventura nos representa un goce inolvidable.'
                 )
               }
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={client4}
                 alt="The Beast"
                 className="img-fluid"
-                style={{ maxHeight: "60px", objectFit: "contain" }}
+                style={{ maxHeight: '60px', objectFit: 'contain' }}
               />
             </div>
             <div
               className="col-6 col-sm-4 col-md-2 d-flex justify-content-center brands-img"
               onClick={() =>
                 setQuote(
-                  "Explora nuevos horizontes y descubre la libertad del agua con los kayaks y lanchas de Kayaks Brokers Rosario."
+                  'Explora nuevos horizontes y descubre la libertad del agua con los kayaks y lanchas de Kayaks Brokers Rosario.'
                 )
               }
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={client5}
                 alt="The Hayden"
                 className="img-fluid"
-                style={{ maxHeight: "60px", objectFit: "contain" }}
+                style={{ maxHeight: '60px', objectFit: 'contain' }}
               />
             </div>
             <div
               className="col-6 col-sm-4 col-md-2 d-flex justify-content-center brands-img"
               onClick={() =>
-                setQuote("El Rio lo disfrutas con los articulos de KBR")
+                setQuote('El Rio lo disfrutas con los articulos de KBR')
               }
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={client6}
                 alt="Good Mood"
                 className="img-fluid"
-                style={{ maxHeight: "60px", objectFit: "contain" }}
+                style={{ maxHeight: '60px', objectFit: 'contain' }}
               />
             </div>
           </div>
@@ -206,19 +207,39 @@ const About = () => {
         <div className="team-row">
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team1} alt="Santi" className="team-image" />
+              <img src={santi} alt="Santi" className="team-image" />
               <div className="team-social">
-                <a href="#">
-                  <i className="ri-instagram-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-twitter-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-facebook-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-youtube-line"></i>
+                <a
+                  href="https://www.instagram.com/santiago_martina/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Instagram"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ width: 24, height: 24, color: '#E1306C' }}
+                  >
+                    <rect
+                      x="3"
+                      y="3"
+                      width="18"
+                      height="18"
+                      rx="5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3.5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+                  </svg>
                 </a>
               </div>
             </div>
@@ -227,19 +248,39 @@ const About = () => {
           </div>
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team2} alt="Ale" className="team-image" />
+              <img src={ale} alt="Ale" className="team-image" />
               <div className="team-social">
-                <a href="#">
-                  <i className="ri-instagram-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-twitter-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-facebook-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-youtube-line"></i>
+                <a
+                  href="https://www.instagram.com/alexis_mateo/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Instagram"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ width: 24, height: 24, color: '#E1306C' }}
+                  >
+                    <rect
+                      x="3"
+                      y="3"
+                      width="18"
+                      height="18"
+                      rx="5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3.5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+                  </svg>
                 </a>
               </div>
             </div>
@@ -249,41 +290,81 @@ const About = () => {
 
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team3} alt="Rafi" className="team-image" />
+              <img src={rafa} alt="Rafi" className="team-image" />
               <div className="team-social">
-                <a href="#">
-                  <i className="ri-instagram-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-twitter-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-facebook-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-youtube-line"></i>
+                <a
+                  href="https://www.instagram.com/rafiboveri/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Instagram"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ width: 24, height: 24, color: '#E1306C' }}
+                  >
+                    <rect
+                      x="3"
+                      y="3"
+                      width="18"
+                      height="18"
+                      rx="5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3.5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+                  </svg>
                 </a>
               </div>
             </div>
             <h3 className="team-name">Rafi Boveri</h3>
-            <p className="team-role">Fundadores</p>
+            <p className="team-role">Fundadora</p>
           </div>
 
           <div className="team-member">
             <div className="team-image-wrapper">
-              <img src={team4} alt="Laza" className="team-image" />
+              <img src={laza} alt="Laza" className="team-image" />
               <div className="team-social">
-                <a href="#">
-                  <i className="ri-instagram-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-twitter-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-facebook-line"></i>
-                </a>
-                <a href="#">
-                  <i className="ri-youtube-line"></i>
+                <a
+                  href="https://www.instagram.com/lazaro_cardelli/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Instagram"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ width: 24, height: 24, color: '#E1306C' }}
+                  >
+                    <rect
+                      x="3"
+                      y="3"
+                      width="18"
+                      height="18"
+                      rx="5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3.5"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    />
+                    <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+                  </svg>
                 </a>
               </div>
             </div>

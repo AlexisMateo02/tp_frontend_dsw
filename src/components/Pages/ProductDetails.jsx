@@ -19,6 +19,7 @@ function ProductDetails() {
   const [reviews, setReviews] = useState([]);
   const [reviewName, setReviewName] = useState('');
   const [reviewText, setReviewText] = useState('');
+
   const [reviewRating, setReviewRating] = useState(5);
 
   // buscar producto (puede ser undefined si no existe id correcto)

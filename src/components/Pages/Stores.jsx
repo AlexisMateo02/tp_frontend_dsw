@@ -36,7 +36,12 @@ function Stores() {
                 <h5 className="subtitle fw-semibold mb-4">Dirección</h5>
                 <p className="text-muted mb-0">Vera Mujica 1222</p>
                 <p className="text-muted">Tel : 232124343</p>
-                <a href="#" className="underline-link text-black">
+                <a
+                  href="https://maps.app.goo.gl/YSeq39955dMcH67w7"
+                  className="underline-link text-black"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Como llegar
                 </a>
               </div>
@@ -62,10 +67,24 @@ function Stores() {
               <div className="col-md-6 mb-4">
                 <h5 className="fw-semibold">Redes sociales</h5>
                 <div className="store-social-icons d-flex gap-3 mt-4">
-                  <i className="bi bi-instagram"></i>
-                  <i className="bi bi-twitter-x"></i>
-                  <i className="bi bi-facebook"></i>
-                  <i className="bi bi-youtube"></i>
+                  <a
+                    href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw%3D%3D"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-dark btn-sm"
+                    aria-label="Instagram"
+                  >
+                    <i className="bi bi-instagram"></i>
+                  </a>
+                  <a
+                    href="https://www.facebook.com/rosario.kayaks.2025"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-dark btn-sm"
+                    aria-label="Facebook"
+                  >
+                    <i className="bi bi-facebook"></i>
+                  </a>
                 </div>
               </div>
             </div>
@@ -85,10 +104,15 @@ function Stores() {
               <div className="col-md-6 mb-4">
                 <h5 className="subtitle fw-semibold mb-4">Dirección</h5>
                 <p className="text-muted mb-0">
-                  Av. Génova 640 698, S2000 Rosario, Santa Fe
+                  2000, Zeballos 1341, S2000 Rosario, Santa Fe
                 </p>
                 <p className="text-muted">Tel : 231219974</p>
-                <a href="#" className="underline-link text-black">
+                <a
+                  href="https://maps.app.goo.gl/eZ4d3PLBQXq5dZFe9"
+                  className="underline-link text-black"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Como llegar
                 </a>
               </div>
@@ -114,10 +138,24 @@ function Stores() {
               <div className="col-md-6 mb-4">
                 <h5 className="fw-semibold">Redes sociales</h5>
                 <div className="store-social-icons d-flex gap-3 mt-4">
-                  <i className="bi bi-instagram"></i>
-                  <i className="bi bi-twitter-x"></i>
-                  <i className="bi bi-facebook"></i>
-                  <i className="bi bi-youtube"></i>
+                  <a
+                    href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw%3D%3D"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-dark btn-sm"
+                    aria-label="Instagram"
+                  >
+                    <i className="bi bi-instagram"></i>
+                  </a>
+                  <a
+                    href="https://www.facebook.com/rosario.kayaks.2025"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-dark btn-sm"
+                    aria-label="Facebook"
+                  >
+                    <i className="bi bi-facebook"></i>
+                  </a>
                 </div>
               </div>
             </div>
