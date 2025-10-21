@@ -1,5 +1,5 @@
 /*representa el componente que muestra la informacion sobre la pagina web,
-por ejemplo en Quienes Somos?*/
+por ejemplo en nuestra pagina es el Quienes Somos?*/
 import React, { useState } from 'react';
 import head from '../../assets/about-head-shape.jpeg';
 import about1 from '../../assets/banner-female-2.webp';
@@ -50,7 +50,7 @@ const About = () => {
             alta calidad y un servicio excepcional a nuestros clientes.
           </p>
         </div>
-        {/*Face Image and Description*/}
+        {/*Imagen de la empresa*/}
         <div className="container mb-5">
           <div className="row align-items-center">
             <div className="col-md-6 mb-4 mb-md-0 about-img1">
@@ -68,7 +68,7 @@ const About = () => {
             </div>
           </div>
         </div>
-        {/* Mision and Product Image*/}
+        {/* Mision de la empresa*/}
         <div className="container">
           <div className="row align-items-center flex-md-row-reverse">
             <div className="col-md-6 mb-4 mb-md-0 about-img1">
@@ -88,7 +88,7 @@ const About = () => {
         </div>
       </section>
 
-      {/*Interactive client logo section */}
+      {/*Boton interactivo de clientes de la empresa que vemos los distintos opiniones de c/u*/}
       <section className="container-fluid bg-light">
         <div className="container py-5 text-center">
           <div
@@ -198,7 +198,7 @@ const About = () => {
         </div>
       </section>
 
-      {/*Team Section*/}
+      {/*Miembros de nuestro equipo*/}
       <section className="team-section">
         <h2 className="team-title">
           Nuestro Equipo integrado por profesionales <br />

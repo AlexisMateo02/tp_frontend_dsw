@@ -17,7 +17,7 @@ function Stores() {
           <span className="ps-5">Stores</span>
         </li>
       </ol>
-      {/*Store*/}
+      {/*Tienda sucursal 1*/}
       <div className="container store-wrap my-5 py-5">
         <div className="row">
           <div className="section-title mb-5 stores-title text-center">
@@ -92,7 +92,7 @@ function Stores() {
         </div>
       </div>
 
-      {/** Sucursal 2 **/}
+      {/** Tienda sucursal 2 **/}
       <div className="container store-wrap my-5 py-5">
         <div className="row align-items-center g-5">
           <div className="col-lg-6 mb-4 mb-lg-0 d-flex justify-content-center">

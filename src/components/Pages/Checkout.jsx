@@ -10,15 +10,15 @@ import mpLogo from './../../assets/mercadopago-logo.webp';
 function Checkout() {
   const [deliveryOption, setDeliveryOption] = useState('ship');
   const [cartItems, setCartItems] = useState([]);
-  // Form fields (controlled)
+  // Campos del formulario (controlados)
   const [contactValue, setContactValue] = useState('');
   const [saveInfo, setSaveInfo] = useState(false);
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
 
-  // Payment fields
-  // Payment fields (removed card inputs)
+  // Campos de pago
+  // Campos de pago (inputs de tarjeta eliminados)
   // const [cardNumber, setCardNumber] = useState('');
   // const [cardExpiry, setCardExpiry] = useState('');
   // const [cardCvc, setCardCvc] = useState('');
@@ -35,7 +35,7 @@ function Checkout() {
 
   // handlePlaceOrder removed; use handleMercadoPago for payment flow
 
-  // Helpers: validation utilities
+  // Utilidades: funciones de validación
   const isEmail = (s) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s).trim());
   };
@@ -44,17 +44,17 @@ function Checkout() {
     return /^[+()\d\s-]{7,20}$/.test(String(s).trim());
   };
 
-  // Luhn algorithm to validate typical card numbers
-  // Card validation removed because card inputs were removed from the form
+  // Algoritmo de Luhn para validar números de tarjeta (el código de validación de tarjeta
+  // se eliminó porque los inputs de tarjeta fueron removidos del formulario)
 
-  // validateExpiry removed because card inputs were removed
+  // La validación de expiración fue eliminada porque los campos de tarjeta fueron removidos
 
   const handleMercadoPago = () => {
     if (!validateOrder()) return;
     setIsSubmitting(true);
     toast.info('Redirigiendo a Mercado Pago...');
-    // Abrir Mercado Pago en nueva pestaña (placeholder). En integración real aquí harías
-    // una llamada a tu backend para crear la preferencia y luego redirigir al checkout.
+    // Abrir Mercado Pago en nueva pestaña (marcador/placeholder). En una integración real
+    // aquí harías una llamada a tu backend para crear la preferencia y luego redirigir al checkout.
     window.open('https://www.mercadopago.com.ar/', '_blank');
     // No limpiamos el carrito hasta confirmar pago en un flujo real
     setIsSubmitting(false);
@@ -76,7 +76,7 @@ function Checkout() {
     // Payment by card removed; using 'Pagar al recibir' or similar.
 
     if (errors.length) {
-      // show combined errors
+      // mostrar errores combinados
       toast.error(errors.join(' · '), { autoClose: 5000 });
       return false;
     }

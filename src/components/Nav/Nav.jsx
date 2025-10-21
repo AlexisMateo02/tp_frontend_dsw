@@ -101,12 +101,12 @@ function Nav() {
             </li>
           </ul>
 
-          {/* Main Nav */}
+          {/* Navegador principal */}
           <div
             className="collapse navbar-collapse justify-content-between"
             id="navbarNav"
           >
-            {/* Left Nav */}
+            {/* Navegador de la izquierda */}
             <ul className="navbar-nav nav-menu align-items-center gap-4">
               <li className="nav-item">
                 <Link to="/" className="nav-link">
@@ -253,6 +253,9 @@ function Nav() {
           </div>
         </div>
       */}
+      {/* antes con esto podiamos iniciar sesion en el mismo navegador 
+      pero para hacerlo mas facil el tema de registar e inciar sesion lo hacemos ahora por 
+      separado */}
     </>
   );
 }

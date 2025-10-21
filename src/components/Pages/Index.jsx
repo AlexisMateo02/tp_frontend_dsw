@@ -125,7 +125,7 @@ function Index() {
           </SwiperSlide>
         </Swiper>
       </div>
-      {/*Products*/}
+      {/*Productos*/}
       <div className="product-container py-5 my-5">
         <div className="container position-relative">
           <div className="row">
@@ -250,7 +250,7 @@ function Index() {
         </div>
       </div>
 
-      {/*Service*/}
+      {/*Servicio de envios y reembolso*/}
       <div className="container py-5 my-5">
         <div className="row text-center">
           <div className="col-lg-3 col-sm-6 mb-4">
@@ -284,7 +284,7 @@ function Index() {
         </div>
       </div>
 
-      {/*Seen in */}
+      {/*Visto en*/}
       <div className="text-center my-5 seen-in">
         <div className="container">
           <h1 className="mb-5 fw-semibold">Visto en</h1>
@@ -311,7 +311,7 @@ function Index() {
           </div>
         </div>
       </div>
-      {/*favourite beauty */}
+      {/* Favoritos */}
       <div className="favourite-beauty py-5 my-5">
         <div className="container">
           <div className="row">

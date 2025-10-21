@@ -46,7 +46,7 @@ function Contact() {
                   rel="noopener noreferrer"
                   className="link"
                 >
-                  Get Direction
+                  Cómo llegar
                 </a>
               </div>
             </div>
@@ -96,7 +96,7 @@ function Contact() {
             <div className="row">
               <input
                 type="text"
-                placeholder="Name"
+                placeholder="Nombre"
                 className="input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -104,7 +104,7 @@ function Contact() {
               />
               <input
                 type="email"
-                placeholder="Email"
+                placeholder="Correo electrónico"
                 className="input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

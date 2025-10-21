@@ -62,7 +62,7 @@ function Cart() {
     toast.error('Item removido del carrito!');
   };
 
-  // Para que entienda "$52.000" o "$1.556,00"
+  // Para que entienda "$52.000" o "$1.556,00", igualemente cambiamos todos los precios a $1 para usar una api
   const parsePrice = (p) => {
     const clean = String(p)
       .replace(/[^\d,.-]/g, '') // saca "$" y texto
