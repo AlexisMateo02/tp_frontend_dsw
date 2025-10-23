@@ -1,6 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Products from '../../data/Product.json';
+import KayakTypes from '../../data/KayakTypes.json';
+import SUPTypes from '../../data/SUPTypes.json';
+import BoatTypes from '../../data/BoatTypes.json';
+import ArticleTypes from '../../data/ArticleTypes.json';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,11 +25,24 @@ export default function AddProduct() {
     description: '',
     owner: '',
     includes: '',
+    kayakTypeId: '',
+    supTypeId: '',
+    boatTypeId: '',
+    articleTypeId: ''
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
+    if (name === 'category') {
+      setForm(f => ({
+        ...f,
+        kayakTypeId: '',
+        supTypeId: '',
+        boatTypeId: '',
+        articleTypeId: ''
+      }));
+    }
   };
 
   // Ayudante: leer un File y devolver un Data URL
@@ -112,6 +129,23 @@ export default function AddProduct() {
       toast.error('La descripción es obligatoria');
       return;
     }
+    // Validar que se haya seleccionado el tipo específico según categoría
+    if (form.category === 'kayak' && !form.kayakTypeId) {
+      toast.error('Selecciona un tipo de kayak');
+      return;
+    }
+    if (form.category === 'sup' && !form.supTypeId) {
+      toast.error('Selecciona un tipo de SUP');
+      return;
+    }
+    if (form.category === 'embarcacion' && !form.boatTypeId) {
+      toast.error('Selecciona un tipo de embarcación');
+      return;
+    }
+    if (form.category === 'articulo' && !form.articleTypeId) {
+      toast.error('Selecciona un tipo de artículo');
+      return;
+    }
     const imagenes = [
       form.image,
       form.secondImage,
@@ -126,22 +160,21 @@ export default function AddProduct() {
     const newProduct = {
       id: nextId(),
       Productname: form.Productname.trim(),
+      category: form.category,
       price: form.price.trim(),
       oldPrice: form.oldPrice.trim() || undefined,
       tag: form.tag.trim() || undefined,
-      category: form.category.trim(),
-      // Preferir data URLs subidas (form.image..fourthImage). Si están vacías, usar placeholder
-      image:
-        form.image ||
-        form.secondImage ||
-        form.thirdImage ||
-        form.fourthImage ||
-        '/assets/placeholder.webp',
-      secondImage:
-        form.secondImage || form.thirdImage || form.fourthImage || undefined,
+      image: form.image || '/assets/placeholder.webp',
+      secondImage: form.secondImage || undefined,
+      thirdImage: form.thirdImage || undefined,
+      fourthImage: form.fourthImage || undefined,
       description: form.description.trim() || undefined,
       owner: form.owner.trim() || undefined,
       includes: form.includes.trim() || undefined,
+      kayakTypeId: form.kayakTypeId ? Number(form.kayakTypeId) : undefined,
+      supTypeId: form.supTypeId ? Number(form.supTypeId) : undefined,
+      boatTypeId: form.boatTypeId ? Number(form.boatTypeId) : undefined,
+      articleTypeId: form.articleTypeId ? Number(form.articleTypeId) : undefined,
     };
 
     try {
@@ -177,7 +210,7 @@ export default function AddProduct() {
         // no bloquear si falla abrir el mailto
       }
       // redirigir a Shop o Articles
-      navigate('/shop');
+      navigate('/articles');
     } catch (err) {
       console.error(err);
       toast.error('No se pudo guardar el producto');
@@ -191,7 +224,7 @@ export default function AddProduct() {
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
           <div className="col-md-6">
-            <label className="form-label">Nombre </label>
+            <label className="form-label">Nombre *</label>
             <input
               name="Productname"
               className="form-control"
@@ -200,8 +233,106 @@ export default function AddProduct() {
             />
           </div>
 
+          <div className="col-md-6">
+            <label className="form-label">Categoría *</label>
+            <select
+              name="category"
+              className="form-select"
+              value={form.category}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Selecciona una categoría</option>
+              <option value="kayak">Kayak</option>
+              <option value="sup">SUP</option>
+              <option value="embarcacion">Embarcación</option>
+              <option value="articulo">Artículo</option>
+            </select>
+          </div>
+
+          {/* Selector de tipo específico según categoría */}
+          {form.category === 'kayak' && (
+            <div className="col-md-6">
+              <label className="form-label">Tipo de Kayak *</label>
+              <select
+                name="kayakTypeId"
+                className="form-select"
+                value={form.kayakTypeId}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona un tipo</option>
+                {KayakTypes.map(k => (
+                  <option key={k.id} value={k.id}>
+                    {k.brand} {k.model} - {k.paddlersQuantity} pers.
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {form.category === 'sup' && (
+            <div className="col-md-6">
+              <label className="form-label">Tipo de SUP *</label>
+              <select
+                name="supTypeId"
+                className="form-select"
+                value={form.supTypeId}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona un tipo</option>
+                {SUPTypes.map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.brand} {s.model} - {s.boardType}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {form.category === 'embarcacion' && (
+            <div className="col-md-6">
+              <label className="form-label">Tipo de Embarcación *</label>
+              <select
+                name="boatTypeId"
+                className="form-select"
+                value={form.boatTypeId}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona un tipo</option>
+                {BoatTypes.map(b => (
+                  <option key={b.id} value={b.id}>
+                    {b.brand} {b.model} - {b.boatCategory}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {form.category === 'articulo' && (
+            <div className="col-md-6">
+              <label className="form-label">Tipo de Artículo *</label>
+              <select
+                name="articleTypeId"
+                className="form-select"
+                value={form.articleTypeId}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecciona un tipo</option>
+                {ArticleTypes.map(a => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} - {a.mainUse}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="col-md-3">
-            <label className="form-label">Precio </label>
+            <label className="form-label">Precio *</label>
             <input
               name="price"
               className="form-control"
@@ -222,25 +353,18 @@ export default function AddProduct() {
           </div>
 
           <div className="col-md-4">
-            <label className="form-label">Categoría </label>
-            <input
-              name="category"
-              className="form-control"
-              value={form.category}
-              onChange={handleChange}
-              placeholder="kayaks / sup / articulos"
-            />
-          </div>
-
-          <div className="col-md-4">
             <label className="form-label">Tag</label>
-            <input
+            <select
               name="tag"
-              className="form-control"
+              className="form-select"
               value={form.tag}
               onChange={handleChange}
-              placeholder="Nuevo / Oferta"
-            />
+            >
+              <option value="">Sin tag</option>
+              <option value="Nuevo">Nuevo</option>
+              <option value="Oferta">Oferta</option>
+              <option value="Destacado">Destacado</option>
+            </select>
           </div>
 
           <div className="col-md-4">
@@ -250,6 +374,7 @@ export default function AddProduct() {
               className="form-control"
               value={form.owner}
               onChange={handleChange}
+              placeholder="KBR"
             />
           </div>
           <div className="col-12">
@@ -351,20 +476,29 @@ export default function AddProduct() {
                 <div>
                   <strong>{form.Productname || 'Nombre del producto'}</strong>
                   <div>{form.price || 'Precio'}</div>
-                  <div className="text-muted">{form.category}</div>
+                  <div>{form.price || 'Precio'}</div>
+                  <div className="text-muted">
+                    {
+                      form.category === 'kayak' ? 'Kayak' :
+                      form.category === 'sup' ? 'SUP' :
+                      form.category === 'embarcacion' ? 'Embarcación' :
+                      form.category === 'articulo' ? 'Artículo' : 'Sin categoría'
+                    }
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="col-12">
-            <label className="form-label">Descripción</label>
+            <label className="form-label">Descripción *</label>
             <textarea
               name="description"
               className="form-control"
               rows="4"
               value={form.description}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -375,12 +509,21 @@ export default function AddProduct() {
               className="form-control"
               value={form.includes}
               onChange={handleChange}
+              placeholder="Ej: Remo, chaleco, bomba de inflado"
             />
           </div>
 
           <div className="col-12 d-flex gap-2">
             <button type="submit" className="btn btn-primary">
               Solicitar venta
+            </button>
+
+            <button 
+              type="button" 
+              className="btn btn-secondary"
+              onClick={() => navigate('/articles')}
+            >
+              Cancelar
             </button>
 
             <div className="ms-auto">

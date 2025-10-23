@@ -1,14 +1,18 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Products from '../../data/Product.json';
+import KayakTypes from '../../data/KayakTypes.json';
+import SUPTypes from '../../data/SUPTypes.json';
+import BoatTypes from '../../data/BoatTypes.json';
+import ArticleTypes from '../../data/ArticleTypes.json';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const buttons = [
-  { label: 'Artículos', img: 'src/assets/Articulos.webp' },
-  { label: 'Embarcaciones', img: 'src/assets/Embarcaciones.png' },
-  { label: 'SUP', img: 'src/assets/SUP.webp' },
-  { label: 'Kayaks', img: 'src/assets/Kayaks.webp' },
+  { label: 'Kayaks', img: 'src/assets/Kayaks.webp', category: 'kayak' },
+  { label: 'Embarcaciones', img: 'src/assets/Embarcaciones.png', category: 'embarcacion' },
+  { label: 'SUP', img: 'src/assets/SUP.webp', category: 'sup' },
+  { label: 'Artículos', img: 'src/assets/Articulos.webp', category: 'articulo' },
 ];
 
 function parsePrice(s) {
@@ -23,38 +27,71 @@ export default function Articles() {
   const [filterSortOption, setFilterSortOption] = useState('all');
   const [sortOption, setSortOption] = useState('none');
   const [search, setSearch] = useState('');
+  
+  // Nuevos filtros específicos
+  const [brandFilter, setBrandFilter] = useState('all');
+  const [materialFilter, setMaterialFilter] = useState('all');
+  const [paddlersFilter, setPaddlersFilter] = useState('all');
+  
   const navigate = useNavigate();
 
-  const categories = useMemo(() => {
-    return [
-      ...new Set(
-        Products.map((p) =>
-          p.category ? String(p.category).trim().toLowerCase() : null
-        ).filter(Boolean)
-      ),
-    ];
-  }, []);
-
-  const toggleCategory = (label) => {
-    const lower = label.toLowerCase();
+  const toggleCategory = (label, category) => {
     const newActive = activeCategory === label ? null : label;
     setActiveCategory(newActive);
-    setCategoryFilter(newActive ? lower : 'all');
+    setCategoryFilter(newActive ? category : 'all');
+    
+    // Resetear filtros específicos al cambiar categoría
+    setBrandFilter('all');
+    setMaterialFilter('all');
+    setPaddlersFilter('all');
+    
     setTimeout(() => {
-      const el = document.querySelector('.category-panel');
+      const el = document.querySelector('.products-grid');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   };
 
+  // Obtener opciones de filtros dinámicamente según la categoría
+  const filterOptions = useMemo(() => {
+    let brands = new Set();
+    let materials = new Set();
+    let paddlers = new Set();
+
+    if (categoryFilter === 'kayak') {
+      KayakTypes.forEach(k => {
+        brands.add(k.brand);
+        materials.add(k.material);
+        paddlers.add(k.paddlersQuantity);
+      });
+    } else if (categoryFilter === 'sup') {
+      SUPTypes.forEach(s => {
+        brands.add(s.brand);
+        materials.add(s.material);
+        paddlers.add(s.paddlersQuantity);
+      });
+    } else if (categoryFilter === 'embarcacion') {
+      BoatTypes.forEach(b => {
+        brands.add(b.brand);
+        materials.add(b.material);
+        paddlers.add(b.passengerCapacity);
+      });
+    }
+
+    return {
+      brands: Array.from(brands).sort(),
+      materials: Array.from(materials).sort(),
+      paddlers: Array.from(paddlers).sort((a, b) => a - b)
+    };
+  }, [categoryFilter]);
+
   const filteredProducts = useMemo(() => {
-    const keyCat =
-      categoryFilter === 'all' ? null : categoryFilter.toLowerCase();
     const q = search.trim().toLowerCase();
 
     let items = Products.filter((p) => {
-      if (keyCat && (!p.category || p.category.toLowerCase() !== keyCat))
-        return false;
+      // Filtro por categoría
+      if (categoryFilter !== 'all' && p.category !== categoryFilter) return false;
 
+      // Filtro por tag (nuevo/oferta)
       if (filterSortOption === 'new') {
         if (!p.tag) return false;
         const t = String(p.tag).toLowerCase();
@@ -66,21 +103,53 @@ export default function Articles() {
         if (t !== 'oferta' && t !== 'sale') return false;
       }
 
+      // Filtros específicos por tipo de producto
+      if (categoryFilter === 'kayak' && p.kayakTypeId) {
+        const kayakType = KayakTypes.find(k => k.id === p.kayakTypeId);
+        if (kayakType) {
+          if (brandFilter !== 'all' && kayakType.brand !== brandFilter) return false;
+          if (materialFilter !== 'all' && kayakType.material !== materialFilter) return false;
+          if (paddlersFilter !== 'all' && kayakType.paddlersQuantity !== Number(paddlersFilter)) return false;
+        }
+      }
+
+      if (categoryFilter === 'sup' && p.supTypeId) {
+        const supType = SUPTypes.find(s => s.id === p.supTypeId);
+        if (supType) {
+          if (brandFilter !== 'all' && supType.brand !== brandFilter) return false;
+          if (materialFilter !== 'all' && supType.material !== materialFilter) return false;
+          if (paddlersFilter !== 'all' && supType.paddlersQuantity !== Number(paddlersFilter)) return false;
+        }
+      }
+
+      if (categoryFilter === 'embarcacion' && p.boatTypeId) {
+        const boatType = BoatTypes.find(b => b.id === p.boatTypeId);
+        if (boatType) {
+          if (brandFilter !== 'all' && boatType.brand !== brandFilter) return false;
+          if (materialFilter !== 'all' && boatType.material !== materialFilter) return false;
+          if (paddlersFilter !== 'all' && boatType.passengerCapacity !== Number(paddlersFilter)) return false;
+        }
+      }
+
+      // Búsqueda por texto
       if (q) {
         const name = p.Productname ? p.Productname.toLowerCase() : '';
         const tag = p.tag ? p.tag.toLowerCase() : '';
-        return name.includes(q) || tag.includes(q);
+        const desc = p.description ? p.description.toLowerCase() : '';
+        return name.includes(q) || tag.includes(q) || desc.includes(q);
       }
+      
       return true;
     });
 
+    // Ordenamiento
     if (sortOption === 'price-asc')
       items.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
     if (sortOption === 'price-desc')
       items.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
 
     return items;
-  }, [categoryFilter, filterSortOption, search, sortOption]);
+  }, [categoryFilter, filterSortOption, search, sortOption, brandFilter, materialFilter, paddlersFilter]);
 
   const addToCart = (product, qty = 1) => {
     try {
@@ -118,12 +187,11 @@ export default function Articles() {
     }
   };
 
-  const displayedProducts = filteredProducts; // nombre solicitado en tu ejemplo
-
   return (
     <div className="container py-5">
       <h2 className="text-center mb-4">Categorías</h2>
 
+      {/* Botones de categorías con imágenes */}
       <div className="row justify-content-center mb-4">
         {buttons.map((btn) => (
           <div
@@ -131,7 +199,7 @@ export default function Articles() {
             key={btn.label}
           >
             <button
-              onClick={() => toggleCategory(btn.label)}
+              onClick={() => toggleCategory(btn.label, btn.category)}
               className={`btn position-relative text-white p-0 w-100`}
               style={{
                 height: 220,
@@ -164,9 +232,9 @@ export default function Articles() {
         ))}
       </div>
 
-      {/* filtros estilo Shop */}
+      {/* Filtros principales */}
       <div className="row mb-3 align-items-center g-2">
-        <div className="col-md-4">
+        <div className="col-md-3">
           <input
             type="search"
             className="form-control"
@@ -176,22 +244,38 @@ export default function Articles() {
           />
         </div>
 
-        <div className="col-md-4">
+        <div className="col-md-3">
           <select
             className="form-select"
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              setBrandFilter('all');
+              setMaterialFilter('all');
+              setPaddlersFilter('all');
+            }}
           >
             <option value="all">Todas las categorías</option>
-            {categories.map((c) => (
-              <option value={c} key={c}>
-                {c.charAt(0).toUpperCase() + c.slice(1)}
-              </option>
-            ))}
+            <option value="kayak">Kayaks</option>
+            <option value="sup">SUP</option>
+            <option value="embarcacion">Embarcaciones</option>
+            <option value="articulo">Artículos</option>
           </select>
         </div>
 
-        <div className="col-md-4">
+        <div className="col-md-3">
+          <select
+            className="form-select"
+            value={filterSortOption}
+            onChange={(e) => setFilterSortOption(e.target.value)}
+          >
+            <option value="all">Todos</option>
+            <option value="new">Nuevos</option>
+            <option value="sale">En oferta</option>
+          </select>
+        </div>
+
+        <div className="col-md-3">
           <select
             className="form-select"
             value={sortOption}
@@ -204,86 +288,160 @@ export default function Articles() {
         </div>
       </div>
 
-      {/* grid como en tu ejemplo */}
-      <div className="row">
-        {displayedProducts.length === 0 ? (
-          <div className="col-12">
-            No hay productos para los filtros seleccionados.
+      {/* Filtros específicos según categoría */}
+      {categoryFilter !== 'all' && categoryFilter !== 'articulo' && (
+        <div className="row mb-3 align-items-center g-2">
+          <div className="col-md-4">
+            <select
+              className="form-select"
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+            >
+              <option value="all">Todas las marcas</option>
+              {filterOptions.brands.map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-md-4">
+            <select
+              className="form-select"
+              value={materialFilter}
+              onChange={(e) => setMaterialFilter(e.target.value)}
+            >
+              <option value="all">Todos los materiales</option>
+              {filterOptions.materials.map((material) => (
+                <option key={material} value={material}>
+                  {material}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-md-4">
+            <select
+              className="form-select"
+              value={paddlersFilter}
+              onChange={(e) => setPaddlersFilter(e.target.value)}
+            >
+              <option value="all">
+                {categoryFilter === 'embarcacion' ? 'Todas las capacidades' : 'Todos los remadores'}
+              </option>
+              {filterOptions.paddlers.map((num) => (
+                <option key={num} value={num}>
+                  {num} {categoryFilter === 'embarcacion' ? 'personas' : 'remador(es)'}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* Contador de resultados */}
+      <div className="mb-3">
+        <small className="text-muted">
+          {filteredProducts.length} producto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
+        </small>
+      </div>
+
+      {/* Grid de productos */}
+      <div className="row products-grid">
+        {filteredProducts.length === 0 ? (
+          <div className="col-12 text-center py-5">
+            <p className="text-muted">No hay productos para los filtros seleccionados.</p>
           </div>
         ) : (
-          displayedProducts.map((product) => (
+          filteredProducts.map((product) => (
             <div
               className="col-md-3 mb-4"
               key={product.id ?? JSON.stringify(product)}
             >
-              <div>
-                <div className="product-item mb-5 text-center position-relative">
-                  <div className="product-image w-100 position-relative overflow-hidden">
+              <div className="product-item mb-5 text-center position-relative">
+                <div className="product-image w-100 position-relative overflow-hidden">
+                  <img
+                    src={product.image || '/assets/placeholder.webp'}
+                    alt="product"
+                    className="img-fluid"
+                  />
+                  {product.secondImage && (
                     <img
-                      src={product.image || '/assets/placeholder.webp'}
+                      src={product.secondImage}
                       alt="product"
                       className="img-fluid"
                     />
-                    {product.secondImage && (
-                      <img
-                        src={product.secondImage}
-                        alt="product"
-                        className="img-fluid"
-                      />
-                    )}
-                    <div className="product-icons gap-3">
-                      <div
-                        className="product-icon"
-                        title="Agregar a favoritos"
-                        onClick={() => addToWishlist(product)}
-                      >
-                        <i className="bi bi-heart fs-5"></i>
-                      </div>
-                      <div
-                        className="product-icon"
-                        title="Agregar al carrito"
-                        onClick={() => addToCart(product)}
-                      >
-                        <i className="bi bi-cart3 fs-5"></i>
-                      </div>
-                    </div>
-                    <span
-                      className={`tag badge text-white ${
-                        product.tag === 'Nuevo' ? 'bg-danger' : 'bg-success'
-                      }`}
+                  )}
+                  <div className="product-icons gap-3">
+                    <div
+                      className="product-icon"
+                      title="Agregar a favoritos"
+                      onClick={() => addToWishlist(product)}
                     >
-                      {product.tag}
-                    </span>
-                  </div>
-
-                  <Link
-                    to={`/product/${product.id}`}
-                    className="text-decoration-none text-black "
-                  >
-                    <div className="product-content pt-3">
-                      {product.oldPrice ? (
-                        <div className="price">
-                          <span className="text-muted text-decoration-line-through me-2">
-                            {product.oldPrice}
-                          </span>
-                          <span className="fw-bold text-muted ">
-                            {product.price}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="price">{product.price}</span>
-                      )}
-                      <h3 className="title pt-1">{product.Productname}</h3>
+                      <i className="bi bi-heart fs-5"></i>
                     </div>
-                  </Link>
+                    <div
+                      className="product-icon"
+                      title="Agregar al carrito"
+                      onClick={() => addToCart(product)}
+                    >
+                      <i className="bi bi-cart3 fs-5"></i>
+                    </div>
+                  </div>
+                  <span
+                    className={`tag badge text-white ${
+                      product.tag === 'Nuevo' ? 'bg-danger' : 'bg-success'
+                    }`}
+                  >
+                    {product.tag}
+                  </span>
+                  
+                  {/* Badge de categoría */}
+                  <span
+                    className="position-absolute top-0 start-0 m-2 badge"
+                    style={{
+                      backgroundColor: 
+                        product.category === 'kayak' ? '#007bff' :
+                        product.category === 'sup' ? '#28a745' :
+                        product.category === 'embarcacion' ? '#dc3545' :
+                        '#ffc107',
+                      color: '#fff'
+                    }}
+                  >
+                    {product.category === 'kayak' ? 'Kayak' :
+                     product.category === 'sup' ? 'SUP' :
+                     product.category === 'embarcacion' ? 'Embarcación' :
+                     'Artículo'}
+                  </span>
                 </div>
+
+                <Link
+                  to={`/product/${product.id}`}
+                  className="text-decoration-none text-black"
+                >
+                  <div className="product-content pt-3">
+                    {product.oldPrice ? (
+                      <div className="price">
+                        <span className="text-muted text-decoration-line-through me-2">
+                          {product.oldPrice}
+                        </span>
+                        <span className="fw-bold text-muted">
+                          {product.price}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="price">{product.price}</span>
+                    )}
+                    <h3 className="title pt-1">{product.Productname}</h3>
+                  </div>
+                </Link>
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Toast container (si ya lo tienes global en App.jsx, elimina esta instancia) */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

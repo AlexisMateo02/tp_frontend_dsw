@@ -1,0 +1,156 @@
+[
+  {
+    "id": 1,
+    "model": "Mantra Matrix",
+    "brand": "Matrix",
+    "material": "Polietileno rotomoldeado",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 120,
+    "constructionType": "rotomoldeado",
+    "length": 3.5,
+    "beam": 0.68
+  },
+  {
+    "id": 2,
+    "model": "Aloha",
+    "brand": "Ocean Kayak",
+    "material": "Polietileno",
+    "paddlersQuantity": 2,
+    "maxWeightCapacity": 180,
+    "constructionType": "rotomoldeado",
+    "length": 3.8,
+    "beam": 0.75
+  },
+  {
+    "id": 3,
+    "model": "Kronos V",
+    "brand": "Wenonah",
+    "material": "Kevlar",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 100,
+    "constructionType": "composite",
+    "length": 3.2,
+    "beam": 0.65
+  },
+  {
+    "id": 4,
+    "model": "Challenger K2",
+    "brand": "INTEX",
+    "material": "Vinilo reforzado",
+    "paddlersQuantity": 2,
+    "maxWeightCapacity": 160,
+    "constructionType": "inflable",
+    "length": 3.51,
+    "beam": 0.76
+  },
+  {
+    "id": 5,
+    "model": "Deschutes 130",
+    "brand": "Aquaglide",
+    "material": "Drop-stitch PVC",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 110,
+    "constructionType": "inflable",
+    "length": 3.96,
+    "beam": 0.86
+  },
+  {
+    "id": 6,
+    "model": "Big Dace Pro 10",
+    "brand": "Dace",
+    "material": "Polietileno",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 140,
+    "constructionType": "rotomoldeado",
+    "length": 3.04,
+    "beam": 0.82
+  },
+  {
+    "id": 7,
+    "model": "Oceanus R",
+    "brand": "Oceanus",
+    "material": "Polietileno HDPE",
+    "paddlersQuantity": 3,
+    "maxWeightCapacity": 250,
+    "constructionType": "rotomoldeado",
+    "length": 3.72,
+    "beam": 0.86
+  },
+  {
+    "id": 8,
+    "model": "Oceanus Doble",
+    "brand": "Oceanus",
+    "material": "Polietileno HDPE",
+    "paddlersQuantity": 2,
+    "maxWeightCapacity": 220,
+    "constructionType": "rotomoldeado",
+    "length": 3.6,
+    "beam": 0.78
+  },
+  {
+    "id": 9,
+    "model": "Big Dace Pro 12",
+    "brand": "Dace",
+    "material": "Polietileno",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 150,
+    "constructionType": "rotomoldeado",
+    "length": 3.65,
+    "beam": 0.85
+  },
+  { 
+    "id": 10,
+    "model": "Puffy Steeze",
+    "brand": "Hala",
+    "material": "PVC drop-stitch",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 115,
+    "constructionType": "inflable",
+    "length": 2.9,
+    "beam": 0.76
+  },
+  {
+    "id": 11,
+    "model": "Ocean Big",
+    "brand": "Ocean Kayak",
+    "material": "Polietileno HDPE",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 160,
+    "constructionType": "rotomoldeado",
+    "length": 3.8,
+    "beam": 0.8
+  },
+  {
+    "id": 12,
+    "model": "Ocean Pro",
+    "brand": "Ocean Kayak",
+    "material": "Polietileno",
+    "paddlersQuantity": 2,
+    "maxWeightCapacity": 200,
+    "constructionType": "rotomoldeado",
+    "length": 4.0,
+    "beam": 0.82
+  },
+  {
+    "id": 13,
+    "model": "Ocean Pro Fishing",
+    "brand": "Ocean Kayak",
+    "material": "Polietileno HDPE",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 170,
+    "constructionType": "rotomoldeado",
+    "length": 3.9,
+    "beam": 0.88
+  },
+  {
+    "id": 14,
+    "model": "Matrix Transparente",
+    "brand": "Matrix",
+    "material": "Policarbonato transparente",
+    "paddlersQuantity": 1,
+    "maxWeightCapacity": 100,
+    "constructionType": "moldeado",
+    "length": 3.2,
+    "beam": 0.70
+  }
+]
