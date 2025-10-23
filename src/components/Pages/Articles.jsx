@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+//import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Products from '../../data/Product.json';
 import KayakTypes from '../../data/KayakTypes.json';
 import SUPTypes from '../../data/SUPTypes.json';
@@ -33,7 +34,7 @@ export default function Articles() {
   const [materialFilter, setMaterialFilter] = useState('all');
   const [paddlersFilter, setPaddlersFilter] = useState('all');
   
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   const toggleCategory = (label, category) => {
     const newActive = activeCategory === label ? null : label;

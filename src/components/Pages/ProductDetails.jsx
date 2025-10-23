@@ -217,7 +217,7 @@ function ProductDetails() {
             <div className="d-flex align-items-center gap-3 mb-4 quantity">
               <div
                 className="d-flex align-items-center Quantity-box"
-                style={{ maxWidth: '200px' }}
+                style={{ maxWidth: '180px' }}
               >
                 <button
                   className="btn-count border-0"
@@ -239,10 +239,16 @@ function ProductDetails() {
                 </button>
               </div>
               <button
-                className="btn-custome w-100"
+                className="btn-custome w-50"
                 onClick={() => addToCart(product)}
               >
                 Agregar al carrito
+              </button>
+              <button
+                className="btn-custome w-50"
+                onClick={() => addToWishlist(product)}
+              >
+                Agregar a la lista de deseos
               </button>
             </div>
 
