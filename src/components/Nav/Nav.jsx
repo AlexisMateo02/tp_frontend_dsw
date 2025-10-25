@@ -119,8 +119,13 @@ function Nav() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/shop" className="nav-link">
-                  Vender productos
+                <Link to="/seller-register" className="nav-link">
+                  Ser Vendedor
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/seller-dashboard" className="nav-link">
+                  Panel Vendedor
                 </Link>
               </li>
               <li className="nav-item">

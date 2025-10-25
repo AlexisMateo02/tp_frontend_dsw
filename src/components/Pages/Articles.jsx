@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 //import { useNavigate, Link } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Products from '../../data/Product.json';
@@ -33,8 +33,26 @@ export default function Articles() {
   const [brandFilter, setBrandFilter] = useState('all');
   const [materialFilter, setMaterialFilter] = useState('all');
   const [paddlersFilter, setPaddlersFilter] = useState('all');
+  const [allProducts, setAllProducts] = useState([]);
   
   //const navigate = useNavigate();
+
+  useEffect(() => {
+    // Combinar productos del JSON con productos del marketplace
+    const marketplaceProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+    const approvedMarketplace = marketplaceProducts.filter(p => p.approved);
+    
+    // Agregar sellerId por defecto a productos del JSON
+    const jsonProducts = Products.map(p => ({
+      ...p,
+      sellerId: p.sellerId || 0,
+      sellerName: p.sellerName || 'KBR',
+      approved: true
+    }));
+    
+    const combined = [...jsonProducts, ...approvedMarketplace];
+    setAllProducts(combined);
+  }, []);
 
   const toggleCategory = (label, category) => {
     const newActive = activeCategory === label ? null : label;
@@ -88,7 +106,7 @@ export default function Articles() {
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
 
-    let items = Products.filter((p) => {
+    let items = allProducts.filter((p) => {
       // Filtro por categoría
       if (categoryFilter !== 'all' && p.category !== categoryFilter) return false;
 
@@ -150,7 +168,7 @@ export default function Articles() {
       items.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
 
     return items;
-  }, [categoryFilter, filterSortOption, search, sortOption, brandFilter, materialFilter, paddlersFilter]);
+  }, [allProducts, categoryFilter, filterSortOption, search, sortOption, brandFilter, materialFilter, paddlersFilter]);
 
   const addToCart = (product, qty = 1) => {
     try {
@@ -368,11 +386,11 @@ export default function Articles() {
                     className="img-fluid"
                   />
                   {product.secondImage && (
-                    <img
-                      src={product.secondImage}
-                      alt="product"
-                      className="img-fluid"
-                    />
+                  <img
+                    src={product.secondImage}
+                    alt="product"
+                    className="img-fluid"
+                  />
                   )}
                   <div className="product-icons gap-3">
                     <div
@@ -410,10 +428,12 @@ export default function Articles() {
                       color: '#fff'
                     }}
                   >
-                    {product.category === 'kayak' ? 'Kayak' :
-                     product.category === 'sup' ? 'SUP' :
-                     product.category === 'embarcacion' ? 'Embarcación' :
-                     'Artículo'}
+                    {
+                      product.category === 'kayak' ? 'Kayak' :
+                      product.category === 'sup' ? 'SUP' :
+                      product.category === 'embarcacion' ? 'Embarcación' :
+                      'Artículo'
+                    }
                   </span>
                 </div>
 
@@ -435,6 +455,15 @@ export default function Articles() {
                       <span className="price">{product.price}</span>
                     )}
                     <h3 className="title pt-1">{product.Productname}</h3>
+                    <div className="mt-2 text-muted small">
+                      <i className="bi bi-shop"></i>
+                      <Link 
+                        to={`/seller/${product.sellerId}`}
+                        className="text-decoration-none text-muted ms-1"
+                      >
+                        {product.sellerName || 'KBR'}
+                      </Link>
+                    </div>
                   </div>
                 </Link>
               </div>

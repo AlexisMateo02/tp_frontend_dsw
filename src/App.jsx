@@ -17,6 +17,10 @@ import Articles from './components/Pages/Articles.jsx';
 import Terms from './components/Pages/Terms.jsx';
 import Login from './components/Pages/login.jsx';
 import Register from './components/Pages/Register.jsx';
+import SellerRegister from './components/Pages/SellerRegister.jsx';
+import SellerDashboard from './components/Pages/SellerDashboard.jsx';
+import SellerProfile from './components/Pages/SellerProfile.jsx';
+import Admin from './components/Pages/Admin.jsx';
 
 function App() {
   return (
@@ -37,6 +41,10 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/seller-register" element={<SellerRegister />} />
+          <Route path="/seller-dashboard" element={<SellerDashboard />} />
+          <Route path="/seller/:sellerId" element={<SellerProfile />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
         <Footer />
       </div>

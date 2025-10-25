@@ -272,7 +272,34 @@ function ProductDetails() {
             <p>
               <strong>Incluye:</strong> {product.includes || '—'}
             </p>
-                        {/* Mostrar especificaciones técnicas según el tipo de producto */}
+
+            {product.sellerId && product.sellerId !== 0 && (
+              <>
+                <hr />
+                <h5 className="fw-bold mb-3">Vendedor</h5>
+                <div className="d-flex align-items-center gap-3">
+                  <div className="flex-grow-1">
+                    <Link 
+                      to={`/seller/${product.sellerId}`}
+                      className="text-decoration-none"
+                    >
+                      <h6 className="mb-1">{product.sellerName || 'Vendedor KBR'}</h6>
+                    </Link>
+                    <small className="text-muted">
+                      <i className="bi bi-star-fill text-warning"></i> 
+                      5.0 · Vendedor verificado
+                    </small>
+                  </div>
+                  <Link 
+                    to={`/seller/${product.sellerId}`}
+                    className="btn btn-outline-dark btn-sm"
+                  >
+                    Ver tienda
+                  </Link>
+                </div>
+              </>
+)}
+            {/* Mostrar especificaciones técnicas según el tipo de producto */}
             {specs && (
               <>
                 <hr />
