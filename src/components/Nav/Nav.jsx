@@ -24,9 +24,12 @@ function Nav() {
 
     const handleCartUpdate = () => updateCounts();
     const handleWishlistUpdate = () => updateCounts();
+    const handleWishlistUpdatesAlt = () => updateCounts();
 
     window.addEventListener("cartUpdated", handleCartUpdate);
+    // listen for both event names (some components dispatch 'wishlistUpdated' and others 'wishlistUpdates')
     window.addEventListener("wishlistUpdated", handleWishlistUpdate);
+    window.addEventListener("wishlistUpdates", handleWishlistUpdatesAlt);
 
     const onStorageChange = (e) => {
       if (e.key === "cart" || e.key === "wishlist") {
@@ -38,6 +41,7 @@ function Nav() {
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
       window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
+      window.removeEventListener("wishlistUpdates", handleWishlistUpdatesAlt);
       window.removeEventListener("storage", onStorageChange);
     };
   }, []);

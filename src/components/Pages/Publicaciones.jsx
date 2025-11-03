@@ -78,12 +78,47 @@ export default function Publicaciones() {
     }
   };
 
-  const readFileAsDataURL = (file) =>
+  // compress image file to a dataURL; maxWidth 1200px, quality 0.75
+  const compressImage = (file, maxWidth = 1200, quality = 0.75) =>
     new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(r.result);
-      r.onerror = reject;
-      r.readAsDataURL(file);
+      try {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          try {
+            const scale = Math.min(1, maxWidth / img.width);
+            const w = Math.round(img.width * scale);
+            const h = Math.round(img.height * scale);
+            const canvas = document.createElement("canvas");
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            canvas.toBlob(
+              (blob) => {
+                if (!blob) return reject(new Error("Canvas is empty"));
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              },
+              "image/jpeg",
+              quality
+            );
+          } catch (err) {
+            reject(err);
+          } finally {
+            URL.revokeObjectURL(url);
+          }
+        };
+        img.onerror = (e) => {
+          URL.revokeObjectURL(url);
+          reject(e || new Error("Image load error"));
+        };
+        img.src = url;
+      } catch (e) {
+        reject(e);
+      }
     });
 
   const handleEditFiles = async (e) => {
@@ -91,7 +126,7 @@ export default function Publicaciones() {
     if (files.length === 0) return;
     try {
       const dataUrls = await Promise.all(
-        files.map((f) => readFileAsDataURL(f))
+        files.map((f) => compressImage(f, 1200, 0.75))
       );
       setEditImages(dataUrls);
     } catch (err) {

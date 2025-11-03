@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function PublicacionDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [mainImage, setMainImage] = useState("/assets/placeholder.webp");
   const [images, setImages] = useState([]);
@@ -47,12 +46,12 @@ export default function PublicacionDetails() {
     <>
       <ol className="section-banner py-3 position-relative">
         <li className="position-relative">
-          <Link to="/">Inicio</Link>
+          <a href="/">Inicio</a>
         </li>
         <li className="position-relative active">
-          <Link to="/foro" className="ps-5">
+          <a href="/foro" className="ps-5">
             Foro
-          </Link>
+          </a>
         </li>
         <li className="position-relative active">
           <span className="ps-5">{post.title}</span>
@@ -132,12 +131,9 @@ export default function PublicacionDetails() {
             </p>
 
             <div className="mt-4">
-              <button
-                className="btn btn-secondary me-2"
-                onClick={() => navigate("/foro")}
-              >
+              <a href="/foro" className="btn btn-secondary me-2">
                 Volver al foro
-              </button>
+              </a>
             </div>
           </div>
         </div>
