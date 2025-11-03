@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"; //Importa libreria React
-import "bootstrap/dist/js/bootstrap.bundle.min.js"; //Importa Bootstrap JS para funcionalidades interactivas
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react'; //Importa libreria React
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; //Importa Bootstrap JS para funcionalidades interactivas
+import { Link } from 'react-router-dom';
 
 function Nav() {
   //Componente Nav
@@ -10,8 +10,8 @@ function Nav() {
   const [wishlistCount, setWishlistCount] = useState(0);
 
   const updateCounts = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
     const totalCartItems = cart.reduce(
       (acc, item) => acc + (item.quantity || 1),
       0
@@ -26,23 +26,23 @@ function Nav() {
     const handleWishlistUpdate = () => updateCounts();
     const handleWishlistUpdatesAlt = () => updateCounts();
 
-    window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener('cartUpdated', handleCartUpdate);
     // listen for both event names (some components dispatch 'wishlistUpdated' and others 'wishlistUpdates')
-    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
-    window.addEventListener("wishlistUpdates", handleWishlistUpdatesAlt);
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    window.addEventListener('wishlistUpdates', handleWishlistUpdatesAlt);
 
     const onStorageChange = (e) => {
-      if (e.key === "cart" || e.key === "wishlist") {
+      if (e.key === 'cart' || e.key === 'wishlist') {
         updateCounts();
       }
     };
-    window.addEventListener("storage", onStorageChange);
+    window.addEventListener('storage', onStorageChange);
 
     return () => {
-      window.removeEventListener("cartUpdated", handleCartUpdate);
-      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
-      window.removeEventListener("wishlistUpdates", handleWishlistUpdatesAlt);
-      window.removeEventListener("storage", onStorageChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+      window.removeEventListener('wishlistUpdates', handleWishlistUpdatesAlt);
+      window.removeEventListener('storage', onStorageChange);
     };
   }, []);
 
@@ -69,8 +69,8 @@ function Nav() {
             to="/"
             className="navbar-brand mx-auto order-0 d-lg-none d-flex"
           >
-            <h2 className="m-0 fw-bold" style={{ letterSpacing: "2px" }}>
-              {" "}
+            <h2 className="m-0 fw-bold" style={{ letterSpacing: '2px' }}>
+              {' '}
               KAYAKS BROKERS
             </h2>
           </Link>
@@ -127,19 +127,10 @@ function Nav() {
                   Foro Ventas
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link to="/seller-register" className="nav-link">
-                  Ser Vendedor
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/seller-dashboard" className="nav-link">
-                  Panel Vendedor
-                </Link>
-              </li>
+
               <li className="nav-item">
                 <Link to="/articles" className="nav-link">
-                  Productos
+                  Nuestros Productos
                 </Link>
               </li>
               <li className="nav-item">
@@ -155,7 +146,7 @@ function Nav() {
             </ul>
             {/* Center Logo */}
             <Link to="/" className="navbar-brand order-@ d-none d-lg-flex">
-              <h2 className="m-@ fw-bold" style={{ letterSpacing: "2px" }}>
+              <h2 className="m-@ fw-bold" style={{ letterSpacing: '2px' }}>
                 KAYAKS BROKERS
               </h2>
             </Link>
