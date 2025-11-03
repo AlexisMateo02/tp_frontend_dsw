@@ -8,6 +8,7 @@ function Nav() {
   // Contiene enlaces a diferentes secciones y funcionalidades de la aplicación.
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const updateCounts = () => {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -38,13 +39,39 @@ function Nav() {
     };
     window.addEventListener('storage', onStorageChange);
 
+    // load currentUser and listen for auth changes
+    try {
+      const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      setCurrentUser(u);
+    } catch {
+      setCurrentUser(null);
+    }
+    const onAuth = () => {
+      try {
+        const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        setCurrentUser(u);
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+    window.addEventListener('authChanged', onAuth);
+
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate);
       window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
       window.removeEventListener('wishlistUpdates', handleWishlistUpdatesAlt);
       window.removeEventListener('storage', onStorageChange);
+      window.removeEventListener('authChanged', onAuth);
     };
   }, []);
+
+  const logout = () => {
+    localStorage.removeItem('currentUser');
+    setCurrentUser(null);
+    window.dispatchEvent(new Event('authChanged'));
+    // navigate to home
+    window.location.href = '/';
+  };
 
   return (
     <>
@@ -143,6 +170,11 @@ function Nav() {
                   Tiendas
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link to="/profile" className="nav-link">
+                  Mi perfil
+                </Link>
+              </li>
             </ul>
             {/* Center Logo */}
             <Link to="/" className="navbar-brand order-@ d-none d-lg-flex">
@@ -159,9 +191,24 @@ function Nav() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/login">
-                  <i className="bi bi-person fs-5 text-dark"></i>
-                </Link>
+                {currentUser ? (
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="nav-link">
+                      Hola, {currentUser.firstName || currentUser.email}
+                    </span>
+                    <button
+                      className="btn btn-link nav-link"
+                      onClick={logout}
+                      style={{ padding: 0 }}
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
+                ) : (
+                  <Link to="/login">
+                    <i className="bi bi-person fs-5 text-dark"></i>
+                  </Link>
+                )}
               </li>
               <li className="nav-item position-relative">
                 <Link to="/wishlist">

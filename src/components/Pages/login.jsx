@@ -33,8 +33,11 @@ function Login() {
       }
       // Autenticación exitosa
       localStorage.setItem('currentUser', JSON.stringify(user));
+      // notify other components (Nav) that auth state changed
+      window.dispatchEvent(new Event('authChanged'));
       toast.success('Inicio de sesión exitoso');
       setLoading(false);
+      // al iniciar sesión, llevar al usuario a la página principal
       setTimeout(() => navigate('/'), 800);
     }, 700);
   };
