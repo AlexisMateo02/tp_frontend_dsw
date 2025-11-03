@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function PublicacionDetails() {
   const { id } = useParams();
 
-  const [mainImage, setMainImage] = useState("/assets/placeholder.webp");
+  const [mainImage, setMainImage] = useState('/assets/placeholder.webp');
   const [images, setImages] = useState([]);
 
-  const posts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+  const posts = JSON.parse(localStorage.getItem('userPosts') || '[]');
   const post = posts.find((p) => String(p.id) === String(id));
 
   useEffect(() => {
     if (post) {
       setMainImage(
-        (post.images && post.images[0]) || "/assets/placeholder.webp"
+        (post.images && post.images[0]) || '/assets/placeholder.webp'
       );
       setImages((post.images || []).filter(Boolean));
     }
@@ -33,12 +33,38 @@ export default function PublicacionDetails() {
     );
   }
 
-  const contactHref = (c) => {
-    if (!c) return "#";
-    if (/@/.test(c)) return `mailto:${c}`;
-    // simple phone detection
-    const digits = c.replace(/\D/g, "");
+  const contactHref = (c, postData) => {
+    if (!c) return '#';
+    // email -> build mailto with subject and templated body
+    if (/@/.test(c)) {
+      const subject = `Consulta sobre: ${postData?.title || ''}`;
+      const lines = [];
+      lines.push('Hola,');
+      lines.push('');
+      lines.push(
+        `Me interesa la publicación: "${postData?.title || ''}"${
+          postData?.id ? ` (ID: ${postData.id})` : ''
+        }.`
+      );
+      lines.push('Quisiera por favor que me informen:');
+      lines.push('- Estado del artículo');
+      lines.push('- Medidas o especificaciones relevantes');
+      lines.push('- Precio final con envío (si aplica)');
+      lines.push('- Tiempo estimado de entrega o retiro');
+      lines.push('');
+      lines.push('Mi nombre:');
+      lines.push('Mi contacto (email o teléfono):');
+      lines.push('Gracias.');
+      const body = lines.join('\n');
+      return `mailto:${c}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+    }
+
+    // phone -> tel link
+    const digits = c.replace(/\D/g, '');
     if (digits.length >= 6) return `tel:${digits}`;
+    // fallback
     return `mailto:${c}`;
   };
 
@@ -70,13 +96,13 @@ export default function PublicacionDetails() {
                     alt={`Thumb${idx}`}
                     onClick={() => setMainImage(img)}
                     className={`img-thumbnail ${
-                      mainImage === img ? "border-dark" : ""
+                      mainImage === img ? 'border-dark' : ''
                     }`}
                     style={{
-                      width: "90px",
-                      height: "100px",
-                      objectFit: "cover",
-                      cursor: "pointer",
+                      width: '90px',
+                      height: '100px',
+                      objectFit: 'cover',
+                      cursor: 'pointer',
                     }}
                   />
                 ))}
@@ -86,10 +112,10 @@ export default function PublicacionDetails() {
                 className="img-fluid"
                 alt="main"
                 style={{
-                  width: "100%",
+                  width: '100%',
                   maxWidth: 450,
                   height: 300,
-                  objectFit: "cover",
+                  objectFit: 'cover',
                 }}
               />
             </div>
@@ -97,7 +123,7 @@ export default function PublicacionDetails() {
 
           <div className="col-xl-6">
             <h2 className="mb-3">{post.title}</h2>
-            <h4 className="mb-3 text-muted">{post.price || "—"}</h4>
+            <h4 className="mb-3 text-muted">{post.price || '—'}</h4>
 
             <div className="mb-3">
               <button
@@ -108,26 +134,29 @@ export default function PublicacionDetails() {
               >
                 Copiar enlace
               </button>
-              <a className="btn btn-success" href={contactHref(post.contact)}>
+              <a
+                className="btn btn-success"
+                href={contactHref(post.contact, post)}
+              >
                 Contactar vendedor
               </a>
             </div>
 
             <hr />
             <p>
-              <strong>Dueño:</strong> {post.owner || "Anónimo"}
+              <strong>Dueño:</strong> {post.owner || 'Anónimo'}
             </p>
             <p>
-              <strong>Contacto:</strong>{" "}
+              <strong>Contacto:</strong>{' '}
               {post.contact ? (
-                <a href={contactHref(post.contact)}>{post.contact}</a>
+                <a href={contactHref(post.contact, post)}>{post.contact}</a>
               ) : (
-                "—"
+                '—'
               )}
             </p>
             <p>
-              <strong>Descripción:</strong>{" "}
-              {post.description || "Sin descripción"}
+              <strong>Descripción:</strong>{' '}
+              {post.description || 'Sin descripción'}
             </p>
 
             <div className="mt-4">
