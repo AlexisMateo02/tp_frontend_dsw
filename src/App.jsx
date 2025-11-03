@@ -23,6 +23,8 @@ import SellerProfile from "./components/Pages/SellerProfile.jsx";
 import Admin from "./components/Pages/Admin.jsx";
 import Foro from "./components/Pages/Foro.jsx";
 import Publicar from "./components/Pages/Publicar.jsx";
+import Publicaciones from "./components/Pages/Publicaciones.jsx";
+import PublicacionDetails from "./components/Pages/PublicacionDetails.jsx";
 
 function App() {
   return (
@@ -49,6 +51,11 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/foro" element={<Foro />} />
           <Route path="/foro/crear" element={<Publicar />} />
+          <Route path="/foro/mis" element={<Publicaciones />} />
+          <Route
+            path="/foro/publicacion/:id"
+            element={<PublicacionDetails />}
+          />
         </Routes>
         <Footer />
       </div>

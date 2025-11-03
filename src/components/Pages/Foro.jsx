@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import SeedPosts from "../../data/Publicaciones.json";
 
 export default function Foro() {
   const [posts, setPosts] = useState([]);
@@ -10,8 +11,10 @@ export default function Foro() {
     const userProducts = JSON.parse(
       localStorage.getItem("userProducts") || "[]"
     );
-    // normalize and merge
-    const merged = [...forum, ...userProducts].map((p) => ({ ...p }));
+    // normalize and merge (include seed data)
+    const merged = [...forum, ...userProducts, ...SeedPosts].map((p) => ({
+      ...p,
+    }));
     // sort by id desc when possible
     merged.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
     setPosts(merged);
@@ -76,6 +79,7 @@ export default function Foro() {
                     post.ProductName ||
                     "Sin título";
                   const img =
+                    (post.images && post.images[0]) ||
                     post.image ||
                     post.secondImage ||
                     "/assets/placeholder.webp";
@@ -103,7 +107,7 @@ export default function Foro() {
                           <p className="card-text text-truncate">{desc}</p>
                           <div className="mt-auto d-flex gap-2">
                             <Link
-                              to={`/foro/post/${post.id}`}
+                              to={`/foro/publicacion/${post.id}`}
                               className="btn btn-sm btn-outline-primary w-100"
                             >
                               Ver

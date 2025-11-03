@@ -5,12 +5,18 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function Publicar() {
   const navigate = useNavigate();
+  // prefills owner when there's a logged user
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+  const defaultOwner = currentUser
+    ? `${currentUser.firstName || ""} ${currentUser.lastName || ""}`.trim()
+    : "";
+
   const [form, setForm] = useState({
     title: "",
     price: "",
     description: "",
-    owner: "",
-    contact: "",
+    owner: defaultOwner,
+    contact: currentUser?.email || "",
   });
   const [images, setImages] = useState([]);
   const fileInputRef = useRef(null);
@@ -32,9 +38,35 @@ export default function Publicar() {
   };
 
   const nextId = () => {
-    const local = JSON.parse(localStorage.getItem("userPosts") || "[]");
+    const local = safeGetPosts();
     const maxLocal = Math.max(0, ...local.map((p) => Number(p.id) || 0));
     return Date.now() + maxLocal + 1;
+  };
+
+  const safeGetPosts = () => {
+    try {
+      const raw = localStorage.getItem("userPosts");
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.warn("userPosts is invalid JSON, resetting to []", e);
+      try {
+        localStorage.setItem("userPosts", JSON.stringify([]));
+      } catch (err) {
+        console.warn("Could not reset userPosts", err);
+      }
+      return [];
+    }
+  };
+
+  const safeSetPosts = (arr) => {
+    try {
+      localStorage.setItem("userPosts", JSON.stringify(arr));
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e };
+    }
   };
 
   const handleSubmit = (e) => {
@@ -51,15 +83,33 @@ export default function Publicar() {
       price: form.price.trim(),
       description: form.description.trim(),
       owner: form.owner.trim(),
+      ownerEmail: currentUser?.email || undefined,
       contact: form.contact.trim(),
       images: images.slice(0, 5),
       createdAt: new Date().toISOString(),
     };
 
     try {
-      const existing = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      const existing = safeGetPosts();
       existing.unshift(newPost);
-      localStorage.setItem("userPosts", JSON.stringify(existing));
+      const res = safeSetPosts(existing);
+      if (!res.ok) {
+        console.error("Failed to save userPosts", res.error);
+        const e = res.error;
+        const isQuota =
+          e &&
+          (e.name === "QuotaExceededError" ||
+            e.code === 22 ||
+            /quota/i.test(e.message || ""));
+        if (isQuota) {
+          toast.error(
+            "Espacio de almacenamiento insuficiente en el navegador. Intenta reducir el tamaño de las imágenes o eliminar publicaciones antiguas."
+          );
+        } else {
+          toast.error("No se pudo guardar la publicación");
+        }
+        return;
+      }
       window.dispatchEvent(new Event("postsUpdated"));
       toast.success("Publicación creada correctamente");
       // small delay to let toast show
