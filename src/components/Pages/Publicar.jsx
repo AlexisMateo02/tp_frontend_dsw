@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,6 +20,16 @@ export default function Publicar() {
   });
   const [images, setImages] = useState([]);
   const fileInputRef = useRef(null);
+
+  // require login: if no currentUser redirect to login
+  useEffect(() => {
+    if (!currentUser) {
+      toast.info("Debes iniciar sesión para crear una publicación");
+      // navigate to login and include returnTo so we can navigate back after auth
+      navigate("/login", { state: { returnTo: "/foro/crear" } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

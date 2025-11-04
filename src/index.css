@@ -398,6 +398,26 @@ body {
 .tab:before {
   display: none !important;
 }
+
+/* Banner content: light background for readable text over images */
+.banner-content--light {
+  background: rgba(255, 255, 255, 0.92); /* light, almost opaque */
+  color: #0b1220; /* dark text for contrast */
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.08);
+}
+
+.banner-content--light h1,
+.banner-content--light h3,
+.banner-content--light p {
+  color: inherit;
+}
+
+@media (max-width: 767px) {
+  .banner-content--light {
+    background: rgba(255, 255, 255, 0.96);
+    padding: 12px !important;
+  }
+}
 .Benefits-list li {
   position: relative;
   padding-left: 1.5rem;

@@ -1,61 +1,61 @@
 /* representa la "Home" o la vista inicial cuando se navega a esa ruta específica. */
-import React, { useState } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade, Navigation } from 'swiper/modules';
-import { useNavigate, Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade, Navigation } from "swiper/modules";
+import { useNavigate, Link, href } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
-import 'react-toastify/dist/ReactToastify.css';
-import 'swiper/css';
-import 'swiper/css/effect-fade';
+import "react-toastify/dist/ReactToastify.css";
+import "swiper/css";
+import "swiper/css/effect-fade";
 //Data
-import Products from '../../data/Product.json';
-import subBanner1 from './../../assets/banner-1.webp';
-import subBanner2 from './../../assets/banner-2.webp';
-import serviceImg1 from './../../assets/service-icon-1.svg';
-import serviceImg2 from './../../assets/service-icon-2.svg';
-import serviceImg3 from './../../assets/service-icon-3.svg';
-import serviceImg4 from './../../assets/service-icon-4.svg';
-import brand1 from './../../assets/brand-1.png';
-import brand2 from './../../assets/brand-2.png';
-import brand3 from './../../assets/brand-3.png';
-import femalebanner from './../../assets/banner-female.webp';
-import discover1 from './../../assets/discover-1.webp';
-import discover2 from './../../assets/discover-2.webp';
-import socialImage1 from './../../assets/link-1.webp';
-import socialImage2 from './../../assets/link-2.webp';
-import socialImage3 from './../../assets/link-3.webp';
-import socialImage4 from './../../assets/link-4.webp';
-import socialImage5 from './../../assets/link-5.webp';
-import socialImage6 from './../../assets/link-6.webp';
+import Products from "../../data/Product.json";
+import subBanner1 from "./../../assets/banner-1.webp";
+import subBanner2 from "./../../assets/banner-2.webp";
+import serviceImg1 from "./../../assets/service-icon-1.svg";
+import serviceImg2 from "./../../assets/service-icon-2.svg";
+import serviceImg3 from "./../../assets/service-icon-3.svg";
+import serviceImg4 from "./../../assets/service-icon-4.svg";
+import brand1 from "./../../assets/brand-1.png";
+import brand2 from "./../../assets/brand-2.png";
+import brand3 from "./../../assets/brand-3.png";
+import femalebanner from "./../../assets/banner-female.webp";
+import discover1 from "./../../assets/discover-1.webp";
+import discover2 from "./../../assets/discover-2.webp";
+import socialImage1 from "./../../assets/link-1.webp";
+import socialImage2 from "./../../assets/link-2.webp";
+import socialImage3 from "./../../assets/link-3.webp";
+import socialImage4 from "./../../assets/link-4.webp";
+import socialImage5 from "./../../assets/link-5.webp";
+import socialImage6 from "./../../assets/link-6.webp";
 
 function Index() {
   // Componente Index
   // Este componente representa la página de inicio de la aplicación.
   // Aquí se pueden incluir elementos como banners, promociones o información destacada.
-  const [filterSortOption, setFilterSortOption] = useState('all');
+  const [filterSortOption, setFilterSortOption] = useState("all");
   const navigate = useNavigate();
 
   const addToWishlist = (product) => {
-    const existing = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const existing = JSON.parse(localStorage.getItem("wishlist")) || [];
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
-      localStorage.setItem('wishlist', JSON.stringify(updated));
-      window.dispatchEvent(new Event('wishlistUpdates'));
+      localStorage.setItem("wishlist", JSON.stringify(updated));
+      window.dispatchEvent(new Event("wishlistUpdates"));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
     }
   };
   const addToCart = (product) => {
-    const existing = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = JSON.parse(localStorage.getItem("cart")) || [];
     const alreadyInCart = existing.find((p) => p.id === product.id);
 
     if (!alreadyInCart) {
       const updatedProduct = { ...product, quantity: 1 };
       const updatedCart = [...existing, updatedProduct];
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      window.dispatchEvent(new Event('cartUpdated'));
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      window.dispatchEvent(new Event("cartUpdated"));
       toast.success(`${product.Productname} agregado al carrito`);
     } else {
       toast.info(`${product.Productname} ya está en el carrito`);
@@ -85,7 +85,7 @@ function Index() {
                   Aquafloat
                 </h1>
                 <p className="my-3">Todos los talles disponibles </p>
-                <a href="/product/3" className="btn hero-btn mt-3">
+                <a href="product/3" className="btn hero-btn mt-3">
                   Comprar Ahora
                 </a>
               </div>
@@ -101,7 +101,7 @@ function Index() {
                   Weir
                 </h1>
                 <p className="my-3">Diferentes colores disponibles </p>
-                <a href="/product/27" className="btn hero-btn mt-3">
+                <a href="product/27" className="btn hero-btn mt-3">
                   Comprar Ahora
                 </a>
               </div>
@@ -141,8 +141,8 @@ function Index() {
             spaceBetween={20}
             modules={[Navigation]}
             navigation={{
-              nextEl: '.product-swiper-next',
-              prevEl: '.product-swiper-prev',
+              nextEl: ".product-swiper-next",
+              prevEl: ".product-swiper-prev",
             }}
             breakpoints={{
               1399: { slidesPerView: 4 },
@@ -187,7 +187,7 @@ function Index() {
                     </div>
                     <span
                       className={`tag badge text-white ${
-                        product.tag === 'Nuevo' ? 'bg-danger' : 'bg-success'
+                        product.tag === "Nuevo" ? "bg-danger" : "bg-success"
                       }`}
                     >
                       {product.tag}
@@ -222,14 +222,23 @@ function Index() {
               />
               <div
                 className="banner-content position-absolute color-white
-               background-opacity-1 p-3 rounded"
+               background-opacity-1 p-3 rounded "
               >
-                <h3>Nueva colección</h3>
                 <h1>
-                  Mantra <br />
-                  by Matrix <br />
+                  ¿Queres vender <br /> tus productos?
                 </h1>
-                <p>Descubre la nueva colección de Matrix</p>
+                <h3>
+                  Hacelo ahora desde <br />
+                  nuestro FORO
+                </h3>
+                <h1>
+                  <button
+                    className="btn btn-primary mt-3"
+                    onClick={() => navigate("/foro/crear")}
+                  >
+                    Publicar
+                  </button>
+                </h1>
               </div>
             </div>
             <div className="col-lg-6 banner-card overflow-hidden position-relative banner-mt">
@@ -239,7 +248,7 @@ function Index() {
                 alt=""
               />
               <div className="banner-content banner-content2 position-absolute">
-                <h1>25% off en Toda la Web</h1>
+                <h1>25% off en Efectivo </h1>
                 <p>
                   Aprovecha los descuentos por el mes de <br />
                   Noviembre
@@ -264,7 +273,7 @@ function Index() {
             <img src={serviceImg2} className="img-fluid" alt="" />
             <h4 className="mt-3 mb-1">Reembolsos</h4>
             <p className="text-muted fs-6 fw-semibold">
-              Reembolso gratis dentro de los primeros 30 dias{' '}
+              Reembolso gratis dentro de los primeros 30 dias{" "}
             </p>
           </div>
           <div className="col-lg-3 col-sm-6 mb-4">
@@ -317,11 +326,11 @@ function Index() {
           <div className="row">
             <div className="section-title mb-5 favourite-beauty-title text-center ">
               <h2 className="fw-semibold fs-1">
-                Esenciales y favoritos para la navegacion{' '}
+                Esenciales y favoritos para la navegacion{" "}
               </h2>
               <p>
                 Descubri nuestros productos más populares y esenciales para
-                navegar seguro{' '}
+                navegar seguro{" "}
               </p>
             </div>
           </div>
@@ -377,9 +386,9 @@ function Index() {
                           </div>
                           <span
                             className={`tag badge text-white ${
-                              product.tag === 'Nuevo'
-                                ? 'bg-danger'
-                                : 'bg-success'
+                              product.tag === "Nuevo"
+                                ? "bg-danger"
+                                : "bg-success"
                             }`}
                           >
                             {product.tag}
@@ -441,7 +450,7 @@ function Index() {
           <br />
           <button className="btn btn-default mt-2 w-80 h-80 position-center">
             <a
-              style={{ textDecoration: 'none', color: 'inherit' }}
+              style={{ textDecoration: "none", color: "inherit" }}
               href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
               target="_blank"
               rel="noopener noreferrer"
