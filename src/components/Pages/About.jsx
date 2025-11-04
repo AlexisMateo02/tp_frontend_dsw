@@ -2,8 +2,8 @@
 por ejemplo en nuestra pagina es el Quienes Somos?*/
 import React, { useState } from "react";
 import head from "../../assets/about-head-shape.jpeg";
-import about1 from "../../assets/banner-female-2.webp";
-import about2 from "../../assets/discover-1.webp";
+import about1 from "../../assets/about1.jpg";
+import about2 from "../../assets/about2.jpg";
 import client1 from "../../assets/brand-logo-1.png";
 import client2 from "../../assets/brand-logo-2.png";
 import client3 from "../../assets/brand-logo-3.png";
@@ -37,18 +37,29 @@ const About = () => {
       </section>
       {/*Main About*/}
       <section className="py-5">
-        <div className="container text-center mb-4">
-          <img src={head} alt="decorative leaf " className="mb-4 w-50 h-40" />
-          <h2 className="fw-bold mb-3">
-            Somos una empresa dedicada a la venta de kayaks, lanchas, articulos
-            maritimos y mucho más... <br /> en Rosario, Argentina.
-          </h2>
-          <p className="text-muted mx-auto" style={{ maxWidth: "600px" }}>
-            Fundada en 2023, Kayaks Brokers Rosario se ha convertido en un
-            referente para los entusiastas de los deportes acuáticos y la
-            navegación en la región. Nuestro compromiso es ofrecer productos de
-            alta calidad y un servicio excepcional a nuestros clientes.
-          </p>
+        <div className="container mb-5">
+          <div className="row align-items-center flex-md-row-reverse">
+            {/* Main about: image on left, text on right (same format as company image / mission) */}
+            <div className="col-md-6 mb-4 mb-md-0 about-img1">
+              <img
+                src={head}
+                alt="Kayaks Brokers"
+                className="img-fluid rounded"
+              />
+            </div>
+            <div className="col-md-6 text-md-start text-center">
+              <h2 className="fw-bold mb-3">
+                Somos una empresa dedicada a la venta de kayaks, lanchas,
+                artículos marítimos y mucho más... en Rosario, Argentina.
+              </h2>
+              <p className="text-muted mx-auto" style={{ maxWidth: "600px" }}>
+                Fundada en 2023, Kayaks Brokers Rosario se ha convertido en un
+                referente para los entusiastas de los deportes acuáticos y la
+                navegación en la región. Nuestro compromiso es ofrecer productos
+                de alta calidad y un servicio excepcional a nuestros clientes.
+              </p>
+            </div>
+          </div>
         </div>
         {/*Imagen de la empresa*/}
         <div className="container mb-5">
