@@ -53,8 +53,18 @@ body {
   background-color: var(
     --white-color
   ); /* asegúrate que tenga fondo para que no se vea a través */
-  z-index: 1050; /* más alto que el contenido para que quede por encima */
+  z-index: 99999 !important; /* más alto que el contenido para que quede por encima */
+  pointer-events: auto !important;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Ensure main content and banners don't sit above the nav */
+.main-content {
+  position: relative;
+  z-index: 1;
+}
+.section-banner {
+  z-index: 1;
 }
 
 .cart-qount {
@@ -134,6 +144,18 @@ body {
 .btn:hover {
   background-color: var(--primary-color) !important;
   color: var(--white-color) !important;
+}
+
+/* Logout button specific styling: keep black on hover instead of primary color */
+.nav-logout-btn {
+  background-color: #ffffff;
+  color: inherit;
+}
+.nav-logout-btn:hover,
+.nav-logout-btn:focus {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: rgba(0,0,0,0.08) !important;
 }
 
 /*Hero Section*/

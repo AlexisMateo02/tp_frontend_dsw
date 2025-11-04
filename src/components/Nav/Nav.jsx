@@ -73,11 +73,28 @@ function Nav() {
     window.location.href = '/';
   };
 
+  const pushNav = (to, e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      window.history.pushState({}, '', to);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch {
+      // fallback
+      window.location.href = to;
+    }
+  };
+
   return (
     <>
       {/* Navbar principal */}
-      <div className="nav w-100 fixed-top bd-white shadow-sm mb-10">
-        <nav className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper">
+      <div
+        className="nav w-100 fixed-top bd-white shadow-sm mb-10"
+        style={{ zIndex: 3000, pointerEvents: 'auto' }}
+      >
+        <nav
+          className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper"
+          style={{ zIndex: 3000, pointerEvents: 'auto' }}
+        >
           {/* Toggle button */}
           <button
             className="navbar-toggler"
@@ -129,38 +146,66 @@ function Nav() {
             {/* Navegador de la izquierda */}
             <ul className="navbar-nav nav-menu align-items-center gap-4">
               <li className="nav-item">
-                <Link to="/" className="nav-link">
+                <Link
+                  to="/"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/', e)}
+                >
                   Inicio
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/about" className="nav-link">
+                <Link
+                  to="/about"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/about', e)}
+                >
                   Quienes somos?
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/foro" className="nav-link">
+                <Link
+                  to="/foro"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/foro', e)}
+                >
                   Foro Ventas
                 </Link>
               </li>
 
               <li className="nav-item">
-                <Link to="/articles" className="nav-link">
+                <Link
+                  to="/articles"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/articles', e)}
+                >
                   Nuestros Productos
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/contact" className="nav-link">
+                <Link
+                  to="/contact"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/contact', e)}
+                >
                   Contactos
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/stores" className="nav-link">
+                <Link
+                  to="/stores"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/stores', e)}
+                >
                   Tiendas
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/profile" className="nav-link">
+                <Link
+                  to="/profile"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/profile', e)}
+                >
                   Mi perfil
                 </Link>
               </li>
@@ -181,7 +226,7 @@ function Nav() {
                       Hola, {currentUser.firstName || currentUser.email}
                     </span>
                     <button
-                      className="btn nav-link"
+                      className="btn nav-link nav-logout-btn"
                       onClick={logout}
                       style={{
                         padding: '6px 8px',
@@ -203,7 +248,7 @@ function Nav() {
                     </button>
                   </div>
                 ) : (
-                  <Link to="/login">
+                  <Link to="/login" onClick={(e) => pushNav('/login', e)}>
                     <i className="bi bi-person fs-5 text-dark"></i>
                   </Link>
                 )}

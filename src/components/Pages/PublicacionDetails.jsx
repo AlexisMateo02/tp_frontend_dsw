@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,15 +9,24 @@ export default function PublicacionDetails() {
   const [mainImage, setMainImage] = useState('/assets/placeholder.webp');
   const [images, setImages] = useState([]);
 
-  const posts = JSON.parse(localStorage.getItem('userPosts') || '[]');
-  const post = posts.find((p) => String(p.id) === String(id));
+  const posts = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('userPosts') || '[]');
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const post = useMemo(
+    () => posts.find((p) => String(p.id) === String(id)),
+    [posts, id]
+  );
 
   useEffect(() => {
     if (post) {
-      setMainImage(
-        (post.images && post.images[0]) || '/assets/placeholder.webp'
-      );
-      setImages((post.images || []).filter(Boolean));
+      const list = (post.images || []).filter(Boolean);
+      setImages(list);
+      setMainImage(list[0] || '/assets/placeholder.webp');
     }
   }, [post]);
 
@@ -35,36 +44,31 @@ export default function PublicacionDetails() {
 
   const contactHref = (c, postData) => {
     if (!c) return '#';
-    // email -> build mailto with subject and templated body
     if (/@/.test(c)) {
       const subject = `Consulta sobre: ${postData?.title || ''}`;
-      const lines = [];
-      lines.push('Hola,');
-      lines.push('');
-      lines.push(
+      const lines = [
+        'Hola,',
+        '',
         `Me interesa la publicación: "${postData?.title || ''}"${
           postData?.id ? ` (ID: ${postData.id})` : ''
-        }.`
-      );
-      lines.push('Quisiera por favor que me informen:');
-      lines.push('- Estado del artículo');
-      lines.push('- Medidas o especificaciones relevantes');
-      lines.push('- Precio final con envío (si aplica)');
-      lines.push('- Tiempo estimado de entrega o retiro');
-      lines.push('');
-      lines.push('Mi nombre:');
-      lines.push('Mi contacto (email o teléfono):');
-      lines.push('Gracias.');
+        }.`,
+        'Quisiera por favor que me informen:',
+        '- Estado del artículo',
+        '- Medidas o especificaciones relevantes',
+        '- Precio final con envío (si aplica)',
+        '- Tiempo estimado de entrega o retiro',
+        '',
+        'Mi nombre:',
+        'Mi contacto (email o teléfono):',
+        'Gracias.',
+      ];
       const body = lines.join('\n');
       return `mailto:${c}?subject=${encodeURIComponent(
         subject
       )}&body=${encodeURIComponent(body)}`;
     }
-
-    // phone -> tel link
     const digits = c.replace(/\D/g, '');
     if (digits.length >= 6) return `tel:${digits}`;
-    // fallback
     return `mailto:${c}`;
   };
 
@@ -88,34 +92,64 @@ export default function PublicacionDetails() {
         <div className="row">
           <div className="col-xl-6">
             <div className="d-flex flex-column-reverse flex-md-row mb-4">
-              <div className="d-flex flex-column me-3 thumbnail-images">
+              {/* Miniaturas */}
+              <div
+                className="d-flex flex-md-column me-md-3 gap-2 thumbnail-images"
+                style={{
+                  zIndex: 2, // evita overlays arriba
+                  position: 'relative', // para que el zIndex tenga efecto
+                  pointerEvents: 'auto', // por si algún contenedor tenía none
+                }}
+              >
                 {images.map((img, idx) => (
-                  <img
+                  <button
                     key={idx}
-                    src={img}
-                    alt={`Thumb${idx}`}
+                    type="button"
                     onClick={() => setMainImage(img)}
-                    className={`img-thumbnail ${
-                      mainImage === img ? 'border-dark' : ''
+                    aria-label={`Ver imagen ${idx + 1}`}
+                    aria-pressed={mainImage === img}
+                    className={`p-0 border-0 bg-transparent ${
+                      mainImage === img ? 'shadow' : ''
                     }`}
-                    style={{
-                      width: '90px',
-                      height: '100px',
-                      objectFit: 'cover',
-                      cursor: 'pointer',
+                    style={{ lineHeight: 0, cursor: 'pointer' }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setMainImage(img);
+                      }
                     }}
-                  />
+                  >
+                    <img
+                      src={img}
+                      alt={`Miniatura ${idx + 1}`}
+                      loading="lazy"
+                      className={`img-thumbnail ${
+                        mainImage === img ? 'border border-2 border-dark' : ''
+                      }`}
+                      style={{
+                        width: 90,
+                        height: 100,
+                        objectFit: 'cover',
+                        display: 'block',
+                        userSelect: 'none',
+                      }}
+                    />
+                  </button>
                 ))}
               </div>
+
+              {/* Imagen principal */}
               <img
                 src={mainImage}
                 className="img-fluid"
-                alt="main"
+                alt="Imagen principal de la publicación"
                 style={{
                   width: '100%',
                   maxWidth: 450,
                   height: 300,
                   objectFit: 'cover',
+                  zIndex: 1,
+                  position: 'relative',
                 }}
               />
             </div>
@@ -123,7 +157,22 @@ export default function PublicacionDetails() {
 
           <div className="col-xl-6">
             <h2 className="mb-3">{post.title}</h2>
-            <h4 className="mb-3 text-muted">{post.price || '—'}</h4>
+            <h4 className="mb-3 text-muted">
+              {(() => {
+                const p = post.price;
+                if (!p && p !== 0) return '—';
+                if (typeof p === 'number') {
+                  const hasDecimals = p % 1 !== 0;
+                  return `Precio: $${p.toLocaleString('es-AR', {
+                    minimumFractionDigits: hasDecimals ? 2 : 0,
+                    maximumFractionDigits: hasDecimals ? 2 : 0,
+                  })}`;
+                }
+                const s = String(p).trim();
+                if (s.includes('$')) return `Precio: ${s}`;
+                return `Precio: $${s}`;
+              })()}
+            </h4>
 
             <div className="mb-3">
               <button
@@ -167,6 +216,7 @@ export default function PublicacionDetails() {
           </div>
         </div>
       </div>
+
       <ToastContainer position="top-right" autoClose={3000} />
     </>
   );
