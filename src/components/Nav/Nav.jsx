@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"; //Importa libreria React
-import "bootstrap/dist/js/bootstrap.bundle.min.js"; //Importa Bootstrap JS para funcionalidades interactivas
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react'; //Importa libreria React
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; //Importa Bootstrap JS para funcionalidades interactivas
+import { Link } from 'react-router-dom';
 
 function Nav() {
   //Componente Nav
@@ -11,8 +11,8 @@ function Nav() {
   const [currentUser, setCurrentUser] = useState(null);
 
   const updateCounts = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
     const totalCartItems = cart.reduce(
       (acc, item) => acc + (item.quantity || 1),
       0
@@ -27,57 +27,74 @@ function Nav() {
     const handleWishlistUpdate = () => updateCounts();
     const handleWishlistUpdatesAlt = () => updateCounts();
 
-    window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener('cartUpdated', handleCartUpdate);
     // listen for both event names (some components dispatch 'wishlistUpdated' and others 'wishlistUpdates')
-    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
-    window.addEventListener("wishlistUpdates", handleWishlistUpdatesAlt);
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    window.addEventListener('wishlistUpdates', handleWishlistUpdatesAlt);
 
     const onStorageChange = (e) => {
-      if (e.key === "cart" || e.key === "wishlist") {
+      if (e.key === 'cart' || e.key === 'wishlist') {
         updateCounts();
       }
     };
-    window.addEventListener("storage", onStorageChange);
+    window.addEventListener('storage', onStorageChange);
 
     // load currentUser and listen for auth changes
     try {
-      const u = JSON.parse(localStorage.getItem("currentUser") || "null");
+      const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
       setCurrentUser(u);
     } catch {
       setCurrentUser(null);
     }
     const onAuth = () => {
       try {
-        const u = JSON.parse(localStorage.getItem("currentUser") || "null");
+        const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
         setCurrentUser(u);
       } catch {
         setCurrentUser(null);
       }
     };
-    window.addEventListener("authChanged", onAuth);
+    window.addEventListener('authChanged', onAuth);
 
     return () => {
-      window.removeEventListener("cartUpdated", handleCartUpdate);
-      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
-      window.removeEventListener("wishlistUpdates", handleWishlistUpdatesAlt);
-      window.removeEventListener("storage", onStorageChange);
-      window.removeEventListener("authChanged", onAuth);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+      window.removeEventListener('wishlistUpdates', handleWishlistUpdatesAlt);
+      window.removeEventListener('storage', onStorageChange);
+      window.removeEventListener('authChanged', onAuth);
     };
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("currentUser");
+    localStorage.removeItem('currentUser');
     setCurrentUser(null);
-    window.dispatchEvent(new Event("authChanged"));
+    window.dispatchEvent(new Event('authChanged'));
     // navigate to home
-    window.location.href = "/";
+    window.location.href = '/';
+  };
+
+  const pushNav = (to, e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      window.history.pushState({}, '', to);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch {
+      // fallback
+      window.location.href = to;
+    }
   };
 
   return (
     <>
       {/* Navbar principal */}
-      <div className="nav w-100 fixed-top bd-white shadow-sm mb-10">
-        <nav className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper">
+      <div
+        className="nav w-100 fixed-top bd-white shadow-sm mb-10"
+        style={{ zIndex: 3000, pointerEvents: 'auto' }}
+      >
+        <nav
+          className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper"
+          style={{ zIndex: 3000, pointerEvents: 'auto' }}
+        >
           {/* Toggle button */}
           <button
             className="navbar-toggler"
@@ -129,45 +146,73 @@ function Nav() {
             {/* Navegador de la izquierda */}
             <ul className="navbar-nav nav-menu align-items-center gap-4">
               <li className="nav-item">
-                <Link to="/" className="nav-link">
+                <Link
+                  to="/"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/', e)}
+                >
                   Inicio
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/about" className="nav-link">
-                  Nosotros
+                <Link
+                  to="/about"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/about', e)}
+                >
+                  Quienes somos?
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/foro" className="nav-link">
+                <Link
+                  to="/foro"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/foro', e)}
+                >
                   Foro Ventas
                 </Link>
               </li>
 
               <li className="nav-item">
-                <Link to="/articles" className="nav-link">
+                <Link
+                  to="/articles"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/articles', e)}
+                >
                   Nuestros Productos
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/contact" className="nav-link">
+                <Link
+                  to="/contact"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/contact', e)}
+                >
                   Contactos
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/stores" className="nav-link">
+                <Link
+                  to="/stores"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/stores', e)}
+                >
                   Tiendas
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/profile" className="nav-link">
+                <Link
+                  to="/profile"
+                  className="nav-link"
+                  onClick={(e) => pushNav('/profile', e)}
+                >
                   Mi perfil
                 </Link>
               </li>
             </ul>
             {/* Center Logo */}
             <Link to="/" className="navbar-brand order-@ d-none d-lg-flex">
-              <h2 className="m-@ fw-bold" style={{ letterSpacing: "2px" }}>
+              <h2 className="m-@ fw-bold" style={{ letterSpacing: '2px' }}>
                 KAYAKS BROKERS
               </h2>
             </Link>
@@ -181,29 +226,29 @@ function Nav() {
                       Hola, {currentUser.firstName || currentUser.email}
                     </span>
                     <button
-                      className="btn nav-link"
+                      className="btn nav-link nav-logout-btn"
                       onClick={logout}
                       style={{
-                        padding: "6px 8px",
-                        backgroundColor: "#ffffff",
-                        borderRadius: "6px",
-                        border: "1px solid rgba(0,0,0,0.06)",
-                        color: "inherit",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
+                        padding: '6px 8px',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(0,0,0,0.06)',
+                        color: 'inherit',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
                       }}
                       aria-label="Cerrar sesión"
                     >
                       <i
-                        className="bi bi-box-arrow-right fs-5 text-dark"
+                        className="bi bi-box-arrow-right fs-5 "
                         aria-hidden="true"
                       ></i>
                       <span className="visually-hidden">Cerrar sesión</span>
                     </button>
                   </div>
                 ) : (
-                  <Link to="/login">
+                  <Link to="/login" onClick={(e) => pushNav('/login', e)}>
                     <i className="bi bi-person fs-5 text-dark"></i>
                   </Link>
                 )}
