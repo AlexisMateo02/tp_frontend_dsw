@@ -7,12 +7,16 @@ import ArticleTypes from '../../data/ArticleTypes.json';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function SellerDashboard() {
+export default function Shop() {
   const navigate = useNavigate();
   const [currentSeller, setCurrentSeller] = useState(null);
   const [myProducts, setMyProducts] = useState([]);
   const [showAddProduct, setShowAddProduct] = useState(false);
-  const [stats, setStats] = useState({ totalProducts: 0, totalSales: 0, rating: 0 });
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalSales: 0,
+    rating: 0,
+  });
 
   // Form para nuevo producto
   const [form, setForm] = useState({
@@ -31,25 +35,27 @@ export default function SellerDashboard() {
     kayakTypeId: '',
     supTypeId: '',
     boatTypeId: '',
-    articleTypeId: ''
+    articleTypeId: '',
   });
 
   const fileInputRef = useRef(null);
 
   const loadMyProducts = useCallback((sellerId) => {
-    const allProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
-    const mine = allProducts.filter(p => p.sellerId === sellerId);
+    const allProducts =
+      JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+    const mine = allProducts.filter((p) => p.sellerId === sellerId);
     setMyProducts(mine);
   }, []);
 
   const calculateStats = useCallback((sellerId, sellerRating = 0) => {
-    const allProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
-    const mine = allProducts.filter(p => p.sellerId === sellerId);
-    
+    const allProducts =
+      JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+    const mine = allProducts.filter((p) => p.sellerId === sellerId);
+
     setStats({
       totalProducts: mine.length,
       totalSales: mine.reduce((sum, p) => sum + (p.soldCount || 0), 0),
-      rating: sellerRating || 0
+      rating: sellerRating || 0,
     });
   }, []);
 
@@ -58,7 +64,7 @@ export default function SellerDashboard() {
     const seller = JSON.parse(localStorage.getItem('currentSeller'));
     if (!seller) {
       toast.error('Debes registrarte como vendedor primero');
-      navigate('/seller-register');
+      navigate('/register');
       return;
     }
     setCurrentSeller(seller);
@@ -68,15 +74,15 @@ export default function SellerDashboard() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
-    
+    setForm((f) => ({ ...f, [name]: value }));
+
     if (name === 'category') {
-      setForm(f => ({
+      setForm((f) => ({
         ...f,
         kayakTypeId: '',
         supTypeId: '',
         boatTypeId: '',
-        articleTypeId: ''
+        articleTypeId: '',
       }));
     }
   };
@@ -92,9 +98,11 @@ export default function SellerDashboard() {
   const handleFiles = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, 4);
     if (files.length === 0) return;
-    
+
     try {
-      const dataUrls = await Promise.all(files.map(f => readFileAsDataURL(f)));
+      const dataUrls = await Promise.all(
+        files.map((f) => readFileAsDataURL(f))
+      );
       const updated = { ...form };
       if (dataUrls[0]) updated.image = dataUrls[0];
       if (dataUrls[1]) updated.secondImage = dataUrls[1];
@@ -107,31 +115,42 @@ export default function SellerDashboard() {
   };
 
   const removeImage = (idx) => {
-    const imgs = [form.image || '', form.secondImage || '', form.thirdImage || '', form.fourthImage || ''];
+    const imgs = [
+      form.image || '',
+      form.secondImage || '',
+      form.thirdImage || '',
+      form.fourthImage || '',
+    ];
     imgs.splice(idx, 1);
     while (imgs.length < 4) imgs.push('');
-    
+
     setForm({
       ...form,
       image: imgs[0],
       secondImage: imgs[1],
       thirdImage: imgs[2],
-      fourthImage: imgs[3]
+      fourthImage: imgs[3],
     });
-    
+
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const nextId = () => {
-    const allProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
-    const maxId = Math.max(0, ...allProducts.map(p => Number(p.id) || 0));
+    const allProducts =
+      JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+    const maxId = Math.max(0, ...allProducts.map((p) => Number(p.id) || 0));
     return maxId + 1;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!form.Productname.trim() || !form.price.trim() || !form.category.trim() || !form.description.trim()) {
+
+    if (
+      !form.Productname.trim() ||
+      !form.price.trim() ||
+      !form.category.trim() ||
+      !form.description.trim()
+    ) {
       toast.error('Completa todos los campos obligatorios');
       return;
     }
@@ -153,7 +172,12 @@ export default function SellerDashboard() {
       return;
     }
 
-    const imagenes = [form.image, form.secondImage, form.thirdImage, form.fourthImage].filter(Boolean);
+    const imagenes = [
+      form.image,
+      form.secondImage,
+      form.thirdImage,
+      form.fourthImage,
+    ].filter(Boolean);
     if (imagenes.length === 0) {
       toast.error('Debes subir al menos una imagen');
       return;
@@ -176,24 +200,27 @@ export default function SellerDashboard() {
       kayakTypeId: form.kayakTypeId ? Number(form.kayakTypeId) : undefined,
       supTypeId: form.supTypeId ? Number(form.supTypeId) : undefined,
       boatTypeId: form.boatTypeId ? Number(form.boatTypeId) : undefined,
-      articleTypeId: form.articleTypeId ? Number(form.articleTypeId) : undefined,
+      articleTypeId: form.articleTypeId
+        ? Number(form.articleTypeId)
+        : undefined,
       sellerId: currentSeller.id,
       sellerName: currentSeller.businessName,
       approved: false, // Requiere aprobación de admin
       soldCount: 0,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     try {
-      const allProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+      const allProducts =
+        JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
       allProducts.push(newProduct);
       localStorage.setItem('marketplaceProducts', JSON.stringify(allProducts));
-      
+
       toast.success('Producto creado. Pendiente de aprobación.');
       setShowAddProduct(false);
       loadMyProducts(currentSeller.id);
       calculateStats(currentSeller.id, currentSeller?.rating);
-      
+
       // Resetear formulario
       setForm({
         Productname: '',
@@ -211,7 +238,7 @@ export default function SellerDashboard() {
         kayakTypeId: '',
         supTypeId: '',
         boatTypeId: '',
-        articleTypeId: ''
+        articleTypeId: '',
       });
     } catch (err) {
       console.error(err);
@@ -221,11 +248,12 @@ export default function SellerDashboard() {
 
   const deleteProduct = (productId) => {
     if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-    
-    const allProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
-    const filtered = allProducts.filter(p => p.id !== productId);
+
+    const allProducts =
+      JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+    const filtered = allProducts.filter((p) => p.id !== productId);
     localStorage.setItem('marketplaceProducts', JSON.stringify(filtered));
-    
+
     toast.success('Producto eliminado');
     loadMyProducts(currentSeller.id);
     calculateStats(currentSeller.id, currentSeller?.rating);
@@ -238,7 +266,7 @@ export default function SellerDashboard() {
   return (
     <div className="container py-5">
       <ToastContainer />
-      
+
       {/* Header con info del vendedor */}
       <div className="row mb-5">
         <div className="col-md-8">
@@ -246,7 +274,7 @@ export default function SellerDashboard() {
           <h4 className="text-muted">{currentSeller.businessName}</h4>
         </div>
         <div className="col-md-4 text-end">
-          <button 
+          <button
             className="btn btn-primary"
             onClick={() => setShowAddProduct(!showAddProduct)}
           >
@@ -330,7 +358,7 @@ export default function SellerDashboard() {
                       required
                     >
                       <option value="">Selecciona un tipo</option>
-                      {KayakTypes.map(k => (
+                      {KayakTypes.map((k) => (
                         <option key={k.id} value={k.id}>
                           {k.brand} {k.model}
                         </option>
@@ -350,7 +378,7 @@ export default function SellerDashboard() {
                       required
                     >
                       <option value="">Selecciona un tipo</option>
-                      {SUPTypes.map(s => (
+                      {SUPTypes.map((s) => (
                         <option key={s.id} value={s.id}>
                           {s.brand} {s.model}
                         </option>
@@ -370,7 +398,7 @@ export default function SellerDashboard() {
                       required
                     >
                       <option value="">Selecciona un tipo</option>
-                      {BoatTypes.map(b => (
+                      {BoatTypes.map((b) => (
                         <option key={b.id} value={b.id}>
                           {b.brand} {b.model}
                         </option>
@@ -390,7 +418,7 @@ export default function SellerDashboard() {
                       required
                     >
                       <option value="">Selecciona un tipo</option>
-                      {ArticleTypes.map(a => (
+                      {ArticleTypes.map((a) => (
                         <option key={a.id} value={a.id}>
                           {a.name}
                         </option>
@@ -460,14 +488,32 @@ export default function SellerDashboard() {
                     onChange={handleFiles}
                     className="form-control"
                   />
-                  
+
                   <div className="mt-3 d-flex gap-2">
-                    {[form.image, form.secondImage, form.thirdImage, form.fourthImage].map((src, idx) => (
-                      <div key={idx} style={{ width: 80, height: 80, position: 'relative', border: '1px solid #ddd', borderRadius: 4 }}>
+                    {[
+                      form.image,
+                      form.secondImage,
+                      form.thirdImage,
+                      form.fourthImage,
+                    ].map((src, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          width: 80,
+                          height: 80,
+                          position: 'relative',
+                          border: '1px solid #ddd',
+                          borderRadius: 4,
+                        }}
+                      >
                         <img
                           src={src || '/assets/placeholder.webp'}
                           alt={`preview-${idx}`}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
                         />
                         {src && (
                           <button
@@ -483,7 +529,7 @@ export default function SellerDashboard() {
                               borderRadius: '50%',
                               width: 20,
                               height: 20,
-                              cursor: 'pointer'
+                              cursor: 'pointer',
                             }}
                           >
                             ×
@@ -521,8 +567,8 @@ export default function SellerDashboard() {
                   <button type="submit" className="btn btn-primary me-2">
                     Publicar Producto
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-secondary"
                     onClick={() => setShowAddProduct(false)}
                   >
@@ -539,7 +585,8 @@ export default function SellerDashboard() {
       <h3 className="mb-4">Mis Productos ({myProducts.length})</h3>
       {myProducts.length === 0 ? (
         <div className="alert alert-info">
-          Aún no has publicado ningún producto. ¡Comienza agregando tu primer producto!
+          Aún no has publicado ningún producto. ¡Comienza agregando tu primer
+          producto!
         </div>
       ) : (
         <div className="table-responsive">
@@ -556,13 +603,18 @@ export default function SellerDashboard() {
               </tr>
             </thead>
             <tbody>
-              {myProducts.map(product => (
+              {myProducts.map((product) => (
                 <tr key={product.id}>
                   <td>
-                    <img 
-                      src={product.image} 
+                    <img
+                      src={product.image}
                       alt={product.Productname}
-                      style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4 }}
+                      style={{
+                        width: 60,
+                        height: 60,
+                        objectFit: 'cover',
+                        borderRadius: 4,
+                      }}
                     />
                   </td>
                   <td>{product.Productname}</td>
@@ -577,7 +629,7 @@ export default function SellerDashboard() {
                   </td>
                   <td>{product.soldCount || 0}</td>
                   <td>
-                    <button 
+                    <button
                       className="btn btn-sm btn-danger"
                       onClick={() => deleteProduct(product.id)}
                     >
