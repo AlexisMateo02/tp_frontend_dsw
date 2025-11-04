@@ -146,7 +146,7 @@ function Nav() {
               </li>
               <li className="nav-item">
                 <Link to="/about" className="nav-link">
-                  Quienes Somos?
+                  Nosotros
                 </Link>
               </li>
               <li className="nav-item">
