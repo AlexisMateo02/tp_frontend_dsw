@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../../lib/api';
 
 /*
   Componente MiPerfil
@@ -49,7 +50,7 @@ function Profile() {
     setForm((s) => ({ ...s, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.firstName || !form.email) {
       toast.error('Nombre y email son requeridos');
@@ -98,48 +99,53 @@ function Profile() {
         users.push({ id: newId, ...form, avatar: previewAvatar || null });
       }
 
-      // try to persist users and currentUser. If localStorage quota is exceeded,
-      // fall back to saving without avatar.
-      try {
-        localStorage.setItem('users', JSON.stringify(users));
-      } catch (err) {
-        console.error('Error saving users, possibly quota exceeded', err);
-        // remove avatar from users entries and retry
-        const usersNoAvatar = users.map((u) => {
-          const copy = { ...u };
-          if (copy.avatar) delete copy.avatar;
-          return copy;
-        });
+      // If API is configured and user has an id, attempt to save to backend first.
+      // let backendSaved = false; (not used)
+      const apiEnabled = api.hasApi();
+      const userId = (user && user.id) || null;
+      const newCurrent = { ...user, ...form };
+
+      if (apiEnabled && userId) {
         try {
-          localStorage.setItem('users', JSON.stringify(usersNoAvatar));
-          toast.warn(
-            'Imagen muy grande: se ha guardado el perfil sin la foto (quota).'
+          // If there is a previewAvatar (data URL), upload it first
+          if (previewAvatar && previewAvatar.startsWith('data:')) {
+            const uploadResp = await api.uploadAvatar(userId, previewAvatar);
+            // backend may return avatarUrl or updated user
+            if (uploadResp && uploadResp.avatarUrl) {
+              newCurrent.avatar = uploadResp.avatarUrl;
+            } else if (uploadResp && uploadResp.avatar) {
+              newCurrent.avatar = uploadResp.avatar;
+            }
+          }
+          // update user object on server
+          const updated = await api.updateUser(userId, newCurrent);
+          // if backend returns updated user, use that
+          if (updated) {
+            Object.assign(newCurrent, updated);
+          }
+        } catch (err) {
+          console.error(
+            'Backend save failed, falling back to localStorage',
+            err
           );
-        } catch (err2) {
-          console.error('Retry saving users failed', err2);
-          toast.error('No se pudo guardar el perfil (almacenamiento lleno)');
-          throw err2;
+          toast.warn(
+            'No se pudo guardar en el servidor — se guardará localmente.'
+          );
         }
       }
 
-      // update currentUser
-      const newCurrent = { ...user, ...form };
-      if (previewAvatar) newCurrent.avatar = previewAvatar;
+      // Persist to localStorage (always) so the app works offline too.
+      try {
+        localStorage.setItem('users', JSON.stringify(users));
+      } catch (err) {
+        console.error('Error saving users to localStorage', err);
+      }
+
+      // persist currentUser locally as well
       try {
         localStorage.setItem('currentUser', JSON.stringify(newCurrent));
       } catch (err) {
-        console.error('Error saving currentUser, retry without avatar', err);
-        // try saving without avatar
-        const withoutAvatar = { ...newCurrent };
-        if (withoutAvatar.avatar) delete withoutAvatar.avatar;
-        try {
-          localStorage.setItem('currentUser', JSON.stringify(withoutAvatar));
-          toast.warn('Imagen muy grande: perfil guardado pero sin la foto.');
-        } catch (err2) {
-          console.error('Retry saving currentUser failed', err2);
-          toast.error('No se pudo guardar el perfil (almacenamiento lleno)');
-          throw err2;
-        }
+        console.error('Error saving currentUser to localStorage', err);
       }
       // notify other components
       window.dispatchEvent(new Event('authChanged'));

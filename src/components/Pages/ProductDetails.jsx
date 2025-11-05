@@ -19,6 +19,8 @@ function ProductDetails() {
   const [reviewName, setReviewName] = useState('');
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const product = Products.find((p) => Number(p.id) === Number(id));
   const navigate = useNavigate();
@@ -27,16 +29,16 @@ function ProductDetails() {
     if (!product) return null;
 
     if (product.category === 'kayak' && product.kayakTypeId) {
-      return KayakTypes.find(k => k.id === product.kayakTypeId);
+      return KayakTypes.find((k) => k.id === product.kayakTypeId);
     }
     if (product.category === 'sup' && product.supTypeId) {
-      return SUPTypes.find(s => s.id === product.supTypeId);
+      return SUPTypes.find((s) => s.id === product.supTypeId);
     }
     if (product.category === 'embarcacion' && product.boatTypeId) {
-      return BoatTypes.find(b => b.id === product.boatTypeId);
+      return BoatTypes.find((b) => b.id === product.boatTypeId);
     }
     if (product.category === 'articulo' && product.articleTypeId) {
-      return ArticleTypes.find(a => a.id === product.articleTypeId);
+      return ArticleTypes.find((a) => a.id === product.articleTypeId);
     }
     return null;
   };
@@ -56,8 +58,8 @@ function ProductDetails() {
         [
           product.image,
           product.secondImage,
-          product.thirdImage, /*Agregue esto para poder mostrar una tercera imagen*/
-          product.fourthImage, /*Agregue esto para poder mostrar una cuarta imagen*/
+          product.thirdImage /*Agregue esto para poder mostrar una tercera imagen*/,
+          product.fourthImage /*Agregue esto para poder mostrar una cuarta imagen*/,
           /*En el swipe de las imagenes igual aparecen solo dos*/
         ].filter(Boolean)
       );
@@ -71,18 +73,53 @@ function ProductDetails() {
       const existing = JSON.parse(localStorage.getItem(key)) || [];
       setReviews(existing);
     }
+    const loadCurrent = () => {
+      try {
+        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        setCurrentUser(cu);
+        if (cu) {
+          // use the login email as the reviewer identifier (unique)
+          setReviewName(
+            cu.email ||
+              cu.username ||
+              (
+                (cu.firstName || '') + (cu.lastName ? ` ${cu.lastName}` : '')
+              ).trim() ||
+              'Usuario'
+          );
+        }
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+    loadCurrent();
+    window.addEventListener('authChanged', loadCurrent);
+    window.addEventListener('storage', loadCurrent);
+    return () => {
+      window.removeEventListener('authChanged', loadCurrent);
+      window.removeEventListener('storage', loadCurrent);
+    };
   }, [product]);
 
   const addReview = (e) => {
     e.preventDefault();
-    if (!reviewName.trim() || !reviewText.trim()) {
+    if (!currentUser) {
+      // show modal asking user to login instead of redirecting immediately
+      setShowLoginModal(true);
+      return;
+    }
+    if (!reviewText.trim()) {
       toast.info('Completa nombre y reseña');
       return;
     }
     const key = `reviews-${product.id}`;
+    // use currentUser email as the author (unique identifier)
+    const authorName =
+      (currentUser && (currentUser.email || currentUser.username)) || 'Usuario';
     const newReview = {
       id: Date.now(),
-      name: reviewName.trim(),
+      name: authorName,
+      userId: currentUser.id || null,
       text: reviewText.trim(),
       rating: reviewRating,
       date: new Date().toISOString(),
@@ -90,7 +127,7 @@ function ProductDetails() {
     const updated = [newReview, ...reviews];
     localStorage.setItem(key, JSON.stringify(updated));
     setReviews(updated);
-    setReviewName('');
+    // keep reviewName as the user's email (non-editable)
     setReviewText('');
     setReviewRating(5);
     toast.success('Reseña agregada');
@@ -109,7 +146,7 @@ function ProductDetails() {
       toast.info(`${product.Productname} ya está en el carrito`);
     }
   };
-  
+
   const addToWishlist = (product) => {
     const existing = JSON.parse(localStorage.getItem('wishlist')) || [];
     if (!existing.some((p) => p.id === product.id)) {
@@ -142,12 +179,13 @@ function ProductDetails() {
         </li>
         <li className="position-relative active">
           <Link to="/articles" className="ps-5">
-            {
-              product.category === 'kayak' ? 'Kayaks' :
-              product.category === 'sup' ? 'SUP' :
-              product.category === 'embarcacion' ? 'Embarcaciones' :
-              'Artículos'
-            }
+            {product.category === 'kayak'
+              ? 'Kayaks'
+              : product.category === 'sup'
+              ? 'SUP'
+              : product.category === 'embarcacion'
+              ? 'Embarcaciones'
+              : 'Artículos'}
           </Link>
         </li>
         <li className="position-relative active">
@@ -196,19 +234,24 @@ function ProductDetails() {
             <span
               className="badge mb-2"
               style={{
-                backgroundColor: 
-                  product.category === 'kayak' ? '#007bff' :
-                  product.category === 'sup' ? '#28a745' :
-                  product.category === 'embarcacion' ? '#dc3545' :
-                  '#ffc107',
-                color: '#fff'
+                backgroundColor:
+                  product.category === 'kayak'
+                    ? '#007bff'
+                    : product.category === 'sup'
+                    ? '#28a745'
+                    : product.category === 'embarcacion'
+                    ? '#dc3545'
+                    : '#ffc107',
+                color: '#fff',
               }}
             >
-              {
-                product.category === 'kayak' ? 'Kayak' :
-                product.category === 'sup' ? 'SUP' :
-                product.category === 'embarcacion' ? 'Embarcación' :
-                'Artículo'}
+              {product.category === 'kayak'
+                ? 'Kayak'
+                : product.category === 'sup'
+                ? 'SUP'
+                : product.category === 'embarcacion'
+                ? 'Embarcación'
+                : 'Artículo'}
             </span>
             <h5 className="fw-bold">{product.price}</h5>
             <h2 className="mb-4 fw-semibold">{product.Productname}</h2>
@@ -279,18 +322,20 @@ function ProductDetails() {
                 <h5 className="fw-bold mb-3">Vendedor</h5>
                 <div className="d-flex align-items-center gap-3">
                   <div className="flex-grow-1">
-                    <Link 
+                    <Link
                       to={`/seller/${product.sellerId}`}
                       className="text-decoration-none"
                     >
-                      <h6 className="mb-1">{product.sellerName || 'Vendedor KBR'}</h6>
+                      <h6 className="mb-1">
+                        {product.sellerName || 'Vendedor KBR'}
+                      </h6>
                     </Link>
                     <small className="text-muted">
-                      <i className="bi bi-star-fill text-warning"></i> 
+                      <i className="bi bi-star-fill text-warning"></i>
                       5.0 · Vendedor verificado
                     </small>
                   </div>
-                  <Link 
+                  <Link
                     to={`/seller/${product.sellerId}`}
                     className="btn btn-outline-dark btn-sm"
                   >
@@ -298,13 +343,13 @@ function ProductDetails() {
                   </Link>
                 </div>
               </>
-)}
+            )}
             {/* Mostrar especificaciones técnicas según el tipo de producto */}
             {specs && (
               <>
                 <hr />
                 <h5 className="fw-bold mb-3">Especificaciones Técnicas</h5>
-                
+
                 {product.category === 'kayak' && (
                   <div className="row">
                     <div className="col-6 mb-2">
@@ -321,15 +366,21 @@ function ProductDetails() {
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Remadores:</small>
-                      <p className="mb-0 fw-semibold">{specs.paddlersQuantity}</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.paddlersQuantity}
+                      </p>
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Capacidad máx:</small>
-                      <p className="mb-0 fw-semibold">{specs.maxWeightCapacity} kg</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.maxWeightCapacity} kg
+                      </p>
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Construcción:</small>
-                      <p className="mb-0 fw-semibold">{specs.constructionType}</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.constructionType}
+                      </p>
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Largo:</small>
@@ -341,7 +392,7 @@ function ProductDetails() {
                     </div>
                   </div>
                 )}
-                
+
                 {product.category === 'sup' && (
                   <div className="row">
                     <div className="col-6 mb-2">
@@ -362,11 +413,15 @@ function ProductDetails() {
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Construcción:</small>
-                      <p className="mb-0 fw-semibold">{specs.constructionType}</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.constructionType}
+                      </p>
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Capacidad máx:</small>
-                      <p className="mb-0 fw-semibold">{specs.maxWeightCapacity} kg</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.maxWeightCapacity} kg
+                      </p>
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Largo:</small>
@@ -382,11 +437,13 @@ function ProductDetails() {
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Quillas:</small>
-                      <p className="mb-0 fw-semibold">{specs.finConfiguration || 'N/A'}</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.finConfiguration || 'N/A'}
+                      </p>
                     </div>
                   </div>
                 )}
-                
+
                 {product.category === 'embarcacion' && (
                   <div className="row">
                     <div className="col-6 mb-2">
@@ -407,11 +464,15 @@ function ProductDetails() {
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Capacidad:</small>
-                      <p className="mb-0 fw-semibold">{specs.passengerCapacity} personas</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.passengerCapacity} personas
+                      </p>
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Peso máximo:</small>
-                      <p className="mb-0 fw-semibold">{specs.maxWeightCapacity} kg</p>
+                      <p className="mb-0 fw-semibold">
+                        {specs.maxWeightCapacity} kg
+                      </p>
                     </div>
                     <div className="col-6 mb-2">
                       <small className="text-muted">Largo:</small>
@@ -434,12 +495,14 @@ function ProductDetails() {
                     {specs.maxHorsePower && (
                       <div className="col-6 mb-2">
                         <small className="text-muted">HP máximo:</small>
-                        <p className="mb-0 fw-semibold">{specs.maxHorsePower} HP</p>
+                        <p className="mb-0 fw-semibold">
+                          {specs.maxHorsePower} HP
+                        </p>
                       </div>
                     )}
                   </div>
                 )}
-                
+
                 {product.category === 'articulo' && (
                   <div className="row">
                     <div className="col-12 mb-2">
@@ -501,9 +564,9 @@ function ProductDetails() {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Tu nombre"
-                    value={reviewName}
-                    onChange={(e) => setReviewName(e.target.value)}
+                    placeholder="Tu email"
+                    value={currentUser ? currentUser.email : reviewName}
+                    disabled={!!currentUser}
                   />
                 </div>
                 <div className="mb-2">
@@ -524,7 +587,7 @@ function ProductDetails() {
                   >
                     {[5, 4, 3, 2, 1].map((r) => (
                       <option key={r} value={r}>
-                        {r}    {'⭐'.repeat(r)}
+                        {r} {'⭐'.repeat(r)}
                       </option>
                     ))}
                   </select>
@@ -547,7 +610,9 @@ function ProductDetails() {
                         <strong>{r.name}</strong>
                         <small>{new Date(r.date).toLocaleString()}</small>
                       </div>
-                      <div className="text-warning">{'⭐'.repeat(r.rating)}</div>
+                      <div className="text-warning">
+                        {'⭐'.repeat(r.rating)}
+                      </div>
                       <p className="mb-0">{r.text}</p>
                     </li>
                   ))}
@@ -565,6 +630,51 @@ function ProductDetails() {
           </div>
         </div>
       </div>
+      {showLoginModal && (
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1050,
+          }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="card p-4"
+            style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+          >
+            <h5 className="mb-3">Inicia sesión para continuar</h5>
+            <p className="mb-3">Debes iniciar sesión para dejar una reseña.</p>
+            <div className="d-flex justify-content-center gap-2">
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowLoginModal(false);
+                  navigate('/login');
+                }}
+              >
+                Ir a iniciar sesión
+              </button>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => setShowLoginModal(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ToastContainer
         position="top-right"
         autoClose={3000}

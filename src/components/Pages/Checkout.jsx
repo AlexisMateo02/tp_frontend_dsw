@@ -16,6 +16,24 @@ function Checkout() {
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState('branch1');
+
+  const branches = {
+    branch1: {
+      name: 'Sucursal 1 - Zona Norte',
+      address: 'Vera Mujica 1222, S2000 Rosario, Santa Fe, Argentina',
+      hours: 'Lun-Vie 9:00 - 18:00',
+      phone: '+232124343',
+      notes: 'Retiro en 24-48 horas hábiles',
+    },
+    branch2: {
+      name: 'Sucursal 2 - Zona Centro',
+      address: 'Zeballos 1341, S2000 Rosario, Santa Fe, Argentina',
+      hours: 'Lun-Sab 10:00 - 19:00',
+      phone: '+231219974',
+      notes: 'Retiro en 24-48 horas hábiles',
+    },
+  };
 
   // Campos de pago
   // Campos de pago (inputs de tarjeta eliminados)
@@ -128,16 +146,6 @@ function Checkout() {
               />
             </div>
 
-            <div className="form-check mb-4">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="newsCheck"
-              />
-              <label className="form-check-label" htmlFor="newsCheck">
-                Deseo recibir noticias y ofertas por email
-              </label>
-            </div>
             <h5>Envío</h5>
             <div>
               <div className="mb-3">
@@ -200,30 +208,52 @@ function Checkout() {
                       Cambiar dirección
                     </a>
                   </div>
-                  <div
-                    className="alert alert-danger d-flex flex-column rounded-3"
-                    role="alert"
-                    style={{
-                      color: '#7b1c1c',
-                      backgroundColor: '#fef6f6',
-                      border: '1px solid rgba(145, 137, 137, 0.59)',
-                    }}
-                  >
-                    <div className="d-flex align-items-center mb-1">
-                      <i className="bi bi-exclamation-circle-fill me-2"></i>
-                      <strong>
-                        No hay tiendas disponibles con tus artículos
-                      </strong>
+
+                  <div className="mb-3">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="branch"
+                        id="branch1"
+                        checked={selectedBranch === 'branch1'}
+                        onChange={() => setSelectedBranch('branch1')}
+                      />
+                      <label className="form-check-label" htmlFor="branch1">
+                        {branches.branch1.name}
+                      </label>
                     </div>
-                    <div>
-                      <a
-                        href="#"
-                        className="text-decoration-underline"
-                        style={{ color: '#7b1c1c' }}
-                      >
-                        Enviar a dirección
-                      </a>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="branch"
+                        id="branch2"
+                        checked={selectedBranch === 'branch2'}
+                        onChange={() => setSelectedBranch('branch2')}
+                      />
+                      <label className="form-check-label" htmlFor="branch2">
+                        {branches.branch2.name}
+                      </label>
                     </div>
+                  </div>
+
+                  <div className="card p-3 rounded-3">
+                    <h6 className="mb-1">{branches[selectedBranch].name}</h6>
+                    <p className="mb-1">
+                      <strong>Dirección:</strong>{' '}
+                      {branches[selectedBranch].address}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Horario:</strong> {branches[selectedBranch].hours}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Teléfono:</strong>{' '}
+                      {branches[selectedBranch].phone}
+                    </p>
+                    <small className="text-muted">
+                      {branches[selectedBranch].notes}
+                    </small>
                   </div>
                 </div>
               )}
@@ -263,18 +293,6 @@ function Checkout() {
                   onChange={(e) => setPostalCode(e.target.value)}
                 />
               </div>
-            </div>
-            <div className="form-check mb-4">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                id="saveInfo"
-                checked={saveInfo}
-                onChange={(e) => setSaveInfo(e.target.checked)}
-              />
-              <label htmlFor="saveInfo" className="form-check-label">
-                Guardar esta información para la próxima vez
-              </label>
             </div>
 
             <h6>Método de envío</h6>
