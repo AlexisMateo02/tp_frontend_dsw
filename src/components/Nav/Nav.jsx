@@ -11,8 +11,24 @@ function Nav() {
   const [currentUser, setCurrentUser] = useState(null);
 
   const updateCounts = () => {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    // compute cart and wishlist per current user if available
+    let cart = [];
+    let wishlist = [];
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (cu) {
+        const cartKey = `cart-${cu.id || cu.email}`;
+        const wishKey = `wishlist-${cu.id || cu.email}`;
+        cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        wishlist = JSON.parse(localStorage.getItem(wishKey)) || [];
+      } else {
+        cart = [];
+        wishlist = [];
+      }
+    } catch {
+      cart = [];
+      wishlist = [];
+    }
     const totalCartItems = cart.reduce(
       (acc, item) => acc + (item.quantity || 1),
       0
@@ -33,7 +49,13 @@ function Nav() {
     window.addEventListener('wishlistUpdates', handleWishlistUpdatesAlt);
 
     const onStorageChange = (e) => {
-      if (e.key === 'cart' || e.key === 'wishlist') {
+      const k = e.key || '';
+      if (
+        k === 'cart' ||
+        k === 'wishlist' ||
+        k.startsWith('cart-') ||
+        k.startsWith('wishlist-')
+      ) {
         updateCounts();
       }
     };
@@ -49,9 +71,36 @@ function Nav() {
     const onAuth = () => {
       try {
         const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        // If user just logged in, migrate any global cart/wishlist into per-user keys
+        if (u) {
+          try {
+            const cartKey = `cart-${u.id || u.email}`;
+            const wishKey = `wishlist-${u.id || u.email}`;
+            const globalCart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+            if (globalCart.length && (!userCart || userCart.length === 0)) {
+              localStorage.setItem(cartKey, JSON.stringify(globalCart));
+              window.dispatchEvent(new Event('cartUpdated'));
+            }
+
+            const globalWish = JSON.parse(
+              localStorage.getItem('wishlist') || '[]'
+            );
+            const userWish = JSON.parse(localStorage.getItem(wishKey) || '[]');
+            if (globalWish.length && (!userWish || userWish.length === 0)) {
+              localStorage.setItem(wishKey, JSON.stringify(globalWish));
+              window.dispatchEvent(new Event('wishlistUpdated'));
+            }
+          } catch {
+            // swallow migration errors
+          }
+        }
         setCurrentUser(u);
+        // update counts after auth change / possible migration
+        updateCounts();
       } catch {
         setCurrentUser(null);
+        updateCounts();
       }
     };
     window.addEventListener('authChanged', onAuth);
@@ -73,28 +122,11 @@ function Nav() {
     window.location.href = '/';
   };
 
-  const pushNav = (to, e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    try {
-      window.history.pushState({}, '', to);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    } catch {
-      // fallback
-      window.location.href = to;
-    }
-  };
-
   return (
     <>
       {/* Navbar principal */}
-      <div
-        className="nav w-100 fixed-top bd-white shadow-sm mb-10"
-        style={{ zIndex: 3000, pointerEvents: 'auto' }}
-      >
-        <nav
-          className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper"
-          style={{ zIndex: 3000, pointerEvents: 'auto' }}
-        >
+      <div className="nav w-100 fixed-top bd-white shadow-sm mb-10">
+        <nav className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper">
           {/* Toggle button */}
           <button
             className="navbar-toggler"
@@ -146,66 +178,38 @@ function Nav() {
             {/* Navegador de la izquierda */}
             <ul className="navbar-nav nav-menu align-items-center gap-4">
               <li className="nav-item">
-                <Link
-                  to="/"
-                  className="nav-link"
-                  onClick={(e) => pushNav('/', e)}
-                >
+                <Link to="/" className="nav-link">
                   Inicio
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/about"
-                  className="nav-link"
-                  onClick={(e) => pushNav('/about', e)}
-                >
+                <Link to="/about" className="nav-link">
                   Quienes somos?
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/foro"
-                  className="nav-link"
-                  onClick={(e) => pushNav('/foro', e)}
-                >
+                <Link to="/foro" className="nav-link">
                   Foro Ventas
                 </Link>
               </li>
 
               <li className="nav-item">
-                <Link
-                  to="/articles"
-                  className="nav-link"
-                  onClick={(e) => pushNav('/articles', e)}
-                >
+                <Link to="/articles" className="nav-link">
                   Nuestros Productos
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/contact"
-                  className="nav-link"
-                  onClick={(e) => pushNav('/contact', e)}
-                >
+                <Link to="/contact" className="nav-link">
                   Contactos
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/stores"
-                  className="nav-link"
-                  onClick={(e) => pushNav('/stores', e)}
-                >
+                <Link to="/stores" className="nav-link">
                   Tiendas
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/profile"
-                  className="nav-link"
-                  onClick={(e) => pushNav('/profile', e)}
-                >
+                <Link to="/profile" className="nav-link">
                   Mi perfil
                 </Link>
               </li>
@@ -226,7 +230,7 @@ function Nav() {
                       Hola, {currentUser.firstName || currentUser.email}
                     </span>
                     <button
-                      className="btn nav-link nav-logout-btn"
+                      className="btn nav-link"
                       onClick={logout}
                       style={{
                         padding: '6px 8px',
@@ -248,7 +252,7 @@ function Nav() {
                     </button>
                   </div>
                 ) : (
-                  <Link to="/login" onClick={(e) => pushNav('/login', e)}>
+                  <Link to="/login">
                     <i className="bi bi-person fs-5 text-dark"></i>
                   </Link>
                 )}

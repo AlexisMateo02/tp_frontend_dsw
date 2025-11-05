@@ -8,32 +8,60 @@ import Products from '../../data/Product.json';
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cart') || '[]'); // ← seguro
+    // load current user and user-specific cart
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!cu) {
+        setCartItems([]);
+        setShowLoginModal(true);
+      } else {
+        const key = `cart-${cu.id || cu.email}`;
+        const savedCart = JSON.parse(localStorage.getItem(key) || '[]');
 
-    // Actualizar precios del carrito según src/data/Product.json (por id)
-    if (Array.isArray(savedCart) && savedCart.length > 0) {
-      const prodMap = Object.fromEntries(
-        Products.map((p) => [String(p.id), p])
-      );
-      const updated = savedCart.map((item) => {
-        const p = prodMap[String(item.id)];
-        if (p && p.price) {
-          return { ...item, price: p.price };
+        // Actualizar precios del carrito según src/data/Product.json (por id)
+        if (Array.isArray(savedCart) && savedCart.length > 0) {
+          const marketplaceProducts = JSON.parse(
+            localStorage.getItem('marketplaceProducts') || '[]'
+          );
+          const combined = [
+            ...Products,
+            ...marketplaceProducts.filter((p) => p.approved),
+          ];
+          const prodMap = Object.fromEntries(
+            combined.map((p) => [String(p.id), p])
+          );
+          const updated = savedCart.map((item) => {
+            const p = prodMap[String(item.id)];
+            if (p && p.price) {
+              return { ...item, price: p.price };
+            }
+            return item;
+          });
+          setCartItems(updated);
+          localStorage.setItem(key, JSON.stringify(updated));
+        } else {
+          setCartItems(savedCart);
         }
-        return item;
-      });
-      setCartItems(updated);
-      localStorage.setItem('cart', JSON.stringify(updated));
-    } else {
-      setCartItems(savedCart);
+      }
+    } catch (e) {
+      console.error(e);
+      setCartItems([]);
     }
 
-    // (opcional) si el carrito cambia desde otro componente, sincronizá
+    // sincronizar cuando otro componente actualiza el carrito del usuario
     const onCartUpdated = () => {
-      const next = JSON.parse(localStorage.getItem('cart') || '[]');
-      setCartItems(next);
+      try {
+        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (!cu) return setCartItems([]);
+        const key = `cart-${cu.id || cu.email}`;
+        const next = JSON.parse(localStorage.getItem(key) || '[]');
+        setCartItems(next);
+      } catch {
+        setCartItems([]);
+      }
     };
     window.addEventListener('cartUpdated', onCartUpdated);
     return () => window.removeEventListener('cartUpdated', onCartUpdated);
@@ -50,14 +78,34 @@ function Cart() {
     });
 
     setCartItems(updated);
-    localStorage.setItem('cart', JSON.stringify(updated));
-    window.dispatchEvent(new Event('cartUpdated')); // ← como en el video
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (cu) {
+        const key = `cart-${cu.id || cu.email}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      } else {
+        localStorage.setItem('cart', JSON.stringify(updated));
+      }
+    } catch {
+      localStorage.setItem('cart', JSON.stringify(updated));
+    }
+    window.dispatchEvent(new Event('cartUpdated'));
   };
 
   const removeItem = (id) => {
     const updated = cartItems.filter((item) => item.id !== id);
     setCartItems(updated);
-    localStorage.setItem('cart', JSON.stringify(updated));
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (cu) {
+        const key = `cart-${cu.id || cu.email}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      } else {
+        localStorage.setItem('cart', JSON.stringify(updated));
+      }
+    } catch {
+      localStorage.setItem('cart', JSON.stringify(updated));
+    }
     window.dispatchEvent(new Event('cartUpdated'));
     toast.error('Item removido del carrito!');
   };
@@ -189,6 +237,46 @@ function Cart() {
           pauseOnHover
           theme="colored"
         />
+        {showLoginModal && (
+          <div
+            className="modal-backdrop"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1050,
+            }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="card p-4"
+              style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+            >
+              <h5 className="mb-3">Inicia sesión para continuar</h5>
+              <p className="mb-3">
+                Debes iniciar sesión para usar un carrito personal.
+              </p>
+              <div className="d-flex justify-content-center gap-2">
+                <Link to="/login" className="btn btn-primary">
+                  Ir a iniciar sesión
+                </Link>
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowLoginModal(false)}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

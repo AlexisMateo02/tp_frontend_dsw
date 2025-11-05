@@ -17,6 +17,22 @@ function Login() {
     }
     setLoading(true);
     setTimeout(() => {
+      // Support a single hard-coded admin account
+      if (email === 'admin@gmail.com' && password === '123456') {
+        const adminUser = {
+          id: 'admin',
+          email: 'admin@gmail.com',
+          name: 'Administrador',
+          role: 'admin',
+        };
+        localStorage.setItem('currentUser', JSON.stringify(adminUser));
+        window.dispatchEvent(new Event('authChanged'));
+        toast.success('Ingreso como administrador');
+        setLoading(false);
+        setTimeout(() => navigate('/admin'), 400);
+        return;
+      }
+
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const user = users.find((u) => u.email === email);
       if (!user) {

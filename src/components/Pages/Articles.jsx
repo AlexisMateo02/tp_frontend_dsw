@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-//import { useNavigate, Link } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Products from '../../data/Product.json';
 import KayakTypes from '../../data/KayakTypes.json';
 import SUPTypes from '../../data/SUPTypes.json';
@@ -11,9 +10,17 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const buttons = [
   { label: 'Kayaks', img: 'src/assets/Kayaks.webp', category: 'kayak' },
-  { label: 'Embarcaciones', img: 'src/assets/Embarcaciones.png', category: 'embarcacion' },
+  {
+    label: 'Embarcaciones',
+    img: 'src/assets/Embarcaciones.png',
+    category: 'embarcacion',
+  },
   { label: 'SUP', img: 'src/assets/SUP.webp', category: 'sup' },
-  { label: 'Artículos', img: 'src/assets/Articulos.webp', category: 'articulo' },
+  {
+    label: 'Artículos',
+    img: 'src/assets/Articulos.webp',
+    category: 'articulo',
+  },
 ];
 
 function parsePrice(s) {
@@ -28,28 +35,37 @@ export default function Articles() {
   const [filterSortOption, setFilterSortOption] = useState('all');
   const [sortOption, setSortOption] = useState('none');
   const [search, setSearch] = useState('');
-  
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onAuth = () => {};
+    window.addEventListener('authChanged', onAuth);
+    return () => window.removeEventListener('authChanged', onAuth);
+  }, []);
+
   // Nuevos filtros específicos
   const [brandFilter, setBrandFilter] = useState('all');
   const [materialFilter, setMaterialFilter] = useState('all');
   const [paddlersFilter, setPaddlersFilter] = useState('all');
   const [allProducts, setAllProducts] = useState([]);
-  
+
   //const navigate = useNavigate();
 
   useEffect(() => {
     // Combinar productos del JSON con productos del marketplace
-    const marketplaceProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
-    const approvedMarketplace = marketplaceProducts.filter(p => p.approved);
-    
+    const marketplaceProducts =
+      JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+    const approvedMarketplace = marketplaceProducts.filter((p) => p.approved);
+
     // Agregar sellerId por defecto a productos del JSON
-    const jsonProducts = Products.map(p => ({
+    const jsonProducts = Products.map((p) => ({
       ...p,
       sellerId: p.sellerId || 0,
       sellerName: p.sellerName || 'KBR',
-      approved: true
+      approved: true,
     }));
-    
+
     const combined = [...jsonProducts, ...approvedMarketplace];
     setAllProducts(combined);
   }, []);
@@ -58,12 +74,12 @@ export default function Articles() {
     const newActive = activeCategory === label ? null : label;
     setActiveCategory(newActive);
     setCategoryFilter(newActive ? category : 'all');
-    
+
     // Resetear filtros específicos al cambiar categoría
     setBrandFilter('all');
     setMaterialFilter('all');
     setPaddlersFilter('all');
-    
+
     setTimeout(() => {
       const el = document.querySelector('.products-grid');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -77,19 +93,19 @@ export default function Articles() {
     let paddlers = new Set();
 
     if (categoryFilter === 'kayak') {
-      KayakTypes.forEach(k => {
+      KayakTypes.forEach((k) => {
         brands.add(k.brand);
         materials.add(k.material);
         paddlers.add(k.paddlersQuantity);
       });
     } else if (categoryFilter === 'sup') {
-      SUPTypes.forEach(s => {
+      SUPTypes.forEach((s) => {
         brands.add(s.brand);
         materials.add(s.material);
         paddlers.add(s.paddlersQuantity);
       });
     } else if (categoryFilter === 'embarcacion') {
-      BoatTypes.forEach(b => {
+      BoatTypes.forEach((b) => {
         brands.add(b.brand);
         materials.add(b.material);
         paddlers.add(b.passengerCapacity);
@@ -99,7 +115,7 @@ export default function Articles() {
     return {
       brands: Array.from(brands).sort(),
       materials: Array.from(materials).sort(),
-      paddlers: Array.from(paddlers).sort((a, b) => a - b)
+      paddlers: Array.from(paddlers).sort((a, b) => a - b),
     };
   }, [categoryFilter]);
 
@@ -108,7 +124,8 @@ export default function Articles() {
 
     let items = allProducts.filter((p) => {
       // Filtro por categoría
-      if (categoryFilter !== 'all' && p.category !== categoryFilter) return false;
+      if (categoryFilter !== 'all' && p.category !== categoryFilter)
+        return false;
 
       // Filtro por tag (nuevo/oferta)
       if (filterSortOption === 'new') {
@@ -124,29 +141,47 @@ export default function Articles() {
 
       // Filtros específicos por tipo de producto
       if (categoryFilter === 'kayak' && p.kayakTypeId) {
-        const kayakType = KayakTypes.find(k => k.id === p.kayakTypeId);
+        const kayakType = KayakTypes.find((k) => k.id === p.kayakTypeId);
         if (kayakType) {
-          if (brandFilter !== 'all' && kayakType.brand !== brandFilter) return false;
-          if (materialFilter !== 'all' && kayakType.material !== materialFilter) return false;
-          if (paddlersFilter !== 'all' && kayakType.paddlersQuantity !== Number(paddlersFilter)) return false;
+          if (brandFilter !== 'all' && kayakType.brand !== brandFilter)
+            return false;
+          if (materialFilter !== 'all' && kayakType.material !== materialFilter)
+            return false;
+          if (
+            paddlersFilter !== 'all' &&
+            kayakType.paddlersQuantity !== Number(paddlersFilter)
+          )
+            return false;
         }
       }
 
       if (categoryFilter === 'sup' && p.supTypeId) {
-        const supType = SUPTypes.find(s => s.id === p.supTypeId);
+        const supType = SUPTypes.find((s) => s.id === p.supTypeId);
         if (supType) {
-          if (brandFilter !== 'all' && supType.brand !== brandFilter) return false;
-          if (materialFilter !== 'all' && supType.material !== materialFilter) return false;
-          if (paddlersFilter !== 'all' && supType.paddlersQuantity !== Number(paddlersFilter)) return false;
+          if (brandFilter !== 'all' && supType.brand !== brandFilter)
+            return false;
+          if (materialFilter !== 'all' && supType.material !== materialFilter)
+            return false;
+          if (
+            paddlersFilter !== 'all' &&
+            supType.paddlersQuantity !== Number(paddlersFilter)
+          )
+            return false;
         }
       }
 
       if (categoryFilter === 'embarcacion' && p.boatTypeId) {
-        const boatType = BoatTypes.find(b => b.id === p.boatTypeId);
+        const boatType = BoatTypes.find((b) => b.id === p.boatTypeId);
         if (boatType) {
-          if (brandFilter !== 'all' && boatType.brand !== brandFilter) return false;
-          if (materialFilter !== 'all' && boatType.material !== materialFilter) return false;
-          if (paddlersFilter !== 'all' && boatType.passengerCapacity !== Number(paddlersFilter)) return false;
+          if (brandFilter !== 'all' && boatType.brand !== brandFilter)
+            return false;
+          if (materialFilter !== 'all' && boatType.material !== materialFilter)
+            return false;
+          if (
+            paddlersFilter !== 'all' &&
+            boatType.passengerCapacity !== Number(paddlersFilter)
+          )
+            return false;
         }
       }
 
@@ -157,7 +192,7 @@ export default function Articles() {
         const desc = p.description ? p.description.toLowerCase() : '';
         return name.includes(q) || tag.includes(q) || desc.includes(q);
       }
-      
+
       return true;
     });
 
@@ -168,11 +203,26 @@ export default function Articles() {
       items.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
 
     return items;
-  }, [allProducts, categoryFilter, filterSortOption, search, sortOption, brandFilter, materialFilter, paddlersFilter]);
+  }, [
+    allProducts,
+    categoryFilter,
+    filterSortOption,
+    search,
+    sortOption,
+    brandFilter,
+    materialFilter,
+    paddlersFilter,
+  ]);
 
   const addToCart = (product, qty = 1) => {
     try {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!cu) {
+        setShowLoginModal(true);
+        return;
+      }
+      const key = `cart-${cu.id || cu.email}`;
+      const cart = JSON.parse(localStorage.getItem(key)) || [];
       const idx = cart.findIndex((p) => p.id === product.id);
       if (idx >= 0) {
         cart[idx].quantity = (cart[idx].quantity || 1) + qty;
@@ -181,7 +231,7 @@ export default function Articles() {
         cart.push({ ...product, quantity: qty });
         toast.success(`${product.Productname} agregado al carrito`);
       }
-      localStorage.setItem('cart', JSON.stringify(cart));
+      localStorage.setItem(key, JSON.stringify(cart));
       window.dispatchEvent(new Event('cartUpdated'));
     } catch (e) {
       console.error(e);
@@ -191,10 +241,17 @@ export default function Articles() {
 
   const addToWishlist = (product) => {
     try {
-      const w = JSON.parse(localStorage.getItem('wishlist')) || [];
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!cu) {
+        // show login prompt modal
+        setShowLoginModal(true);
+        return;
+      }
+      const key = `wishlist-${cu.id || cu.email}`;
+      const w = JSON.parse(localStorage.getItem(key)) || [];
       if (!w.find((p) => p.id === product.id)) {
         w.push(product);
-        localStorage.setItem('wishlist', JSON.stringify(w));
+        localStorage.setItem(key, JSON.stringify(w));
         window.dispatchEvent(new Event('wishlistUpdated'));
         toast.success(`${product.Productname} agregado a favoritos`);
       } else {
@@ -205,6 +262,54 @@ export default function Articles() {
       toast.error('Error al agregar a favoritos');
     }
   };
+
+  // Modal for login prompt when trying to add to wishlist
+  const LoginPromptModal = () => (
+    <div
+      className="modal-backdrop"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1050,
+      }}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="card p-4"
+        style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+      >
+        <h5 className="mb-3">Inicia sesión para continuar</h5>
+        <p className="mb-3">
+          Debes iniciar sesión para agregar productos a favoritos.
+        </p>
+        <div className="d-flex justify-content-center gap-2">
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setShowLoginModal(false);
+              navigate('/login');
+            }}
+          >
+            Ir a iniciar sesión
+          </button>
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => setShowLoginModal(false)}
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="container py-5">
@@ -347,11 +452,16 @@ export default function Articles() {
               onChange={(e) => setPaddlersFilter(e.target.value)}
             >
               <option value="all">
-                {categoryFilter === 'embarcacion' ? 'Todas las capacidades' : 'Todos los remadores'}
+                {categoryFilter === 'embarcacion'
+                  ? 'Todas las capacidades'
+                  : 'Todos los remadores'}
               </option>
               {filterOptions.paddlers.map((num) => (
                 <option key={num} value={num}>
-                  {num} {categoryFilter === 'embarcacion' ? 'personas' : 'remador(es)'}
+                  {num}{' '}
+                  {categoryFilter === 'embarcacion'
+                    ? 'personas'
+                    : 'remador(es)'}
                 </option>
               ))}
             </select>
@@ -362,7 +472,9 @@ export default function Articles() {
       {/* Contador de resultados */}
       <div className="mb-3">
         <small className="text-muted">
-          {filteredProducts.length} producto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
+          {filteredProducts.length} producto
+          {filteredProducts.length !== 1 ? 's' : ''} encontrado
+          {filteredProducts.length !== 1 ? 's' : ''}
         </small>
       </div>
 
@@ -370,7 +482,9 @@ export default function Articles() {
       <div className="row products-grid">
         {filteredProducts.length === 0 ? (
           <div className="col-12 text-center py-5">
-            <p className="text-muted">No hay productos para los filtros seleccionados.</p>
+            <p className="text-muted">
+              No hay productos para los filtros seleccionados.
+            </p>
           </div>
         ) : (
           filteredProducts.map((product) => (
@@ -386,11 +500,11 @@ export default function Articles() {
                     className="img-fluid"
                   />
                   {product.secondImage && (
-                  <img
-                    src={product.secondImage}
-                    alt="product"
-                    className="img-fluid"
-                  />
+                    <img
+                      src={product.secondImage}
+                      alt="product"
+                      className="img-fluid"
+                    />
                   )}
                   <div className="product-icons gap-3">
                     <div
@@ -415,25 +529,29 @@ export default function Articles() {
                   >
                     {product.tag}
                   </span>
-                  
+
                   {/* Badge de categoría */}
                   <span
                     className="position-absolute top-0 start-0 m-2 badge"
                     style={{
-                      backgroundColor: 
-                        product.category === 'kayak' ? '#007bff' :
-                        product.category === 'sup' ? '#28a745' :
-                        product.category === 'embarcacion' ? '#dc3545' :
-                        '#ffc107',
-                      color: '#fff'
+                      backgroundColor:
+                        product.category === 'kayak'
+                          ? '#007bff'
+                          : product.category === 'sup'
+                          ? '#28a745'
+                          : product.category === 'embarcacion'
+                          ? '#dc3545'
+                          : '#ffc107',
+                      color: '#fff',
                     }}
                   >
-                    {
-                      product.category === 'kayak' ? 'Kayak' :
-                      product.category === 'sup' ? 'SUP' :
-                      product.category === 'embarcacion' ? 'Embarcación' :
-                      'Artículo'
-                    }
+                    {product.category === 'kayak'
+                      ? 'Kayak'
+                      : product.category === 'sup'
+                      ? 'SUP'
+                      : product.category === 'embarcacion'
+                      ? 'Embarcación'
+                      : 'Artículo'}
                   </span>
                 </div>
 
@@ -457,7 +575,7 @@ export default function Articles() {
                     <h3 className="title pt-1">{product.Productname}</h3>
                     <div className="mt-2 text-muted small">
                       <i className="bi bi-shop"></i>
-                      <Link 
+                      <Link
                         to={`/seller/${product.sellerId}`}
                         className="text-decoration-none text-muted ms-1"
                       >
@@ -482,6 +600,7 @@ export default function Articles() {
         draggable
         pauseOnHover
       />
+      {showLoginModal && <LoginPromptModal />}
     </div>
   );
 }

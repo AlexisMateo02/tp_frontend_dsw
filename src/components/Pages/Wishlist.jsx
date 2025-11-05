@@ -7,47 +7,136 @@ import { Link } from 'react-router-dom';
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
-    const storedWishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    setWishlist(storedWishlist);
-    setCart(storedCart);
+    try {
+      const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (cu) {
+        const cartKey = `cart-${cu.id || cu.email}`;
+        const userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+        const wishKey = `wishlist-${cu.id || cu.email}`;
+        const storedWishlist = JSON.parse(
+          localStorage.getItem(wishKey) || '[]'
+        );
+        setCart(userCart.length ? userCart : storedCart);
+        setCurrentUser(cu);
+        setWishlist(storedWishlist);
+      } else {
+        setCart(storedCart);
+        setCurrentUser(null);
+        setWishlist([]);
+      }
+    } catch {
+      setCart([]);
+      setCurrentUser(null);
+      setWishlist([]);
+    }
   }, []);
 
   const removeFromWishlist = (productId) => {
     const updatedWishlist = wishlist.filter((item) => item.id !== productId);
     setWishlist(updatedWishlist);
-    localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (cu) {
+        const key = `wishlist-${cu.id || cu.email}`;
+        localStorage.setItem(key, JSON.stringify(updatedWishlist));
+      } else {
+        localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+      }
+    } catch {
+      localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+    }
     window.dispatchEvent(new Event('wishlistUpdated'));
     toast.error('Producto eliminado de la lista de deseos');
   };
 
   const addToCart = (product) => {
-    const existingProduct = cart.find((item) => item.id === product.id);
-    let updatedCart;
-    if (existingProduct) {
-      updatedCart = cart.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-      );
-    } else {
-      updatedCart = [...cart, { ...product, quantity: 1 }];
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!cu) {
+        setShowLoginModal(true);
+        return;
+      }
+      const key = `cart-${cu.id || cu.email}`;
+      const existingProduct = cart.find((item) => item.id === product.id);
+      let updatedCart;
+      if (existingProduct) {
+        updatedCart = cart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      } else {
+        updatedCart = [...cart, { ...product, quantity: 1 }];
+      }
+      setCart(updatedCart);
+      localStorage.setItem(key, JSON.stringify(updatedCart));
+      window.dispatchEvent(new Event('cartUpdated'));
+      const productLabel =
+        product.Productname ||
+        product.ProductName ||
+        product.name ||
+        'Producto';
+      toast.success(`${productLabel} agregado al carrito`, {
+        position: 'top-right',
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al agregar al carrito');
     }
-    setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event('cartUpdated'));
-    const productLabel =
-      product.Productname || product.ProductName || product.name || 'Producto';
-    toast.success(`${productLabel} agregado al carrito`, {
-      position: 'top-right',
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
   };
+
+  // render login modal if needed
+  const LoginModal = () => (
+    <div
+      className="modal-backdrop"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1050,
+      }}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="card p-4"
+        style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+      >
+        <h5 className="mb-3">Inicia sesión para continuar</h5>
+        <p className="mb-3">
+          Debes iniciar sesión para agregar productos al carrito.
+        </p>
+        <div className="d-flex justify-content-center gap-2">
+          <Link to="/login" className="btn btn-primary">
+            Ir a iniciar sesión
+          </Link>
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => setShowLoginModal(false)}
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -65,7 +154,16 @@ function Wishlist() {
       <div className="contain my-5">
         <h2 className="text-center fw-bold mb-4">Lista de Deseos</h2>
 
-        {wishlist.length === 0 ? (
+        {!currentUser ? (
+          <div className="text-center">
+            <p className="lead text-muted">
+              Debes iniciar sesión para ver y gestionar tus favoritos.
+            </p>
+            <Link to="/login" className="btn btn-primary">
+              Iniciar sesión
+            </Link>
+          </div>
+        ) : wishlist.length === 0 ? (
           <div className="text-center">
             <p className="lead text-muted">Tu lista de deseos está vacía.</p>
             <Link to="/articles" className="btn">
@@ -126,6 +224,7 @@ function Wishlist() {
           </div>
         )}
       </div>
+      {showLoginModal && <LoginModal />}
       <ToastContainer />
     </>
   );

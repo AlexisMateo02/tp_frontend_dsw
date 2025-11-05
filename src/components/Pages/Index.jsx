@@ -35,30 +35,78 @@ function Index() {
   // Aquí se pueden incluir elementos como banners, promociones o información destacada.
   const [filterSortOption, setFilterSortOption] = useState('all');
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const marketplaceProducts = JSON.parse(
+    localStorage.getItem('marketplaceProducts') || '[]'
+  );
+  const combinedProducts = [
+    ...Products,
+    ...marketplaceProducts.filter((p) => p.approved),
+  ];
+
+  React.useEffect(() => {
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      setCurrentUser(cu);
+    } catch {
+      setCurrentUser(null);
+    }
+    const onAuth = () => {
+      try {
+        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        setCurrentUser(cu);
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+    window.addEventListener('authChanged', onAuth);
+    window.addEventListener('storage', onAuth);
+    return () => {
+      window.removeEventListener('authChanged', onAuth);
+      window.removeEventListener('storage', onAuth);
+    };
+  }, []);
 
   const addToWishlist = (product) => {
-    const existing = JSON.parse(localStorage.getItem('wishlist')) || [];
+    if (!currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
+    const key = `wishlist-${currentUser.id || currentUser.email}`;
+    const existing = JSON.parse(localStorage.getItem(key)) || [];
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
-      localStorage.setItem('wishlist', JSON.stringify(updated));
-      window.dispatchEvent(new Event('wishlistUpdates'));
+      localStorage.setItem(key, JSON.stringify(updated));
+      window.dispatchEvent(new Event('wishlistUpdated'));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
     }
   };
   const addToCart = (product) => {
-    const existing = JSON.parse(localStorage.getItem('cart')) || [];
-    const alreadyInCart = existing.find((p) => p.id === product.id);
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!cu) {
+        setShowLoginModal(true);
+        return;
+      }
+      const key = `cart-${cu.id || cu.email}`;
+      const existing = JSON.parse(localStorage.getItem(key)) || [];
+      const alreadyInCart = existing.find((p) => p.id === product.id);
 
-    if (!alreadyInCart) {
-      const updatedProduct = { ...product, quantity: 1 };
-      const updatedCart = [...existing, updatedProduct];
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      window.dispatchEvent(new Event('cartUpdated'));
-      toast.success(`${product.Productname} agregado al carrito`);
-    } else {
-      toast.info(`${product.Productname} ya está en el carrito`);
+      if (!alreadyInCart) {
+        const updatedProduct = { ...product, quantity: 1 };
+        const updatedCart = [...existing, updatedProduct];
+        localStorage.setItem(key, JSON.stringify(updatedCart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        toast.success(`${product.Productname} agregado al carrito`);
+      } else {
+        toast.info(`${product.Productname} ya está en el carrito`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al agregar al carrito');
     }
   };
 
@@ -153,60 +201,60 @@ function Index() {
             }}
             className="mt-4 swiper position-relative"
           >
-            {Products.filter(
-              (product) => product.id >= 1 && product.id <= 7
-            ).map((product) => (
-              <SwiperSlide key={product.id}>
-                <div className="product-item text-center position-relative">
-                  <div className="product-image w-60 h-40 object-fit-contain position-relative overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt=""
-                      className="img-fluid w-60 h-40 object-fit-cover"
-                    />
-                    <img
-                      src={product.secondImage}
-                      alt=""
-                      className="img-fluid w-60 h-40 object-fit-cover "
-                    />
-                    <div className="product-icons gap-3">
-                      <div
-                        className="product-icon"
-                        title="Agregar a favoritos"
-                        onClick={() => addToWishlist(product)}
-                      >
-                        <i className="bi bi-heart fs-5"></i>
+            {combinedProducts
+              .filter((product) => product.id >= 1 && product.id <= 7)
+              .map((product) => (
+                <SwiperSlide key={product.id}>
+                  <div className="product-item text-center position-relative">
+                    <div className="product-image w-60 h-40 object-fit-contain position-relative overflow-hidden">
+                      <img
+                        src={product.image}
+                        alt=""
+                        className="img-fluid w-60 h-40 object-fit-cover"
+                      />
+                      <img
+                        src={product.secondImage}
+                        alt=""
+                        className="img-fluid w-60 h-40 object-fit-cover "
+                      />
+                      <div className="product-icons gap-3">
+                        <div
+                          className="product-icon"
+                          title="Agregar a favoritos"
+                          onClick={() => addToWishlist(product)}
+                        >
+                          <i className="bi bi-heart fs-5"></i>
+                        </div>
+                        <div
+                          className="product-icon"
+                          title="Agregar al carrito"
+                          onClick={() => addToCart(product)}
+                        >
+                          <i className="bi bi-cart3 fs-5"></i>
+                        </div>
                       </div>
-                      <div
-                        className="product-icon"
-                        title="Agregar al carrito"
-                        onClick={() => addToCart(product)}
+                      <span
+                        className={`tag badge text-white ${
+                          product.tag === 'Nuevo' ? 'bg-danger' : 'bg-success'
+                        }`}
                       >
-                        <i className="bi bi-cart3 fs-5"></i>
-                      </div>
-                    </div>
-                    <span
-                      className={`tag badge text-white ${
-                        product.tag === 'Nuevo' ? 'bg-danger' : 'bg-success'
-                      }`}
-                    >
-                      {product.tag}
-                    </span>
-                  </div>
-                  <Link
-                    to={`/product/${product.id}`}
-                    className="text-decoration-none text-black "
-                  >
-                    <div className="product-content pt-3">
-                      <span className="price text-decoration-none">
-                        {product.price}
+                        {product.tag}
                       </span>
-                      <h3 className="title pt-1">{product.Productname}</h3>
                     </div>
-                  </Link>
-                </div>
-              </SwiperSlide>
-            ))}
+                    <Link
+                      to={`/product/${product.id}`}
+                      className="text-decoration-none text-black "
+                    >
+                      <div className="product-content pt-3">
+                        <span className="price text-decoration-none">
+                          {product.price}
+                        </span>
+                        <h3 className="title pt-1">{product.Productname}</h3>
+                      </div>
+                    </Link>
+                  </div>
+                </SwiperSlide>
+              ))}
           </Swiper>
         </div>
       </div>
@@ -289,64 +337,64 @@ function Index() {
             </div>
             <div className="col-lg-7">
               <div className="row">
-                {Products.filter(
-                  (product) => product.id >= 1 && product.id <= 6
-                ).map((product) => (
-                  <div className="col-md-4 mb-0">
-                    <div key={product.id}>
-                      <div className="product-item mb-5 text-center position-relative">
-                        <div className="product-image w-100 position-relative overflow-hidden">
-                          <img
-                            src={product.image}
-                            alt="product"
-                            className="img-fluid"
-                          />
-                          <img
-                            src={product.secondImage}
-                            alt="product"
-                            className="img-fluid"
-                          />
-                          <div className="product-icons gap-3">
-                            <div
-                              className="product-icon"
-                              title="Agregar a favoritos"
-                              onClick={() => addToWishlist(product)}
-                            >
-                              <i className="bi bi-heart fs-5"></i>
+                {combinedProducts
+                  .filter((product) => product.id >= 1 && product.id <= 6)
+                  .map((product) => (
+                    <div className="col-md-4 mb-0">
+                      <div key={product.id}>
+                        <div className="product-item mb-5 text-center position-relative">
+                          <div className="product-image w-100 position-relative overflow-hidden">
+                            <img
+                              src={product.image}
+                              alt="product"
+                              className="img-fluid"
+                            />
+                            <img
+                              src={product.secondImage}
+                              alt="product"
+                              className="img-fluid"
+                            />
+                            <div className="product-icons gap-3">
+                              <div
+                                className="product-icon"
+                                title="Agregar a favoritos"
+                                onClick={() => addToWishlist(product)}
+                              >
+                                <i className="bi bi-heart fs-5"></i>
+                              </div>
+                              <div
+                                className="product-icon"
+                                title="Agregar al carrito"
+                                onClick={() => addToCart(product)}
+                              >
+                                <i className="bi bi-cart3 fs-5"></i>
+                              </div>
                             </div>
-                            <div
-                              className="product-icon"
-                              title="Agregar al carrito"
-                              onClick={() => addToCart(product)}
+                            <span
+                              className={`tag badge text-white ${
+                                product.tag === 'Nuevo'
+                                  ? 'bg-danger'
+                                  : 'bg-success'
+                              }`}
                             >
-                              <i className="bi bi-cart3 fs-5"></i>
-                            </div>
+                              {product.tag}
+                            </span>
                           </div>
-                          <span
-                            className={`tag badge text-white ${
-                              product.tag === 'Nuevo'
-                                ? 'bg-danger'
-                                : 'bg-success'
-                            }`}
+                          <Link
+                            to={`/product/${product.id}`}
+                            className="text-decoration-none text-black "
                           >
-                            {product.tag}
-                          </span>
+                            <div className="product-content pt-3">
+                              <span className="price ">{product.price}</span>
+                              <h3 className="title pt-1">
+                                {product.Productname}
+                              </h3>
+                            </div>
+                          </Link>
                         </div>
-                        <Link
-                          to={`/product/${product.id}`}
-                          className="text-decoration-none text-black "
-                        >
-                          <div className="product-content pt-3">
-                            <span className="price ">{product.price}</span>
-                            <h3 className="title pt-1">
-                              {product.Productname}
-                            </h3>
-                          </div>
-                        </Link>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </div>
@@ -474,6 +522,52 @@ function Index() {
         draggable
         pauseOnHover
       />
+      {showLoginModal && (
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1050,
+          }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="card p-4"
+            style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+          >
+            <h5 className="mb-3">Inicia sesión para continuar</h5>
+            <p className="mb-3">
+              Debes iniciar sesión para agregar productos a favoritos.
+            </p>
+            <div className="d-flex justify-content-center gap-2">
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowLoginModal(false);
+                  navigate('/login');
+                }}
+              >
+                Ir a iniciar sesión
+              </button>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => setShowLoginModal(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -44,11 +44,23 @@ function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    setCartItems(savedCart);
-    // prefill contact if previously saved
-    const savedContact = localStorage.getItem('checkout_contact') || '';
-    if (savedContact) setContactValue(savedContact);
+    try {
+      const savedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (cu) {
+        const key = `cart-${cu.id || cu.email}`;
+        const userCart = JSON.parse(localStorage.getItem(key) || '[]');
+        setCartItems(userCart.length ? userCart : savedCart);
+      } else {
+        setCartItems(savedCart);
+      }
+      // prefill contact if previously saved
+      const savedContact = localStorage.getItem('checkout_contact') || '';
+      if (savedContact) setContactValue(savedContact);
+    } catch (e) {
+      console.error(e);
+      setCartItems([]);
+    }
   }, []);
 
   // handlePlaceOrder removed; use handleMercadoPago for payment flow

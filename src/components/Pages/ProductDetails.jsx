@@ -22,11 +22,24 @@ function ProductDetails() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const product = Products.find((p) => Number(p.id) === Number(id));
+  // Combine static products with marketplace products saved in localStorage (approved ones)
+  const marketplaceProducts = JSON.parse(
+    localStorage.getItem('marketplaceProducts') || '[]'
+  );
+  const combinedProducts = [
+    ...Products,
+    ...marketplaceProducts.filter((p) => p.approved),
+  ];
+  const product = combinedProducts.find((p) => Number(p.id) === Number(id));
   const navigate = useNavigate();
 
   const getProductSpecs = () => {
     if (!product) return null;
+
+    // If the product carries its own kayakType (from marketplace/admin creation), prefer it
+    if (product.kayakType) {
+      return product.kayakType;
+    }
 
     if (product.category === 'kayak' && product.kayakTypeId) {
       return KayakTypes.find((k) => k.id === product.kayakTypeId);
@@ -47,22 +60,35 @@ function ProductDetails() {
 
   useEffect(() => {
     if (product) {
-      setMainImage(
-        product.image ||
-          product.secondImage ||
-          product.thirdImage ||
-          product.fourthImage ||
-          '/assets/placeholder.webp'
-      );
-      setImages(
-        [
+      // sanitize images: only keep up to 4 valid strings and avoid extremely large dataURLs
+      try {
+        const raw = [
           product.image,
           product.secondImage,
-          product.thirdImage /*Agregue esto para poder mostrar una tercera imagen*/,
-          product.fourthImage /*Agregue esto para poder mostrar una cuarta imagen*/,
-          /*En el swipe de las imagenes igual aparecen solo dos*/
-        ].filter(Boolean)
-      );
+          product.thirdImage,
+          product.fourthImage,
+        ].filter(Boolean);
+        const MAX_LEN = 2_000_000; // ~2MB base64 length threshold
+        const safe = raw
+          .filter((i) => typeof i === 'string')
+          .filter((i) => i.length < MAX_LEN)
+          .slice(0, 4);
+
+        const chosen =
+          safe[0] ||
+          (typeof product.image === 'string' && product.image.length < MAX_LEN
+            ? product.image
+            : undefined) ||
+          '/assets/placeholder.webp';
+
+        setMainImage(chosen);
+        setImages(safe);
+      } catch (err) {
+        // if anything goes wrong parsing images, fall back to placeholder
+        console.error('Error procesando imágenes del producto', err);
+        setMainImage('/assets/placeholder.webp');
+        setImages([]);
+      }
       setQuantity(1);
     }
   }, [product]);
@@ -134,25 +160,41 @@ function ProductDetails() {
   };
 
   const addToCart = (product) => {
-    const existing = JSON.parse(localStorage.getItem('cart')) || [];
-    const alreadyInCart = existing.find((p) => p.id === product.id);
-    if (!alreadyInCart) {
-      const updatedProduct = { ...product, quantity: 1 };
-      const updatedCart = [...existing, updatedProduct];
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      window.dispatchEvent(new Event('cartUpdated'));
-      toast.success(`${product.Productname} agregado al carrito`);
-    } else {
-      toast.info(`${product.Productname} ya está en el carrito`);
+    try {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!cu) {
+        setShowLoginModal(true);
+        return;
+      }
+      const key = `cart-${cu.id || cu.email}`;
+      const existing = JSON.parse(localStorage.getItem(key)) || [];
+      const alreadyInCart = existing.find((p) => p.id === product.id);
+      if (!alreadyInCart) {
+        const updatedProduct = { ...product, quantity: 1 };
+        const updatedCart = [...existing, updatedProduct];
+        localStorage.setItem(key, JSON.stringify(updatedCart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        toast.success(`${product.Productname} agregado al carrito`);
+      } else {
+        toast.info(`${product.Productname} ya está en el carrito`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al agregar al carrito');
     }
   };
 
   const addToWishlist = (product) => {
-    const existing = JSON.parse(localStorage.getItem('wishlist')) || [];
+    if (!currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
+    const key = `wishlist-${currentUser.id || currentUser.email}`;
+    const existing = JSON.parse(localStorage.getItem(key)) || [];
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
-      localStorage.setItem('wishlist', JSON.stringify(updated));
-      window.dispatchEvent(new Event('wishlistUpdates'));
+      localStorage.setItem(key, JSON.stringify(updated));
+      window.dispatchEvent(new Event('wishlistUpdated'));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
