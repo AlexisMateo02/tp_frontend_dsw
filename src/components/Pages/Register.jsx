@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from '../../services/api';
 
 function Register() {
   const navigate = useNavigate();
@@ -17,50 +18,79 @@ function Register() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password) {
       toast.error('Completa los campos requeridos');
       return;
     }
+    
     if (!validateEmail(email)) {
       toast.error('Email inválido');
       return;
     }
+    
     if (password.length < 6) {
       toast.error('La contraseña debe tener al menos 6 caracteres');
       return;
     }
+    
     if (password !== confirm) {
       toast.error('Las contraseñas no coinciden');
       return;
     }
 
     setLoading(true);
-    // Simular guardado: usuarios guardados en localStorage bajo 'users'
-    setTimeout(() => {
+    
+    try {
+      // Intentar registrar en el backend si está disponible
+      if (api.hasApi()) {
+        try {
+          await api.register({
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+            password,
+            phone: phone.trim() || undefined,
+          });
+          
+          toast.success('Registro exitoso. Redirigiendo a login...');
+          setTimeout(() => navigate('/login'), 1200);
+          return;
+        } catch (error) {
+          // Si falla el backend, usar localStorage como fallback
+          console.warn('Backend no disponible, usando localStorage:', error);
+          toast.info('Usando modo offline...');
+        }
+      }
+      
+      // Fallback a localStorage (modo offline)
       const users = JSON.parse(localStorage.getItem('users')) || [];
       if (users.some((u) => u.email === email)) {
         toast.error('Ya existe una cuenta con ese email');
-        setLoading(false);
         return;
       }
-      // Codificar la contraseña en base64 para no guardarla en texto claro (solo para demo)
+      
       const encodedPassword = btoa(password);
       const newUser = {
         id: Date.now(),
-        firstName,
-        lastName,
-        email,
-        phone,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        phone: phone.trim() || undefined,
         password: encodedPassword,
       };
+      
       users.push(newUser);
       localStorage.setItem('users', JSON.stringify(users));
       toast.success('Registro exitoso. Redirigiendo a login...');
-      setLoading(false);
       setTimeout(() => navigate('/login'), 1200);
-    }, 800);
+    } catch (error) {
+      toast.error(error.message || 'Error al registrar usuario');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -139,7 +169,7 @@ function Register() {
         </button>
       </form>
 
-      <p className="mt-3 text-center ">
+      <p className="mt-3 text-center">
         <div className="mb-3"></div>
         ¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link>
       </p>

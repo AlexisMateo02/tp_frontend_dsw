@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from '../../services/api';
 
 function Login() {
   const navigate = useNavigate();
@@ -9,53 +10,34 @@ function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!email || !password) {
       toast.error('Completa email y contraseña');
       return;
     }
-    setLoading(true);
-    setTimeout(() => {
-      // Support a single hard-coded admin account
-      if (email === 'admin@gmail.com' && password === '123456') {
-        const adminUser = {
-          id: 'admin',
-          email: 'admin@gmail.com',
-          name: 'Administrador',
-          role: 'admin',
-        };
-        localStorage.setItem('currentUser', JSON.stringify(adminUser));
-        window.dispatchEvent(new Event('authChanged'));
-        toast.success('Ingreso como administrador');
-        setLoading(false);
-        setTimeout(() => navigate('/admin'), 400);
-        return;
-      }
 
-      const users = JSON.parse(localStorage.getItem('users')) || [];
-      const user = users.find((u) => u.email === email);
-      if (!user) {
-        toast.error('Usuario no encontrado');
-        setLoading(false);
-        return;
-      }
-      // Verificar contraseña codificada (base64) almacenada en el registro
-      const encoded = user.password || '';
-      if (encoded !== btoa(password)) {
-        toast.error('Contraseña incorrecta');
-        setLoading(false);
-        return;
-      }
-      // Autenticación exitosa
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      // notify other components (Nav) that auth state changed
-      window.dispatchEvent(new Event('authChanged'));
+    setLoading(true);
+    
+    try {
+      const response = await api.login(email, password);
+      
       toast.success('Inicio de sesión exitoso');
+      window.dispatchEvent(new Event('authChanged'));
+      
+      // Redirigir según el rol
+      const user = response.user || response;
+      if (user.role === 'admin') {
+        setTimeout(() => navigate('/admin'), 400);
+      } else {
+        setTimeout(() => navigate('/'), 800);
+      }
+    } catch (error) {
+      toast.error(error.message || 'Error al iniciar sesión');
+    } finally {
       setLoading(false);
-      // al iniciar sesión, llevar al usuario a la página principal
-      setTimeout(() => navigate('/'), 800);
-    }, 700);
+    }
   };
 
   return (

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Navigation } from 'swiper/modules';
-import { useNavigate, Link, href } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -26,7 +26,7 @@ function Index() {
   // Componente Index
   // Este componente representa la página de inicio de la aplicación.
   // Aquí se pueden incluir elementos como banners, promociones o información destacada.
-  const [filterSortOption, setFilterSortOption] = useState('all');
+  // const [filterSortOption, setFilterSortOption] = useState('all');
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -263,7 +263,7 @@ function Index() {
               />
               <div
                 className="banner-content position-absolute color-white
-               background-opacity-1 p-3 rounded "
+                background-opacity-1 p-3 rounded "
               >
                 <h1>
                   ¿Queres vender <br /> tus productos?
