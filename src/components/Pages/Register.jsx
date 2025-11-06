@@ -44,46 +44,14 @@ function Register() {
     setLoading(true);
     
     try {
-      // Intentar registrar en el backend si está disponible
-      if (api.hasApi()) {
-        try {
-          await api.register({
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-            email: email.trim(),
-            password,
-            phone: phone.trim() || undefined,
-          });
-          
-          toast.success('Registro exitoso. Redirigiendo a login...');
-          setTimeout(() => navigate('/login'), 1200);
-          return;
-        } catch (error) {
-          // Si falla el backend, usar localStorage como fallback
-          console.warn('Backend no disponible, usando localStorage:', error);
-          toast.info('Usando modo offline...');
-        }
-      }
-      
-      // Fallback a localStorage (modo offline)
-      const users = JSON.parse(localStorage.getItem('users')) || [];
-      if (users.some((u) => u.email === email)) {
-        toast.error('Ya existe una cuenta con ese email');
-        return;
-      }
-      
-      const encodedPassword = btoa(password);
-      const newUser = {
-        id: Date.now(),
+      await api.register({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim(),
+        password,
         phone: phone.trim() || undefined,
-        password: encodedPassword,
-      };
+      });
       
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
       toast.success('Registro exitoso. Redirigiendo a login...');
       setTimeout(() => navigate('/login'), 1200);
     } catch (error) {
