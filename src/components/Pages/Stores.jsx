@@ -2,11 +2,31 @@
 o puntos de venta relacionados con la aplicación o empresa. 
 En esta página, los usuarios pueden encontrar direcciones, mapas, horarios de atención y 
 datos de contacto de cada tienda.*/
-import React from 'react';
+/*Antes esto tenia mas sentido porque las tiendas eran fijas, cambiamos a que
+ahora s epueda crear y modifcar, es decir las tiendas se dan de alta, dejamos igual
+no borramos lo anterior por las dudas, quedaba lindo :)*/
+
+/*La tiendas las dos sucursales fijas que estan aca acragadas aparecen cuando no hya nignuna tienda
+cargada en el alta tienda*/
+
+/*Pero ahora aca lo usamos para alojar las tiendas dadas de alta*/
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import store1 from '../../assets/store-01.webp';
 import store2 from '../../assets/store-02.webp';
-import { Link } from 'react-router-dom';
+
 function Stores() {
+  const [stores, setStores] = useState([]);
+
+  useEffect(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem('stores') || '[]');
+      setStores(Array.isArray(s) ? s : []);
+    } catch {
+      setStores([]);
+    }
+  }, []);
+
   return (
     <>
       <ol className="section-banner py-3 position-relative">
@@ -17,7 +37,7 @@ function Stores() {
           <span className="ps-5">Stores</span>
         </li>
       </ol>
-      {/*Tienda sucursal 1*/}
+
       <div className="container store-wrap my-5 py-5">
         <div className="row">
           <div className="section-title mb-5 stores-title text-center">
@@ -25,142 +45,143 @@ function Stores() {
             <p>Descubre nuestras tiendas físicas y encuentra la más cercana </p>
           </div>
         </div>
-        <div className="row align-items-center g-5">
-          <div className="col-lg-6 mb-4 mb-lg-0 d-flex justify-content-center">
-            <img src={store1} alt="Store" className="img-fluid" />
-          </div>
-          <div className="col-lg-6">
-            <h2 className="mb-4">Sucursal 1</h2>
-            <div className="row">
-              <div className="col-md-6 mb-4">
-                <h5 className="subtitle fw-semibold mb-4">Dirección</h5>
-                <p className="text-muted mb-0">Vera Mujica 1222</p>
-                <p className="text-muted">Tel : 232124343</p>
-                <a
-                  href="https://maps.app.goo.gl/YSeq39955dMcH67w7"
-                  className="underline-link text-black"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Como llegar
-                </a>
-              </div>
-              <div className="col-md-6 mb-4">
-                <h5 className="subtitle fw-semibold mb-4">Horario</h5>
-                <div className="d-flex gap-5 text-muted flex-column flex-sm-row">
-                  <span>Lunes a Viernes: 9:00 - 18:00 </span>
-                  <span>Sábado: 10:00 - 13:00 </span>
-                </div>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6 mb-4">
-                <h5 className="subtitle fw-semibold mb-4">Contacto</h5>
-                <p className="text-muted mb-0">
-                  Celular: <strong className="text-dark">0800 1234 5678</strong>
-                </p>
-                <p className="text-muted">
-                  Email:
-                  <strong className="text-dark">KBR@sucursal1.com</strong>
-                </p>
-              </div>
-              <div className="col-md-6 mb-4">
-                <h5 className="fw-semibold">Redes sociales</h5>
-                <div className="store-social-icons d-flex gap-3 mt-4">
-                  <a
-                    href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw%3D%3D"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline-dark btn-sm"
-                    aria-label="Instagram"
-                  >
-                    <i className="bi bi-instagram"></i>
-                  </a>
-                  <a
-                    href="https://www.facebook.com/rosario.kayaks.2025"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline-dark btn-sm"
-                    aria-label="Facebook"
-                  >
-                    <i className="bi bi-facebook"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/** Tienda sucursal 2 **/}
-      <div className="container store-wrap my-5 py-5">
-        <div className="row align-items-center g-5">
-          <div className="col-lg-6 mb-4 mb-lg-0 d-flex justify-content-center">
-            <img src={store2} alt="Store" className="img-fluid" />
-          </div>
-          <div className="col-lg-6">
-            <h2 className="mb-4">Sucursal 2</h2>
-            <div className="row">
-              <div className="col-md-6 mb-4">
-                <h5 className="subtitle fw-semibold mb-4">Dirección</h5>
-                <p className="text-muted mb-0">
-                  2000, Zeballos 1341, S2000 Rosario, Santa Fe
-                </p>
-                <p className="text-muted">Tel : 231219974</p>
-                <a
-                  href="https://maps.app.goo.gl/eZ4d3PLBQXq5dZFe9"
-                  className="underline-link text-black"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Como llegar
-                </a>
-              </div>
-              <div className="col-md-6 mb-4">
-                <h5 className="subtitle fw-semibold mb-4">Horario</h5>
-                <div className="d-flex gap-5 text-muted flex-column flex-sm-row">
-                  <span>Lunes a Viernes: 9:00 - 18:00 </span>
-                  <span>Sábado: 10:00 - 13:00 </span>
+        {stores.length > 0 ? (
+          stores.map((s) => (
+            <div
+              key={s.id || s.name}
+              className="row align-items-center g-5 mb-4"
+            >
+              <div className="col-lg-5 mb-3 mb-lg-0 d-flex justify-content-center">
+                <div style={{ width: '100%', maxWidth: 520 }}>
+                  <img
+                    src={s.image || '/assets/placeholder.webp'}
+                    alt={s.name}
+                    className="img-fluid rounded"
+                    style={{ width: '100%', height: 320, objectFit: 'cover' }}
+                  />
                 </div>
               </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6 mb-4">
-                <h5 className="subtitle fw-semibold mb-4">Contacto</h5>
-                <p className="text-muted mb-0">
-                  Celular: <strong className="text-dark">0800 8765 4321</strong>
-                </p>
-                <p className="text-muted">
-                  Email:
-                  <strong className="text-dark">KBR@sucursal2.com</strong>
-                </p>
-              </div>
-              <div className="col-md-6 mb-4">
-                <h5 className="fw-semibold">Redes sociales</h5>
-                <div className="store-social-icons d-flex gap-3 mt-4">
+              <div className="col-lg-7">
+                <h2 className="mb-3">{s.name}</h2>
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Dirección</h6>
+                    <p className="text-muted mb-0">{s.address || '—'}</p>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Horario</h6>
+                    <p className="text-muted mb-0">{s.hours || '—'}</p>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Teléfono</h6>
+                    <p className="text-muted mb-0">{s.phone || '—'}</p>
+                  </div>
+                </div>
+                <div className="mt-3">
                   <a
-                    href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw%3D%3D"
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      s.address || s.name
+                    )}`}
+                    className="text-decoration-none"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-outline-dark btn-sm"
-                    aria-label="Instagram"
                   >
-                    <i className="bi bi-instagram"></i>
-                  </a>
-                  <a
-                    href="https://www.facebook.com/rosario.kayaks.2025"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline-dark btn-sm"
-                    aria-label="Facebook"
-                  >
-                    <i className="bi bi-facebook"></i>
+                    Cómo llegar
                   </a>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          ))
+        ) : (
+          <>
+            <div className="row align-items-center g-5 mb-4">
+              <div className="col-lg-5 mb-3 mb-lg-0 d-flex justify-content-center">
+                <div style={{ width: '100%', maxWidth: 520 }}>
+                  <img
+                    src={store1}
+                    alt="Store"
+                    className="img-fluid rounded"
+                    style={{ width: '100%', height: 320, objectFit: 'cover' }}
+                  />
+                </div>
+              </div>
+              <div className="col-lg-7">
+                <h2 className="mb-3">Sucursal 1</h2>
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Dirección</h6>
+                    <p className="text-muted mb-0">Vera Mujica 1222</p>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Horario</h6>
+                    <p className="text-muted mb-0">
+                      Lunes a Viernes: 9:00 - 18:00
+                    </p>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Teléfono</h6>
+                    <p className="text-muted mb-0">232124343</p>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <a
+                    href="https://maps.app.goo.gl/YSeq39955dMcH67w7"
+                    className="text-decoration-none"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Cómo llegar
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="row align-items-center g-5 mt-5 mb-4">
+              <div className="col-lg-5 mb-3 mb-lg-0 d-flex justify-content-center">
+                <div style={{ width: '100%', maxWidth: 520 }}>
+                  <img
+                    src={store2}
+                    alt="Store"
+                    className="img-fluid rounded"
+                    style={{ width: '100%', height: 320, objectFit: 'cover' }}
+                  />
+                </div>
+              </div>
+              <div className="col-lg-7">
+                <h2 className="mb-3">Sucursal 2</h2>
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Dirección</h6>
+                    <p className="text-muted mb-0">
+                      2000, Zeballos 1341, S2000 Rosario, Santa Fe
+                    </p>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Horario</h6>
+                    <p className="text-muted mb-0">
+                      Lunes a Viernes: 9:00 - 18:00
+                    </p>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <h6 className="mb-1 fw-semibold">Teléfono</h6>
+                    <p className="text-muted mb-0">231219974</p>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <a
+                    href="https://maps.app.goo.gl/eZ4d3PLBQXq5dZFe9"
+                    className="text-decoration-none"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Cómo llegar
+                  </a>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

@@ -10,10 +10,11 @@ import mpLogo from './../../assets/mercadopago-logo.webp';
 function Checkout() {
   const [deliveryOption, setDeliveryOption] = useState('ship');
   const [cartItems, setCartItems] = useState([]);
+  const [stores, setStores] = useState([]);
   // Campos del formulario (controlados)
   const [contactValue, setContactValue] = useState('');
   const [address, setAddress] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('branch1');
+  const [selectedPickup, setSelectedPickup] = useState('branch1');
 
   const branches = {
     branch1: {
@@ -54,11 +55,38 @@ function Checkout() {
       // prefill contact if previously saved
       const savedContact = localStorage.getItem('checkout_contact') || '';
       if (savedContact) setContactValue(savedContact);
-    } catch (e) {
-      console.error(e);
+      // load stores for pickup options
+      const s = JSON.parse(localStorage.getItem('stores') || '[]');
+      if (Array.isArray(s) && s.length > 0) {
+        setStores(s);
+        setSelectedPickup(`store-${s[0].id}`);
+      }
+    } catch {
       setCartItems([]);
     }
   }, []);
+
+  useEffect(() => {
+    const onStoresUpdated = () => {
+      try {
+        const s = JSON.parse(localStorage.getItem('stores') || '[]');
+        if (Array.isArray(s) && s.length > 0) {
+          setStores(s);
+          // if currently using fallback branch, switch to first store
+          if (!String(selectedPickup).startsWith('store-')) {
+            setSelectedPickup(`store-${s[0].id}`);
+          }
+        } else {
+          setStores([]);
+        }
+      } catch {
+        setStores([]);
+      }
+    };
+
+    window.addEventListener('storesUpdated', onStoresUpdated);
+    return () => window.removeEventListener('storesUpdated', onStoresUpdated);
+  }, [selectedPickup]);
 
   // handlePlaceOrder removed; use handleMercadoPago for payment flow
 
@@ -97,6 +125,18 @@ function Checkout() {
     if (deliveryOption === 'ship') {
       if (!address.trim())
         errors.push('La dirección es obligatoria para envío a domicilio');
+    }
+    if (deliveryOption === 'pickup') {
+      // ensure a pickup option is selected
+      let selectedData = null;
+      if (selectedPickup && String(selectedPickup).startsWith('store-')) {
+        const id = Number(String(selectedPickup).replace('store-', ''));
+        selectedData = stores.find((x) => Number(x.id) === id) || null;
+      } else if (selectedPickup) {
+        selectedData = branches[selectedPickup] || null;
+      }
+      if (!selectedData)
+        errors.push('Selecciona una tienda para retirar tu pedido');
     }
     // Payment by card removed; using 'Pagar al recibir' or similar.
 
@@ -193,50 +233,91 @@ function Checkout() {
                   </div>
 
                   <div className="mb-3">
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="branch"
-                        id="branch1"
-                        checked={selectedBranch === 'branch1'}
-                        onChange={() => setSelectedBranch('branch1')}
-                      />
-                      <label className="form-check-label" htmlFor="branch1">
-                        {branches.branch1.name}
-                      </label>
-                    </div>
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="branch"
-                        id="branch2"
-                        checked={selectedBranch === 'branch2'}
-                        onChange={() => setSelectedBranch('branch2')}
-                      />
-                      <label className="form-check-label" htmlFor="branch2">
-                        {branches.branch2.name}
-                      </label>
-                    </div>
+                    {/* Render stores created by admin first; fallback to predefined branches */}
+                    {stores && stores.length > 0
+                      ? stores.map((s) => (
+                          <div className="form-check" key={`store-${s.id}`}>
+                            <input
+                              className="form-check-input"
+                              type="radio"
+                              name="branch"
+                              id={`store-${s.id}`}
+                              checked={selectedPickup === `store-${s.id}`}
+                              onChange={() =>
+                                setSelectedPickup(`store-${s.id}`)
+                              }
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor={`store-${s.id}`}
+                            >
+                              {s.name}
+                            </label>
+                          </div>
+                        ))
+                      : Object.keys(branches).map((k) => (
+                          <div className="form-check" key={k}>
+                            <input
+                              className="form-check-input"
+                              type="radio"
+                              name="branch"
+                              id={k}
+                              checked={selectedPickup === k}
+                              onChange={() => setSelectedPickup(k)}
+                            />
+                            <label className="form-check-label" htmlFor={k}>
+                              {branches[k].name}
+                            </label>
+                          </div>
+                        ))}
                   </div>
 
                   <div className="card p-3 rounded-3">
-                    <h6 className="mb-1">{branches[selectedBranch].name}</h6>
-                    <p className="mb-1">
-                      <strong>Dirección:</strong>{' '}
-                      {branches[selectedBranch].address}
-                    </p>
-                    <p className="mb-1">
-                      <strong>Horario:</strong> {branches[selectedBranch].hours}
-                    </p>
-                    <p className="mb-1">
-                      <strong>Teléfono:</strong>{' '}
-                      {branches[selectedBranch].phone}
-                    </p>
-                    <small className="text-muted">
-                      {branches[selectedBranch].notes}
-                    </small>
+                    {(() => {
+                      // determine selected data (store or branch)
+                      if (
+                        selectedPickup &&
+                        String(selectedPickup).startsWith('store-')
+                      ) {
+                        const id = Number(
+                          String(selectedPickup).replace('store-', '')
+                        );
+                        const s = stores.find((x) => Number(x.id) === id);
+                        if (s) {
+                          return (
+                            <>
+                              <h6 className="mb-1">{s.name}</h6>
+                              <p className="mb-1">
+                                <strong>Dirección:</strong> {s.address}
+                              </p>
+                              <p className="mb-1">
+                                <strong>Horario:</strong> {s.hours || '—'}
+                              </p>
+                              <p className="mb-1">
+                                <strong>Teléfono:</strong> {s.phone || '—'}
+                              </p>
+                            </>
+                          );
+                        }
+                      }
+                      // fallback to predefined branch
+                      const b = branches[selectedPickup] || branches.branch1;
+                      return (
+                        <>
+                          <h6 className="mb-1">{b.name}</h6>
+                          <p className="mb-1">
+                            <strong>Dirección:</strong> {b.address}
+                          </p>
+                          <p className="mb-1">
+                            <strong>Horario:</strong> {b.hours}
+                          </p>
+                          <p className="mb-1">
+                            <strong>Teléfono:</strong> {b.phone}
+                          </p>
+                          <small className="text-muted">{b.notes}</small>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}

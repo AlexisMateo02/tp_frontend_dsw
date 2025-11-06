@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import CrearTiendas from './crearTiendas.jsx';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Admin() {
   const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState('product');
 
   // Basic product fields
   const [title, setTitle] = useState('');
@@ -340,518 +342,549 @@ function Admin() {
           </button>
         </div>
       </div>
+      <div className="mb-3 d-flex gap-2">
+        <button
+          type="button"
+          className={
+            'btn ' +
+            (selectedTab === 'product' ? 'btn-primary' : 'btn-outline-primary')
+          }
+          onClick={() => setSelectedTab('product')}
+        >
+          Alta Producto
+        </button>
+        <button
+          type="button"
+          className={
+            'btn ' +
+            (selectedTab === 'store' ? 'btn-primary' : 'btn-outline-primary')
+          }
+          onClick={() => setSelectedTab('store')}
+        >
+          Alta Tienda
+        </button>
+      </div>
 
-      <div className="card p-4 mb-4">
-        <h5 className="mb-3">Crear nuevo producto</h5>
-        <form onSubmit={handleCreate}>
-          <div className="row g-2">
-            <div className="col-md-6">
-              <input
-                className="form-control"
-                placeholder="Nombre del producto"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div className="col-md-3">
-              <input
-                className="form-control"
-                placeholder="Precio (p.ej. $52.000)"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </div>
-            <div className="col-md-3">
-              <select
-                className="form-select"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="articulo">Artículo</option>
-                <option value="kayak">Kayak</option>
-                <option value="sup">SUP</option>
-                <option value="embarcacion">Embarcación</option>
-              </select>
-            </div>
-
-            <div className="col-md-6 col-12 mt-2">
-              <input
-                className="form-control"
-                placeholder="Nombre del vendedor"
-                value={sellerName}
-                onChange={(e) => setSellerName(e.target.value)}
-              />
-            </div>
-
-            <div className="col-md-6 col-12 mt-2">
-              <input
-                type="file"
-                accept="image/*"
-                className="form-control"
-                multiple
-                onChange={(e) => {
-                  const files = e.target.files;
-                  if (files) handleFiles(files);
-                }}
-              />
-            </div>
-
-            {images.length > 0 && (
-              <div className="col-12 mt-2">
-                <div className="mb-2">Vista previa:</div>
-                {images.map((img, index) => (
-                  <img
-                    key={index}
-                    src={img}
-                    alt={`preview-${index}`}
-                    style={{ maxWidth: 240, marginRight: 10 }}
+      {selectedTab === 'product' && (
+        <>
+          <div className="card p-4 mb-4">
+            <h5 className="mb-3">Crear nuevo producto</h5>
+            <form onSubmit={handleCreate}>
+              <div className="row g-2">
+                <div className="col-md-6">
+                  <input
+                    className="form-control"
+                    placeholder="Nombre del producto"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
+                </div>
+                <div className="col-md-3">
+                  <input
+                    className="form-control"
+                    placeholder="Precio ($)"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                  />
+                </div>
+                <div className="col-md-3">
+                  <select
+                    className="form-select"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="articulo">Artículo</option>
+                    <option value="kayak">Kayak</option>
+                    <option value="sup">SUP</option>
+                    <option value="embarcacion">Embarcación</option>
+                  </select>
+                </div>
+
+                <div className="col-md-6 col-12 mt-2">
+                  <input
+                    className="form-control"
+                    placeholder="Nombre del vendedor"
+                    value={sellerName}
+                    onChange={(e) => setSellerName(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-md-6 col-12 mt-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="form-control"
+                    multiple
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (files) handleFiles(files);
+                    }}
+                  />
+                </div>
+
+                {images.length > 0 && (
+                  <div className="col-12 mt-2">
+                    <div className="mb-2">Vista previa:</div>
+                    {images.map((img, index) => (
+                      <img
+                        key={index}
+                        src={img}
+                        alt={`preview-${index}`}
+                        style={{ maxWidth: 240, marginRight: 10 }}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                <div className="col-12 mt-2">
+                  <input
+                    className="form-control"
+                    placeholder="Tag (Nuevo / Oferta)"
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-12 mt-2">
+                  <textarea
+                    className="form-control"
+                    placeholder="Descripción"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+
+                {category === 'kayak' && (
+                  <>
+                    <div className="col-12 mt-3">
+                      <h6 className="mb-2">Especificaciones Técnicas</h6>
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Modelo"
+                        value={kt_model}
+                        onChange={(e) => setKt_model(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Marca"
+                        value={kt_brand}
+                        onChange={(e) => setKt_brand(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Material"
+                        value={kt_material}
+                        onChange={(e) => setKt_material(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Remadores"
+                        type="number"
+                        min="1"
+                        value={kt_paddlersQuantity}
+                        onChange={(e) => setKt_paddlersQuantity(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Cantidad de remadores (personas)
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Capacidad máx (kg)"
+                        type="number"
+                        step="any"
+                        value={kt_maxWeightCapacity}
+                        onChange={(e) =>
+                          setKt_maxWeightCapacity(e.target.value)
+                        }
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Capacidad máxima en kilogramos (kg)
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Largo (m)"
+                        type="number"
+                        step="any"
+                        value={kt_length}
+                        onChange={(e) => setKt_length(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Largo en metros (m)
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Manga (m)"
+                        type="number"
+                        step="any"
+                        value={kt_beam}
+                        onChange={(e) => setKt_beam(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Manga (ancho) en metros (m)
+                      </div>
+                    </div>
+                    <div className="col-md-12 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Construcción"
+                        value={kt_constructionType}
+                        onChange={(e) => setKt_constructionType(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+
+                {category === 'embarcacion' && (
+                  <>
+                    <div className="col-12 mt-3">
+                      <h6 className="mb-2">
+                        Especificaciones Técnicas (Embarcación)
+                      </h6>
+                    </div>
+
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Marca"
+                        value={bt_brand}
+                        onChange={(e) => setBt_brand(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Modelo"
+                        value={bt_model}
+                        onChange={(e) => setBt_model(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Material"
+                        value={bt_material}
+                        onChange={(e) => setBt_material(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Capacidad (personas)"
+                        type="number"
+                        min="1"
+                        value={bt_capacity}
+                        onChange={(e) => setBt_capacity(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Capacidad en número de personas
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Peso máximo (kg)"
+                        type="number"
+                        step="any"
+                        value={bt_maxWeight}
+                        onChange={(e) => setBt_maxWeight(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Peso máximo en kilogramos (kg)
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Largo (m)"
+                        type="number"
+                        step="any"
+                        value={bt_length}
+                        onChange={(e) => setBt_length(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Largo en metros (m)
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Manga (m)"
+                        type="number"
+                        step="any"
+                        value={bt_beam}
+                        onChange={(e) => setBt_beam(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Manga (ancho) en metros (m)
+                      </div>
+                    </div>
+
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Tipo de casco"
+                        value={bt_hullType}
+                        onChange={(e) => setBt_hullType(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Motor "
+                        value={bt_engineType}
+                        onChange={(e) => setBt_engineType(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="HP máximo"
+                        type="number"
+                        step="any"
+                        value={bt_maxHP}
+                        onChange={(e) => setBt_maxHP(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Potencia máxima del motor (HP)
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {category === 'articulo' && (
+                  <>
+                    <div className="col-12 mt-3">
+                      <h6 className="mb-2">
+                        Especificaciones Técnicas (Artículo)
+                      </h6>
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Tipo de artículo"
+                        value={art_type}
+                        onChange={(e) => setArt_type(e.target.value)}
+                      />
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Uso principal"
+                        value={art_usage}
+                        onChange={(e) => setArt_usage(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {category === 'sup' && (
+                  <>
+                    <div className="col-12 mt-3">
+                      <h6 className="mb-2">Especificaciones Técnicas (SUP)</h6>
+                      <div className="mb-2">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-info"
+                          onClick={loadSupTemplate}
+                        >
+                          Cargar plantilla SUP
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Marca"
+                        value={sup_brand}
+                        onChange={(e) => setSup_brand(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Modelo"
+                        value={sup_model}
+                        onChange={(e) => setSup_model(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Material"
+                        value={sup_material}
+                        onChange={(e) => setSup_material(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Tipo de tabla"
+                        value={sup_boardType}
+                        onChange={(e) => setSup_boardType(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Construcción"
+                        value={sup_construction}
+                        onChange={(e) => setSup_construction(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Tipo de construcción (inflable, rígida, etc.)
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Capacidad máx (kg)"
+                        type="number"
+                        step="any"
+                        value={sup_maxWeightCapacity}
+                        onChange={(e) =>
+                          setSup_maxWeightCapacity(e.target.value)
+                        }
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Capacidad máxima en kilogramos (kg)
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Largo (m)"
+                        type="number"
+                        step="any"
+                        value={sup_length}
+                        onChange={(e) => setSup_length(e.target.value)}
+                        required
+                      />
+                      <div className="form-text text-muted">
+                        Largo en metros (m)
+                      </div>
+                    </div>
+
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Ancho (m)"
+                        type="number"
+                        step="any"
+                        value={sup_width}
+                        onChange={(e) => setSup_width(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Grosor (m)"
+                        type="number"
+                        step="any"
+                        value={sup_thickness}
+                        onChange={(e) => setSup_thickness(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4 mt-2">
+                      <input
+                        className="form-control"
+                        placeholder="Quillas"
+                        value={sup_fins}
+                        onChange={(e) => setSup_fins(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="col-12 mt-3">
+                  <button className="btn btn-primary">Crear producto</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div className="card p-4">
+            <h5 className="mb-3">Nuestros productos a la venta</h5>
+            {marketplace.length === 0 ? (
+              <p className="text-muted">No hay productos a la venta.</p>
+            ) : (
+              <div className="list-group">
+                {marketplace.map((p) => (
+                  <div
+                    key={p.id}
+                    className="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <strong>{p.Productname}</strong>
+                      <div className="text-muted small">
+                        {p.price} • {p.category}
+                      </div>
+                    </div>
+                    <div>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => removeProduct(p.id)}
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
-
-            <div className="col-12 mt-2">
-              <input
-                className="form-control"
-                placeholder="Tag (Nuevo / Oferta)"
-                value={tag}
-                onChange={(e) => setTag(e.target.value)}
-              />
-            </div>
-
-            <div className="col-12 mt-2">
-              <textarea
-                className="form-control"
-                placeholder="Descripción"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            {category === 'kayak' && (
-              <>
-                <div className="col-12 mt-3">
-                  <h6 className="mb-2">Especificaciones Técnicas</h6>
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Modelo (ej. Mantra Matrix)"
-                    value={kt_model}
-                    onChange={(e) => setKt_model(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Marca (ej. Matrix)"
-                    value={kt_brand}
-                    onChange={(e) => setKt_brand(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Material (ej. Polietileno rotomoldeado)"
-                    value={kt_material}
-                    onChange={(e) => setKt_material(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Remadores (ej. 1)"
-                    type="number"
-                    min="1"
-                    value={kt_paddlersQuantity}
-                    onChange={(e) => setKt_paddlersQuantity(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Cantidad de remadores (personas)
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Capacidad máx (kg) (ej. 120)"
-                    type="number"
-                    step="any"
-                    value={kt_maxWeightCapacity}
-                    onChange={(e) => setKt_maxWeightCapacity(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Capacidad máxima en kilogramos (kg)
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Largo (m) (ej. 3.5)"
-                    type="number"
-                    step="any"
-                    value={kt_length}
-                    onChange={(e) => setKt_length(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Largo en metros (m)
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Manga (m) (ej. 0.68)"
-                    type="number"
-                    step="any"
-                    value={kt_beam}
-                    onChange={(e) => setKt_beam(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Manga (ancho) en metros (m)
-                  </div>
-                </div>
-                <div className="col-md-12 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Construcción (ej. rotomoldeado)"
-                    value={kt_constructionType}
-                    onChange={(e) => setKt_constructionType(e.target.value)}
-                    required
-                  />
-                </div>
-              </>
-            )}
-
-            {category === 'embarcacion' && (
-              <>
-                <div className="col-12 mt-3">
-                  <h6 className="mb-2">
-                    Especificaciones Técnicas (Embarcación)
-                  </h6>
-                </div>
-
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Marca (ej. Amarinta)"
-                    value={bt_brand}
-                    onChange={(e) => setBt_brand(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Modelo (ej. Amarinta 620 Cuddy)"
-                    value={bt_model}
-                    onChange={(e) => setBt_model(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Material (ej. Fibra de vidrio)"
-                    value={bt_material}
-                    onChange={(e) => setBt_material(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Capacidad (personas) (ej. 8)"
-                    type="number"
-                    min="1"
-                    value={bt_capacity}
-                    onChange={(e) => setBt_capacity(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Capacidad en número de personas
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Peso máximo (kg) (ej. 800)"
-                    type="number"
-                    step="any"
-                    value={bt_maxWeight}
-                    onChange={(e) => setBt_maxWeight(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Peso máximo en kilogramos (kg)
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Largo (m) (ej. 6.2)"
-                    type="number"
-                    step="any"
-                    value={bt_length}
-                    onChange={(e) => setBt_length(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Largo en metros (m)
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Manga (m) (ej. 2.5)"
-                    type="number"
-                    step="any"
-                    value={bt_beam}
-                    onChange={(e) => setBt_beam(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Manga (ancho) en metros (m)
-                  </div>
-                </div>
-
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Tipo de casco (ej. casco en V profundo)"
-                    value={bt_hullType}
-                    onChange={(e) => setBt_hullType(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Motor (ej. fuera de borda)"
-                    value={bt_engineType}
-                    onChange={(e) => setBt_engineType(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="HP máximo (ej. 150)"
-                    type="number"
-                    step="any"
-                    value={bt_maxHP}
-                    onChange={(e) => setBt_maxHP(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Potencia máxima del motor (HP)
-                  </div>
-                </div>
-              </>
-            )}
-
-            {category === 'articulo' && (
-              <>
-                <div className="col-12 mt-3">
-                  <h6 className="mb-2">Especificaciones Técnicas (Artículo)</h6>
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Tipo de artículo (ej. Accesorio)"
-                    value={art_type}
-                    onChange={(e) => setArt_type(e.target.value)}
-                  />
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Uso principal (ej. navegación recreativa)"
-                    value={art_usage}
-                    onChange={(e) => setArt_usage(e.target.value)}
-                  />
-                </div>
-              </>
-            )}
-
-            {category === 'sup' && (
-              <>
-                <div className="col-12 mt-3">
-                  <h6 className="mb-2">Especificaciones Técnicas (SUP)</h6>
-                  <div className="mb-2">
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-info"
-                      onClick={loadSupTemplate}
-                    >
-                      Cargar plantilla SUP
-                    </button>
-                  </div>
-                </div>
-
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Marca (ej. Red Paddle Co)"
-                    value={sup_brand}
-                    onChange={(e) => setSup_brand(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Modelo (ej. Allround 10'6)"
-                    value={sup_model}
-                    onChange={(e) => setSup_model(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Material (ej. MSL Fusion)"
-                    value={sup_material}
-                    onChange={(e) => setSup_material(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Tipo de tabla (ej. allround)"
-                    value={sup_boardType}
-                    onChange={(e) => setSup_boardType(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Construcción (ej. inflable)"
-                    value={sup_construction}
-                    onChange={(e) => setSup_construction(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Tipo de construcción (inflable, rígida, etc.)
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Capacidad máx (kg) (ej. 100)"
-                    type="number"
-                    step="any"
-                    value={sup_maxWeightCapacity}
-                    onChange={(e) => setSup_maxWeightCapacity(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Capacidad máxima en kilogramos (kg)
-                  </div>
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Largo (m) (ej. 3.2)"
-                    type="number"
-                    step="any"
-                    value={sup_length}
-                    onChange={(e) => setSup_length(e.target.value)}
-                    required
-                  />
-                  <div className="form-text text-muted">
-                    Largo en metros (m)
-                  </div>
-                </div>
-
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Ancho (m) (ej. 0.81)"
-                    type="number"
-                    step="any"
-                    value={sup_width}
-                    onChange={(e) => setSup_width(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Grosor (m) (ej. 0.127)"
-                    type="number"
-                    step="any"
-                    value={sup_thickness}
-                    onChange={(e) => setSup_thickness(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-md-4 mt-2">
-                  <input
-                    className="form-control"
-                    placeholder="Quillas (ej. 2+1)"
-                    value={sup_fins}
-                    onChange={(e) => setSup_fins(e.target.value)}
-                  />
-                </div>
-              </>
-            )}
-
-            <div className="col-12 mt-3">
-              <button className="btn btn-primary">Crear producto</button>
-              <button
-                type="button"
-                className="btn btn-outline-secondary ms-2"
-                onClick={resetForm}
-              >
-                Limpiar
-              </button>
-            </div>
           </div>
-        </form>
-      </div>
+        </>
+      )}
 
-      <div className="card p-4">
-        <h5 className="mb-3">Productos del marketplace</h5>
-        {marketplace.length === 0 ? (
-          <p className="text-muted">No hay productos en el marketplace.</p>
-        ) : (
-          <div className="list-group">
-            {marketplace.map((p) => (
-              <div
-                key={p.id}
-                className="list-group-item d-flex justify-content-between align-items-center"
-              >
-                <div>
-                  <strong>{p.Productname}</strong>
-                  <div className="text-muted small">
-                    {p.price} • {p.category}
-                  </div>
-                </div>
-                <div>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => removeProduct(p.id)}
-                  >
-                    Remover
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {selectedTab === 'store' && (
+        <div className="card p-4">
+          <CrearTiendas />
+        </div>
+      )}
 
       <ToastContainer position="top-right" autoClose={2500} />
     </div>
