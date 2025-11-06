@@ -41,6 +41,15 @@ function Register() {
       return;
     }
 
+    // Validar teléfono si se proporciona
+    if (phone && phone.trim() !== '') {
+      const phoneRegex = /^\+?\d{8,}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        toast.error('El teléfono debe contener solo números (mínimo 8 dígitos)');
+        return;
+      }
+    }
+
     setLoading(true);
     
     try {
@@ -105,7 +114,9 @@ function Register() {
             className="form-control"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            placeholder="Ej: +541234567890"
           />
+          <small className="text-muted">Solo números. Mínimo 8 dígitos. Opcionalmente puede comenzar con +</small>
         </div>
         <div className="mb-3">
           <label className="form-label">Contraseña</label>

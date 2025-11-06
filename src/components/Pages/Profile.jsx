@@ -1,231 +1,239 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
-/*
-  Componente MiPerfil
-  - Lee el usuario actual desde localStorage.currentUser
-  - Muestra un formulario para editar: firstName, lastName, email, phone
-  - Guarda los cambios en localStorage.users (busca por id o email) y actualiza localStorage.currentUser
-  - Dispara evento 'authChanged' para que la Nav y otras partes de la app se enteren
-*/
-
 function Profile() {
   const [user, setUser] = useState(null);
-  const [form, setForm] = useState({
+  const [profileForm, setProfileForm] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
   });
-  const [saving, setSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [previewAvatar, setPreviewAvatar] = useState(null);
-  const [avatarProcessing, setAvatarProcessing] = useState(false);
-  const fileRef = useRef(null);
-  const formRef = useRef(null);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      const cur = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      if (cur) {
-        setUser(cur);
-        setForm({
-          firstName: cur.firstName || '',
-          lastName: cur.lastName || '',
-          email: cur.email || '',
-          phone: cur.phone || '',
+    const loadUserProfile = async () => {
+      try {
+        setLoading(true);
+        
+        if (!api.hasApi()) {
+          throw new Error('Backend no configurado');
+        }
+
+        const userData = await api.getProfile();
+        setUser(userData);
+        setProfileForm({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
         });
-        if (cur.avatar) setPreviewAvatar(cur.avatar);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        
+        if (error.message === 'Backend no configurado') {
+          toast.error('Backend no configurado. Contacta al administrador.');
+        } else if (error.message.includes('No se pudo conectar')) {
+          toast.error('Error de conexión con el servidor. Verifica que esté funcionando.');
+        } else if (error.message.includes('No tienes permisos')) {
+          toast.error('No tienes permisos para acceder a este perfil.');
+        } else {
+          toast.error('Error al cargar el perfil: ' + error.message);
+        }
+        
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setUser(null);
-    }
+    };
+
+    loadUserProfile();
   }, []);
 
-  const handleChange = (e) => {
+  const handleProfileChange = (e) => {
     const { name, value } = e.target;
-    setForm((s) => ({ ...s, [name]: value }));
+    setProfileForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    if (!form.firstName || !form.email) {
+    
+    if (!profileForm.firstName || !profileForm.email) {
       toast.error('Nombre y email son requeridos');
       return;
     }
-    setSaving(true);
-    console.log('Profile: handleSubmit', { form, previewAvatar, user });
-    toast.info('Guardando cambios...');
+
+    // Validación del teléfono (si se proporciona)
+    if (profileForm.phone && profileForm.phone.trim() !== '') {
+      const phoneRegex = /^\+?\d{8,}$/;
+      if (!phoneRegex.test(profileForm.phone.trim())) {
+        toast.error('El teléfono debe contener solo números (mínimo 8 dígitos)');
+        return;
+      }
+    }
+    
+    if (!api.hasApi()) {
+      toast.error('Backend no configurado. No se puede guardar.');
+      return;
+    }
+
+    setSavingProfile(true);
+    
     try {
-      // load users array
-      const usersRaw = localStorage.getItem('users');
-      let users = [];
-      try {
-        users = usersRaw ? JSON.parse(usersRaw) : [];
-      } catch {
-        users = [];
+      const userId = user?.id;
+      if (!userId) {
+        throw new Error('ID de usuario no disponible');
       }
 
-      // find user by id (if exists) or by email
-      let updated = false;
-      const id = user && user.id ? user.id : null;
-      if (id) {
-        users = users.map((u) => {
-          if (u.id === id) {
-            updated = true;
-            return { ...u, ...form, avatar: previewAvatar || u.avatar };
-          }
-          return u;
-        });
-      }
+      const updateData = {
+        firstName: profileForm.firstName.trim(),
+        lastName: profileForm.lastName.trim(),
+        phone: profileForm.phone.trim() || '',
+      };
 
-      if (!updated) {
-        // try to find by email
-        users = users.map((u) => {
-          if (u.email && user && user.email && u.email === user.email) {
-            updated = true;
-            return { ...u, ...form, avatar: previewAvatar || u.avatar };
-          }
-          return u;
-        });
-      }
-
-      if (!updated) {
-        // if user not found, create a simple id and push
-        const newId = Date.now();
-        users.push({ id: newId, ...form, avatar: previewAvatar || null });
-      }
-
-      // If API is configured and user has an id, attempt to save to backend first.
-      // let backendSaved = false; (not used)
-      const apiEnabled = api.hasApi();
-      const userId = (user && user.id) || null;
-      const newCurrent = { ...user, ...form };
-
-      if (apiEnabled && userId) {
-        try {
-          // If there is a previewAvatar (data URL), upload it first
-          if (previewAvatar && previewAvatar.startsWith('data:')) {
-            const uploadResp = await api.uploadAvatar(userId, previewAvatar);
-            // backend may return avatarUrl or updated user
-            if (uploadResp && uploadResp.avatarUrl) {
-              newCurrent.avatar = uploadResp.avatarUrl;
-            } else if (uploadResp && uploadResp.avatar) {
-              newCurrent.avatar = uploadResp.avatar;
-            }
-          }
-          // update user object on server
-          const updated = await api.updateUser(userId, newCurrent);
-          // if backend returns updated user, use that
-          if (updated) {
-            Object.assign(newCurrent, updated);
-          }
-        } catch (err) {
-          console.error(
-            'Backend save failed, falling back to localStorage',
-            err
-          );
-          toast.warn(
-            'No se pudo guardar en el servidor — se guardará localmente.'
-          );
-        }
-      }
-
-      // Persist to localStorage (always) so the app works offline too.
-      try {
-        localStorage.setItem('users', JSON.stringify(users));
-      } catch (err) {
-        console.error('Error saving users to localStorage', err);
-      }
-
-      // persist currentUser locally as well
-      try {
-        localStorage.setItem('currentUser', JSON.stringify(newCurrent));
-      } catch (err) {
-        console.error('Error saving currentUser to localStorage', err);
-      }
-      // notify other components
+      const result = await api.updateUser(userId, updateData);
+      
+      const updatedUser = { ...user, ...result };
+      setUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      
       window.dispatchEvent(new Event('authChanged'));
-
-      setUser(newCurrent);
-      setForm({
-        firstName: newCurrent.firstName || '',
-        lastName: newCurrent.lastName || '',
-        email: newCurrent.email || '',
-        phone: newCurrent.phone || '',
-      });
-      setIsEditing(false);
-      toast.success('Perfil guardado correctamente');
-    } catch (err) {
-      console.error('Error guardando perfil', err);
-      toast.error('No se pudo guardar el perfil');
+      
+      setIsEditingProfile(false);
+      toast.success('Perfil actualizado correctamente');
+      
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      
+      if (error.message.includes('No se pudo conectar')) {
+        toast.error('Error de conexión. No se pudo guardar.');
+      } else if (error.message.includes('ya está registrado')) {
+        toast.error('El email ya está en uso por otro usuario.');
+      } else if (error.message.includes('No tienes permisos')) {
+        toast.error('No tienes permisos para actualizar este perfil.');
+      } else if (error.message.includes('teléfono')) {
+        toast.error('El formato del teléfono no es válido');
+      } else {
+        toast.error(error.message || 'No se pudo actualizar el perfil');
+      }
     } finally {
-      setSaving(false);
+      setSavingProfile(false);
     }
   };
 
-  const handleAvatarChange = (file) => {
-    if (!file) return;
-    setAvatarProcessing(true);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      // compress image using canvas to avoid large localStorage usage
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const maxDim = 900; // limit max dimension
-          let { width, height } = img;
-          let scale = 1;
-          if (width > maxDim || height > maxDim) {
-            scale = Math.min(maxDim / width, maxDim / height);
-            width = Math.round(width * scale);
-            height = Math.round(height * scale);
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          // try a few qualities to keep size reasonable
-          const compressed = canvas.toDataURL('image/jpeg', 0.75);
-          setPreviewAvatar(compressed);
-        } catch (err) {
-          console.error('Error compressing avatar', err);
-          // fallback to original
-          setPreviewAvatar(dataUrl);
-        } finally {
-          setAvatarProcessing(false);
-        }
-      };
-      img.onerror = () => {
-        // fallback
-        setPreviewAvatar(dataUrl);
-        setAvatarProcessing(false);
-      };
-      img.src = dataUrl;
-    };
-    reader.onerror = () => {
-      setAvatarProcessing(false);
-      toast.error('No se pudo leer la imagen');
-    };
-    reader.readAsDataURL(file);
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      toast.error('Contraseña actual y nueva contraseña son requeridas');
+      return;
+    }
+    
+    if (passwordForm.newPassword.length < 6) {
+      toast.error('La nueva contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('Las contraseñas no coinciden');
+      return;
+    }
+
+    setChangingPassword(true);
+    
+    try {
+      const userId = user?.id;
+      if (!userId) {
+        throw new Error('ID de usuario no disponible');
+      }
+
+      await api.changePassword(userId, {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+      setIsChangingPassword(false);
+      toast.success('Contraseña actualizada correctamente');
+      
+    } catch (error) {
+      console.error('Error changing password:', error);
+      
+      if (error.message.includes('contraseña actual')) {
+        toast.error('La contraseña actual es incorrecta');
+      } else if (error.message.includes('No tienes permisos')) {
+        toast.error('No tienes permisos para cambiar esta contraseña.');
+      } else {
+        toast.error(error.message || 'No se pudo cambiar la contraseña');
+      }
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    window.dispatchEvent(new Event('authChanged'));
+    api.logout();
     navigate('/');
   };
+
+  const cancelProfileEdit = () => {
+    setProfileForm({
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+    });
+    setIsEditingProfile(false);
+    toast.info('Cambios descartados');
+  };
+
+  const cancelPasswordChange = () => {
+    setPasswordForm({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
+    setIsChangingPassword(false);
+    toast.info('Cambio de contraseña cancelado');
+  };
+
+  if (loading) {
+    return (
+      <div className="container" style={{ marginTop: '100px' }}>
+        <div className="text-center">
+          <h3>Mi Perfil</h3>
+          <p>Cargando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
       <div className="container" style={{ marginTop: '100px' }}>
         <h3>Mi Perfil</h3>
-        <p>No hay usuario logueado.</p>
+        <p>No hay usuario logueado o no se pudo cargar el perfil.</p>
         <p>
           <Link to="/login" className="btn btn-dark">
             Iniciar sesión
@@ -237,152 +245,181 @@ function Profile() {
 
   return (
     <div className="container" style={{ marginTop: '100px', maxWidth: 900 }}>
-      <div className="d-flex justify-content-between align-items-start mb-3">
+      <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
           <h3>Mi Perfil</h3>
-          <p className="text-muted">Aquí puedes ver y editar tus datos.</p>
+          <p className="text-muted">Gestiona tu información personal y seguridad</p>
         </div>
-        <div>
-          <button
-            className="btn btn-outline-secondary me-2"
-            onClick={() => setIsEditing((s) => !s)}
-          >
-            {isEditing ? 'Cancelar' : 'Editar mi perfil'}
-          </button>
-          <button className="btn btn-danger" onClick={handleLogout}>
-            Cerrar sesión
-          </button>
-        </div>
+        <button className="btn btn-danger" onClick={handleLogout}>
+          Cerrar sesión
+        </button>
       </div>
 
       <div className="row">
-        <div className="col-md-4 text-center">
-          <div style={{ width: 220, margin: '0 auto' }}>
-            <img
-              src={
-                previewAvatar ||
-                user.avatar ||
-                '/assets/images/avatar-placeholder.png'
-              }
-              alt="avatar"
-              style={{
-                width: 220,
-                height: 220,
-                objectFit: 'cover',
-                borderRadius: '50%',
-                border: '1px solid #ddd',
-              }}
-            />
-            {isEditing && (
-              <div className="mt-3">
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  className="form-control"
-                  onChange={(e) =>
-                    handleAvatarChange(e.target.files && e.target.files[0])
-                  }
-                />
-                <small className="text-muted">
-                  Puedes subir JPG/PNG. Se almacenará localmente.
-                </small>
-              </div>
-            )}
+        {/* Información Personal */}
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">Información Personal</h5>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => isEditingProfile ? cancelProfileEdit() : setIsEditingProfile(true)}
+              >
+                {isEditingProfile ? 'Cancelar' : 'Editar'}
+              </button>
+            </div>
+            <div className="card-body">
+              <form onSubmit={handleProfileSubmit}>
+                <div className="mb-3">
+                  <label className="form-label">Nombre *</label>
+                  <input
+                    name="firstName"
+                    value={profileForm.firstName}
+                    onChange={handleProfileChange}
+                    className="form-control"
+                    required
+                    disabled={!isEditingProfile}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Apellido</label>
+                  <input
+                    name="lastName"
+                    value={profileForm.lastName}
+                    onChange={handleProfileChange}
+                    className="form-control"
+                    disabled={!isEditingProfile}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Email *</label>
+                  <input
+                    name="email"
+                    type="email"
+                    value={profileForm.email}
+                    className="form-control"
+                    disabled
+                  />
+                  <small className="text-muted">El email no se puede modificar</small>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Teléfono</label>
+                  <input
+                    name="phone"
+                    value={profileForm.phone}
+                    onChange={handleProfileChange}
+                    className="form-control"
+                    disabled={!isEditingProfile}
+                    placeholder="Ej: +541234567890"
+                  />
+                  <small className="text-muted">Solo números. Mínimo 8 dígitos. Opcionalmente, comenzar con +</small>
+                </div>
+
+                {isEditingProfile && (
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-dark"
+                      type="submit"
+                      disabled={savingProfile}
+                    >
+                      {savingProfile ? 'Guardando...' : 'Guardar cambios'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={cancelProfileEdit}
+                    >
+                      Descartar
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
           </div>
         </div>
-        <div className="col-md-8">
-          <form ref={formRef} onSubmit={handleSubmit} className="mt-0">
-            <div className="mb-3">
-              <label className="form-label">Nombre</label>
-              <input
-                name="firstName"
-                value={form.firstName}
-                onChange={handleChange}
-                className="form-control"
-                required
-              />
-            </div>
 
-            <div className="mb-3">
-              <label className="form-label">Apellido</label>
-              <input
-                name="lastName"
-                value={form.lastName}
-                onChange={handleChange}
-                className="form-control"
-              />
+        {/* Seguridad - Cambio de Contraseña */}
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">Seguridad</h5>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => isChangingPassword ? cancelPasswordChange() : setIsChangingPassword(true)}
+              >
+                {isChangingPassword ? 'Cancelar' : 'Cambiar Contraseña'}
+              </button>
             </div>
+            <div className="card-body">
+              {isChangingPassword ? (
+                <form onSubmit={handlePasswordSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label">Contraseña Actual *</label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      value={passwordForm.currentPassword}
+                      onChange={handlePasswordChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
 
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                className="form-control"
-                required
-                disabled
-              />
+                  <div className="mb-3">
+                    <label className="form-label">Nueva Contraseña *</label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      value={passwordForm.newPassword}
+                      onChange={handlePasswordChange}
+                      className="form-control"
+                      required
+                      minLength={6}
+                    />
+                    <small className="text-muted">Mínimo 6 caracteres</small>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Confirmar Nueva Contraseña *</label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={passwordForm.confirmPassword}
+                      onChange={handlePasswordChange}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-dark"
+                      type="submit"
+                      disabled={changingPassword}
+                    >
+                      {changingPassword ? 'Cambiando...' : 'Cambiar Contraseña'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={cancelPasswordChange}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div>
+                  <p className="text-muted">
+                    Para cambiar tu contraseña, haz clic en el botón "Cambiar Contraseña".
+                  </p>
+                </div>
+              )}
             </div>
-
-            <div className="mb-3">
-              <label className="form-label">Teléfono</label>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                className="form-control"
-                disabled={!isEditing}
-              />
-            </div>
-
-            {isEditing && (
-              <div className="d-flex gap-2">
-                <button
-                  className="btn btn-dark"
-                  type="submit"
-                  disabled={saving || avatarProcessing}
-                  onClick={(e) => {
-                    // fallback to ensure submit fires even if something blocks the form
-                    e.preventDefault();
-                    if (saving || avatarProcessing) return;
-                    try {
-                      handleSubmit(e);
-                    } catch (err) {
-                      console.error('Submit fallback error', err);
-                      toast.error('Error al intentar guardar');
-                    }
-                  }}
-                >
-                  {saving
-                    ? 'Guardando...'
-                    : avatarProcessing
-                    ? 'Procesando imagen...'
-                    : 'Guardar cambios'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() => {
-                    // reset form to current user
-                    setForm({
-                      firstName: user.firstName || '',
-                      lastName: user.lastName || '',
-                      email: user.email || '',
-                      phone: user.phone || '',
-                    });
-                    setPreviewAvatar(user.avatar || null);
-                    toast.info('Cambios descartados');
-                    setIsEditing(false);
-                  }}
-                >
-                  Descartar
-                </button>
-              </div>
-            )}
-          </form>
+          </div>
         </div>
       </div>
     </div>
@@ -390,6 +427,3 @@ function Profile() {
 }
 
 export default Profile;
-/*Componente Profile
-Este componente representa la página de perfil del usuario.
-Muestra la información del usuario y permite editarla.*/

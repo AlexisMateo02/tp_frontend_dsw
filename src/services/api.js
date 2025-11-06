@@ -97,6 +97,13 @@ class ApiService {
     });
   }
 
+  async changePassword(userId, passwordData) {
+    return await this.request(`/users/${userId}/password`, {
+      method: 'PATCH',
+      body: JSON.stringify(passwordData),
+    });
+  }
+
   async uploadAvatar(userId, dataUrl) {
     // Convertir data URL a blob
     const blob = await fetch(dataUrl).then(r => r.blob());
