@@ -301,7 +301,6 @@ function Profile() {
                 onChange={handleChange}
                 className="form-control"
                 required
-                disabled={!isEditing}
               />
             </div>
 
@@ -312,7 +311,6 @@ function Profile() {
                 value={form.lastName}
                 onChange={handleChange}
                 className="form-control"
-                disabled={!isEditing}
               />
             </div>
 
@@ -325,7 +323,7 @@ function Profile() {
                 onChange={handleChange}
                 className="form-control"
                 required
-                disabled={!isEditing}
+                disabled
               />
             </div>
 

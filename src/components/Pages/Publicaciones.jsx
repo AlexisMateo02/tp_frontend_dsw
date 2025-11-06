@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import { Link } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useEffect, useState, useRef } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import { Link } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Publicaciones() {
   const [posts, setPosts] = useState([]);
@@ -10,10 +10,10 @@ export default function Publicaciones() {
   const [editImages, setEditImages] = useState([]);
   const fileRef = useRef(null);
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
   const load = () => {
-    const all = JSON.parse(localStorage.getItem("userPosts") || "[]");
+    const all = JSON.parse(localStorage.getItem('userPosts') || '[]');
     // filter posts belonging to current user
     const mine = all.filter((p) => isOwnedByUser(p, currentUser));
     // sort desc
@@ -24,14 +24,14 @@ export default function Publicaciones() {
   useEffect(() => {
     load();
     const onUpdated = () => load();
-    window.addEventListener("postsUpdated", onUpdated);
-    return () => window.removeEventListener("postsUpdated", onUpdated);
+    window.addEventListener('postsUpdated', onUpdated);
+    return () => window.removeEventListener('postsUpdated', onUpdated);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isOwnedByUser = (post, user) => {
     if (!user) return false;
-    const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
     return (
       (post.ownerEmail && user.email && post.ownerEmail === user.email) ||
       (post.contact && user.email && post.contact === user.email) ||
@@ -44,25 +44,25 @@ export default function Publicaciones() {
   const remove = (id) => {
     if (
       !window.confirm(
-        "¿Eliminar publicación? Esta acción no se puede deshacer."
+        '¿Eliminar publicación? Esta acción no se puede deshacer.'
       )
     )
       return;
-    const all = JSON.parse(localStorage.getItem("userPosts") || "[]");
+    const all = JSON.parse(localStorage.getItem('userPosts') || '[]');
     const next = all.filter((p) => String(p.id) !== String(id));
-    localStorage.setItem("userPosts", JSON.stringify(next));
-    window.dispatchEvent(new Event("postsUpdated"));
-    toast.success("Publicación eliminada");
+    localStorage.setItem('userPosts', JSON.stringify(next));
+    window.dispatchEvent(new Event('postsUpdated'));
+    toast.success('Publicación eliminada');
     load();
   };
 
   const startEdit = (post) => {
     setEditingId(post.id);
     setEditForm({
-      title: post.title || "",
-      price: post.price || "",
-      description: post.description || "",
-      contact: post.contact || "",
+      title: post.title || '',
+      price: post.price || '',
+      description: post.description || '',
+      contact: post.contact || '',
     });
     setEditImages(post.images || []);
   };
@@ -72,9 +72,9 @@ export default function Publicaciones() {
     setEditForm(null);
     setEditImages([]);
     try {
-      if (fileRef.current) fileRef.current.value = "";
+      if (fileRef.current) fileRef.current.value = '';
     } catch (e) {
-      console.warn("Could not reset edit file input", e);
+      console.warn('Could not reset edit file input', e);
     }
   };
 
@@ -89,20 +89,20 @@ export default function Publicaciones() {
             const scale = Math.min(1, maxWidth / img.width);
             const w = Math.round(img.width * scale);
             const h = Math.round(img.height * scale);
-            const canvas = document.createElement("canvas");
+            const canvas = document.createElement('canvas');
             canvas.width = w;
             canvas.height = h;
-            const ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
             canvas.toBlob(
               (blob) => {
-                if (!blob) return reject(new Error("Canvas is empty"));
+                if (!blob) return reject(new Error('Canvas is empty'));
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
               },
-              "image/jpeg",
+              'image/jpeg',
               quality
             );
           } catch (err) {
@@ -113,7 +113,7 @@ export default function Publicaciones() {
         };
         img.onerror = (e) => {
           URL.revokeObjectURL(url);
-          reject(e || new Error("Image load error"));
+          reject(e || new Error('Image load error'));
         };
         img.src = url;
       } catch (e) {
@@ -131,7 +131,7 @@ export default function Publicaciones() {
       setEditImages(dataUrls);
     } catch (err) {
       console.error(err);
-      toast.error("No se pudieron procesar las imágenes");
+      toast.error('No se pudieron procesar las imágenes');
     }
   };
 
@@ -143,14 +143,14 @@ export default function Publicaciones() {
       !editForm.description.trim() ||
       !editForm.contact.trim()
     ) {
-      toast.error("Completa los campos obligatorios");
+      toast.error('Completa los campos obligatorios');
       return;
     }
     if (!editImages || editImages.length === 0) {
-      toast.error("Debes incluir al menos 1 imagen");
+      toast.error('Debes incluir al menos 1 imagen');
       return;
     }
-    const all = JSON.parse(localStorage.getItem("userPosts") || "[]");
+    const all = JSON.parse(localStorage.getItem('userPosts') || '[]');
     const next = all.map((p) => {
       if (String(p.id) === String(id)) {
         return {
@@ -165,9 +165,9 @@ export default function Publicaciones() {
       }
       return p;
     });
-    localStorage.setItem("userPosts", JSON.stringify(next));
-    window.dispatchEvent(new Event("postsUpdated"));
-    toast.success("Publicación actualizada");
+    localStorage.setItem('userPosts', JSON.stringify(next));
+    window.dispatchEvent(new Event('postsUpdated'));
+    toast.success('Publicación actualizada');
     cancelEdit();
     load();
   };
@@ -191,14 +191,14 @@ export default function Publicaciones() {
                 <div
                   style={{
                     height: 220,
-                    overflow: "hidden",
-                    backgroundColor: "#f8f9fa",
+                    overflow: 'hidden',
+                    backgroundColor: '#f8f9fa',
                   }}
                 >
                   <img
                     src={
                       (post.images && post.images[0]) ||
-                      "/assets/placeholder.webp"
+                      '/assets/placeholder.webp'
                     }
                     alt=""
                     className="img-fluid w-100 h-100 object-fit-cover"
@@ -207,41 +207,61 @@ export default function Publicaciones() {
                 <div className="card-body d-flex flex-column">
                   {editingId === post.id ? (
                     <>
-                      <input
-                        className="form-control mb-2"
-                        value={editForm.title}
-                        onChange={(e) =>
-                          setEditForm((s) => ({ ...s, title: e.target.value }))
-                        }
-                      />
-                      <input
-                        className="form-control mb-2"
-                        value={editForm.price}
-                        onChange={(e) =>
-                          setEditForm((s) => ({ ...s, price: e.target.value }))
-                        }
-                      />
-                      <textarea
-                        className="form-control mb-2"
-                        rows={3}
-                        value={editForm.description}
-                        onChange={(e) =>
-                          setEditForm((s) => ({
-                            ...s,
-                            description: e.target.value,
-                          }))
-                        }
-                      />
-                      <input
-                        className="form-control mb-2"
-                        value={editForm.contact}
-                        onChange={(e) =>
-                          setEditForm((s) => ({
-                            ...s,
-                            contact: e.target.value,
-                          }))
-                        }
-                      />
+                      <div className="input-group mb-2">
+                        <span className="input-group-text">Nombre</span>
+                        <input
+                          className="form-control"
+                          value={editForm.title}
+                          onChange={(e) =>
+                            setEditForm((s) => ({
+                              ...s,
+                              title: e.target.value,
+                            }))
+                          }
+                          aria-label="Nombre de la publicación"
+                        />
+                      </div>
+
+                      <div className="input-group mb-2">
+                        <span className="input-group-text">Precio</span>
+                        <input
+                          className="form-control"
+                          value={editForm.price}
+                          onChange={(e) =>
+                            setEditForm((s) => ({
+                              ...s,
+                              price: e.target.value,
+                            }))
+                          }
+                          aria-label="Precio de la publicación"
+                        />
+                      </div>
+
+                      <div className="input-group mb-2">
+                        <span className="input-group-text">Descripción</span>
+                        <textarea
+                          className="form-control"
+                          rows={3}
+                          value={editForm.description}
+                          onChange={(e) =>
+                            setEditForm((s) => ({
+                              ...s,
+                              description: e.target.value,
+                            }))
+                          }
+                          aria-label="Descripción de la publicación"
+                        />
+                      </div>
+
+                      <div className="input-group mb-2">
+                        <span className="input-group-text">Contacto</span>
+                        <input
+                          className="form-control"
+                          value={editForm.contact}
+                          disabled
+                          aria-label="Contacto (no editable)"
+                        />
+                      </div>
                       <div className="mb-2">
                         <input
                           ref={fileRef}

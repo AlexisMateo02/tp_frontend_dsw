@@ -12,10 +12,7 @@ function Checkout() {
   const [cartItems, setCartItems] = useState([]);
   // Campos del formulario (controlados)
   const [contactValue, setContactValue] = useState('');
-  const [saveInfo, setSaveInfo] = useState(false);
   const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [postalCode, setPostalCode] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('branch1');
 
   const branches = {
@@ -100,8 +97,6 @@ function Checkout() {
     if (deliveryOption === 'ship') {
       if (!address.trim())
         errors.push('La dirección es obligatoria para envío a domicilio');
-      if (!city.trim())
-        errors.push('La ciudad es obligatoria para envío a domicilio');
     }
     // Payment by card removed; using 'Pagar al recibir' or similar.
 
@@ -187,31 +182,7 @@ function Checkout() {
                   </label>
                 </div>
               </div>
-              {deliveryOption === 'ship' && (
-                <div className="row mb-3">
-                  <div className="mb-3">
-                    <select className="form-select">
-                      <option>Rosario</option>
-                      <option>Buenos Aires</option>
-                      <option>Córdoba</option>
-                    </select>
-                  </div>
-                  <div className="col">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Nombre"
-                    />
-                  </div>
-                  <div className="col">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Apellido"
-                    />
-                  </div>
-                </div>
-              )}
+              {deliveryOption === 'ship' && null}
               {deliveryOption === 'pickup' && (
                 <div className="container my-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
@@ -270,42 +241,27 @@ function Checkout() {
                 </div>
               )}
             </div>
-            <div className="mb-3">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Dirección"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Depto, Entre calles, etc (opcional)"
-              />
-            </div>
-            <div className="row mb-3">
-              <div className="col">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Ciudad"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                />
-              </div>
-              <div className="col">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Código Postal (opcional)"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                />
-              </div>
-            </div>
+            {deliveryOption === 'ship' && (
+              <>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Dirección"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Depto, Entre calles, etc (opcional)"
+                  />
+                </div>
+                {/* Ciudad y Código Postal removidos del flujo de envío a domicilio */}
+              </>
+            )}
 
             <h6>Método de envío</h6>
             <div
