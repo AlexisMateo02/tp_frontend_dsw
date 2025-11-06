@@ -1,46 +1,57 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from '../../services/api';
 
 export default function PublicacionDetails() {
   const { id } = useParams();
-
+  const [post, setPost] = useState(null);
   const [mainImage, setMainImage] = useState('/assets/placeholder.webp');
   const [images, setImages] = useState([]);
-
-  const posts = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem('userPosts') || '[]');
-    } catch {
-      return [];
-    }
-  }, []);
-
-  const post = useMemo(
-    () => posts.find((p) => String(p.id) === String(id)),
-    [posts, id]
-  );
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (post) {
-      const list = (post.images || []).filter(Boolean);
-      setImages(list);
-      setMainImage(list[0] || '/assets/placeholder.webp');
-    }
-  }, [post]);
+    const loadPost = async () => {
+      try {
+        setLoading(true);
 
-  if (!post) {
-    return (
-      <div className="container text-center py-5">
-        <h2>Publicación no encontrada</h2>
-        <p>La publicación que buscas no existe o fue removida.</p>
-        <Link to="/foro" className="btn btn-primary">
-          Volver al Foro
-        </Link>
-      </div>
-    );
-  }
+        if (api.hasApi()) {
+          try {
+            const postData = await api.getForumPost(id);
+            setPost(postData);
+            const imgList = (postData.images || []).filter(Boolean);
+            setImages(imgList);
+            setMainImage(imgList[0] || '/assets/placeholder.webp');
+            return;
+          } catch (error) {
+            console.warn('Backend no disponible, buscando en localStorage:', error);
+          }
+        }
+
+        // Fallback a localStorage
+        const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+        const foundPost = localPosts.find(p => String(p.id) === String(id));
+        
+        if (foundPost) {
+          setPost(foundPost);
+          const imgList = (foundPost.images || []).filter(Boolean);
+          setImages(imgList);
+          setMainImage(imgList[0] || '/assets/placeholder.webp');
+        } else {
+          setPost(null);
+        }
+      } catch (error) {
+        console.error('Error loading post:', error);
+        toast.error('Error al cargar la publicación');
+        setPost(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPost();
+  }, [id]);
 
   const contactHref = (c, postData) => {
     if (!c) return '#';
@@ -63,25 +74,53 @@ export default function PublicacionDetails() {
         'Gracias.',
       ];
       const body = lines.join('\n');
-      return `mailto:${c}?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
+      return `mailto:${c}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
     const digits = c.replace(/\D/g, '');
     if (digits.length >= 6) return `tel:${digits}`;
     return `mailto:${c}`;
   };
 
+  if (loading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
+        <p className="mt-3">Cargando publicación...</p>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="container text-center py-5">
+        <h2>Publicación no encontrada</h2>
+        <p>La publicación que buscas no existe o fue removida.</p>
+        <Link to="/foro" className="btn btn-primary">
+          Volver al Foro
+        </Link>
+      </div>
+    );
+  }
+
+  const ownerName = post.author 
+    ? `${post.author.firstName} ${post.author.lastName}`.trim()
+    : post.owner || 'Anónimo';
+  
+  const contactInfo = post.contactInfo || post.contact || '—';
+  const description = post.content || post.description || 'Sin descripción';
+
   return (
     <>
+      <ToastContainer position="top-right" autoClose={3000} />
+      
       <ol className="section-banner py-3 position-relative">
         <li className="position-relative">
-          <a href="/">Inicio</a>
+          <Link to="/">Inicio</Link>
         </li>
         <li className="position-relative active">
-          <a href="/foro" className="ps-5">
-            Foro
-          </a>
+          <Link to="/foro" className="ps-5">Foro</Link>
         </li>
         <li className="position-relative active">
           <span className="ps-5">{post.title}</span>
@@ -93,50 +132,32 @@ export default function PublicacionDetails() {
           <div className="col-xl-6">
             <div className="d-flex flex-column-reverse flex-md-row mb-4">
               {/* Miniaturas */}
-              <div
-                className="d-flex flex-md-column me-md-3 gap-2 thumbnail-images"
-                style={{
-                  zIndex: 2, // evita overlays arriba
-                  position: 'relative', // para que el zIndex tenga efecto
-                  pointerEvents: 'auto', // por si algún contenedor tenía none
-                }}
-              >
-                {images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setMainImage(img)}
-                    aria-label={`Ver imagen ${idx + 1}`}
-                    aria-pressed={mainImage === img}
-                    className={`p-0 border-0 bg-transparent ${
-                      mainImage === img ? 'shadow' : ''
-                    }`}
-                    style={{ lineHeight: 0, cursor: 'pointer' }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setMainImage(img);
-                      }
-                    }}
-                  >
-                    <img
-                      src={img}
-                      alt={`Miniatura ${idx + 1}`}
-                      loading="lazy"
-                      className={`img-thumbnail ${
-                        mainImage === img ? 'border border-2 border-dark' : ''
-                      }`}
-                      style={{
-                        width: 90,
-                        height: 100,
-                        objectFit: 'cover',
-                        display: 'block',
-                        userSelect: 'none',
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
+              {images.length > 1 && (
+                <div className="d-flex flex-md-column me-md-3 gap-2 thumbnail-images">
+                  {images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setMainImage(img)}
+                      className={`p-0 border-0 bg-transparent ${mainImage === img ? 'shadow' : ''}`}
+                      style={{ lineHeight: 0, cursor: 'pointer' }}
+                    >
+                      <img
+                        src={img}
+                        alt={`Miniatura ${idx + 1}`}
+                        loading="lazy"
+                        className={`img-thumbnail ${mainImage === img ? 'border border-2 border-dark' : ''}`}
+                        style={{
+                          width: 90,
+                          height: 100,
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Imagen principal */}
               <img
@@ -148,8 +169,6 @@ export default function PublicacionDetails() {
                   maxWidth: 450,
                   height: 300,
                   objectFit: 'cover',
-                  zIndex: 1,
-                  position: 'relative',
                 }}
               />
             </div>
@@ -157,67 +176,77 @@ export default function PublicacionDetails() {
 
           <div className="col-xl-6">
             <h2 className="mb-3">{post.title}</h2>
-            <h4 className="mb-3 text-muted">
-              {(() => {
-                const p = post.price;
-                if (!p && p !== 0) return '—';
-                if (typeof p === 'number') {
-                  const hasDecimals = p % 1 !== 0;
-                  return `Precio: $${p.toLocaleString('es-AR', {
-                    minimumFractionDigits: hasDecimals ? 2 : 0,
-                    maximumFractionDigits: hasDecimals ? 2 : 0,
-                  })}`;
-                }
-                const s = String(p).trim();
-                if (s.includes('$')) return `Precio: ${s}`;
-                return `Precio: $${s}`;
-              })()}
-            </h4>
+            
+            {post.price && (
+              <h4 className="mb-3 text-success">
+                ${typeof post.price === 'number' 
+                  ? post.price.toLocaleString('es-AR', { minimumFractionDigits: 2 })
+                  : post.price}
+              </h4>
+            )}
 
             <div className="mb-3">
               <button
                 className="btn btn-outline-primary me-2"
-                onClick={() =>
-                  navigator.clipboard?.writeText(window.location.href)
-                }
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href);
+                  toast.success('Enlace copiado al portapapeles');
+                }}
               >
-                Copiar enlace
+                <i className="bi bi-share"></i> Compartir
               </button>
               <a
                 className="btn btn-success"
-                href={contactHref(post.contact, post)}
+                href={contactHref(contactInfo, post)}
               >
-                Contactar vendedor
+                <i className="bi bi-chat-dots"></i> Contactar vendedor
               </a>
             </div>
 
             <hr />
-            <p>
-              <strong>Dueño:</strong> {post.owner || 'Anónimo'}
-            </p>
-            <p>
+
+            <div className="mb-3">
+              <strong>Vendedor:</strong> {ownerName}
+            </div>
+
+            <div className="mb-3">
               <strong>Contacto:</strong>{' '}
-              {post.contact ? (
-                <a href={contactHref(post.contact, post)}>{post.contact}</a>
+              {contactInfo !== '—' ? (
+                <a href={contactHref(contactInfo, post)}>{contactInfo}</a>
               ) : (
                 '—'
               )}
-            </p>
-            <p>
-              <strong>Descripción:</strong>{' '}
-              {post.description || 'Sin descripción'}
-            </p>
+            </div>
+
+            <div className="mb-3">
+              <strong>Descripción:</strong>
+              <p className="mt-2" style={{ whiteSpace: 'pre-wrap' }}>
+                {description}
+              </p>
+            </div>
+
+            {post.status && (
+              <div className="mb-3">
+                <span className={`badge ${
+                  post.status === 'active' ? 'bg-success' : 
+                  post.status === 'sold' ? 'bg-secondary' : 
+                  'bg-warning'
+                }`}>
+                  {post.status === 'active' ? 'Disponible' : 
+                    post.status === 'sold' ? 'Vendido' : 
+                    'Expirado'}
+                </span>
+              </div>
+            )}
 
             <div className="mt-4">
-              <a href="/foro" className="btn btn-secondary me-2">
-                Volver al foro
-              </a>
+              <Link to="/foro" className="btn btn-secondary me-2">
+                <i className="bi bi-arrow-left"></i> Volver al foro
+              </Link>
             </div>
           </div>
         </div>
       </div>
-
-      <ToastContainer position="top-right" autoClose={3000} />
     </>
   );
 }

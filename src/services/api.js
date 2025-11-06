@@ -185,8 +185,13 @@ class ApiService {
   }
 
   // FORUM
-  async getForumPosts() {
-    return await this.request('/forum-publishments');
+  async getForumPosts(status = null) {
+    const endpoint = status ? `/forum-publishments/status/${status}` : '/forum-publishments';
+    return await this.request(endpoint);
+  }
+
+  async getActiveForumPosts() {
+    return await this.request('/forum-publishments/active');
   }
 
   async getForumPost(id) {
@@ -200,10 +205,47 @@ class ApiService {
     });
   }
 
+  async updateForumPost(id, postData) {
+    return await this.request(`/forum-publishments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(postData),
+    });
+  }
+
   async deleteForumPost(id) {
     return await this.request(`/forum-publishments/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  async uploadForumImage(imageDataUrl) {
+    // Convertir data URL a blob
+    const blob = await fetch(imageDataUrl).then(r => r.blob());
+    
+    const formData = new FormData();
+    formData.append('image', blob, 'forum-image.jpg');
+
+    const token = localStorage.getItem('authToken');
+    
+    try {
+      const response = await fetch(`${this.baseURL}/forum-publishments/upload-image`, {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al subir imagen');
+      }
+
+      const data = await response.json();
+      return data.data || data;
+    } catch (error) {
+      console.error('Error uploading forum image:', error);
+      throw error;
+    }
   }
 }
 

@@ -1,32 +1,63 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
+import api from '../../services/api';
 
 export default function Publicaciones() {
   const [posts, setPosts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(null);
   const [editImages, setEditImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const fileRef = useRef(null);
+  const navigate = useNavigate();
 
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
-  const load = () => {
-    const all = JSON.parse(localStorage.getItem('userPosts') || '[]');
-    // filter posts belonging to current user
-    const mine = all.filter((p) => isOwnedByUser(p, currentUser));
-    // sort desc
-    mine.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
-    setPosts(mine);
+  const loadMyPosts = async () => {
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      if (api.hasApi()) {
+        try {
+          // Cargar todas las publicaciones y filtrar las del usuario
+          const allPosts = await api.getForumPosts();
+          const myPosts = allPosts.filter(p => 
+            p.author?.id === currentUser.id || 
+            p.author?.email === currentUser.email
+          );
+          setPosts(myPosts);
+          return;
+        } catch (error) {
+          console.warn('Backend no disponible, usando localStorage:', error);
+        }
+      }
+
+      // Fallback a localStorage
+      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+      const myPosts = localPosts.filter(p => isOwnedByUser(p, currentUser));
+      setPosts(myPosts);
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      toast.error('Error al cargar publicaciones');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    load();
-    const onUpdated = () => load();
+    loadMyPosts();
+
+    const onUpdated = () => loadMyPosts();
     window.addEventListener('postsUpdated', onUpdated);
     return () => window.removeEventListener('postsUpdated', onUpdated);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isOwnedByUser = (post, user) => {
@@ -35,25 +66,40 @@ export default function Publicaciones() {
     return (
       (post.ownerEmail && user.email && post.ownerEmail === user.email) ||
       (post.contact && user.email && post.contact === user.email) ||
-      (post.owner && fullName && post.owner === fullName) ||
-      (post.owner && user.firstName && post.owner === user.firstName) ||
-      (post.owner && user.email && post.owner === user.email)
+      (post.author?.email && user.email && post.author.email === user.email) ||
+      (post.owner && fullName && post.owner === fullName)
     );
   };
 
-  const remove = (id) => {
-    if (
-      !window.confirm(
-        '¿Eliminar publicación? Esta acción no se puede deshacer.'
-      )
-    )
+  const remove = async (id) => {
+    if (!window.confirm('¿Eliminar publicación? Esta acción no se puede deshacer.')) {
       return;
-    const all = JSON.parse(localStorage.getItem('userPosts') || '[]');
-    const next = all.filter((p) => String(p.id) !== String(id));
-    localStorage.setItem('userPosts', JSON.stringify(next));
-    window.dispatchEvent(new Event('postsUpdated'));
-    toast.success('Publicación eliminada');
-    load();
+    }
+
+    try {
+      if (api.hasApi()) {
+        try {
+          await api.deleteForumPost(id);
+          toast.success('Publicación eliminada');
+          window.dispatchEvent(new Event('postsUpdated'));
+          loadMyPosts();
+          return;
+        } catch (error) {
+          console.warn('Error en backend, eliminando localmente:', error);
+        }
+      }
+
+      // Fallback a localStorage
+      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+      const filtered = localPosts.filter(p => String(p.id) !== String(id));
+      localStorage.setItem('userPosts', JSON.stringify(filtered));
+      window.dispatchEvent(new Event('postsUpdated'));
+      toast.success('Publicación eliminada localmente');
+      loadMyPosts();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('No se pudo eliminar la publicación');
+    }
   };
 
   const startEdit = (post) => {
@@ -61,8 +107,8 @@ export default function Publicaciones() {
     setEditForm({
       title: post.title || '',
       price: post.price || '',
-      description: post.description || '',
-      contact: post.contact || '',
+      description: post.content || post.description || '',
+      contact: post.contactInfo || post.contact || '',
     });
     setEditImages(post.images || []);
   };
@@ -78,7 +124,6 @@ export default function Publicaciones() {
     }
   };
 
-  // compress image file to a dataURL; maxWidth 1200px, quality 0.75
   const compressImage = (file, maxWidth = 1200, quality = 0.75) =>
     new Promise((resolve, reject) => {
       try {
@@ -135,14 +180,8 @@ export default function Publicaciones() {
     }
   };
 
-  const saveEdit = (id) => {
-    // validate
-    if (
-      !editForm.title.trim() ||
-      !editForm.price.trim() ||
-      !editForm.description.trim() ||
-      !editForm.contact.trim()
-    ) {
+  const saveEdit = async (id) => {
+    if (!editForm.title.trim() || !editForm.description.trim() || !editForm.contact.trim()) {
       toast.error('Completa los campos obligatorios');
       return;
     }
@@ -150,119 +189,148 @@ export default function Publicaciones() {
       toast.error('Debes incluir al menos 1 imagen');
       return;
     }
-    const all = JSON.parse(localStorage.getItem('userPosts') || '[]');
-    const next = all.map((p) => {
-      if (String(p.id) === String(id)) {
-        return {
-          ...p,
-          title: editForm.title.trim(),
-          price: editForm.price.trim(),
-          description: editForm.description.trim(),
-          contact: editForm.contact.trim(),
-          images: editImages.slice(0, 5),
-          updatedAt: new Date().toISOString(),
-        };
+
+    setSaving(true);
+
+    try {
+      const updateData = {
+        title: editForm.title.trim(),
+        content: editForm.description.trim(),
+        contactInfo: editForm.contact.trim(),
+        images: editImages.slice(0, 5),
+        price: editForm.price.trim() ? parseFloat(editForm.price.trim()) : undefined,
+        authorId: currentUser.id,
+      };
+
+      if (api.hasApi()) {
+        try {
+          await api.updateForumPost(id, updateData);
+          toast.success('Publicación actualizada');
+          window.dispatchEvent(new Event('postsUpdated'));
+          cancelEdit();
+          loadMyPosts();
+          return;
+        } catch (error) {
+          console.warn('Error en backend, actualizando localmente:', error);
+        }
       }
-      return p;
-    });
-    localStorage.setItem('userPosts', JSON.stringify(next));
-    window.dispatchEvent(new Event('postsUpdated'));
-    toast.success('Publicación actualizada');
-    cancelEdit();
-    load();
+
+      // Fallback a localStorage
+      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
+      const updated = localPosts.map(p => {
+        if (String(p.id) === String(id)) {
+          return {
+            ...p,
+            title: updateData.title,
+            content: updateData.content,
+            description: updateData.content,
+            contact: updateData.contactInfo,
+            contactInfo: updateData.contactInfo,
+            price: updateData.price,
+            images: updateData.images,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return p;
+      });
+      localStorage.setItem('userPosts', JSON.stringify(updated));
+      window.dispatchEvent(new Event('postsUpdated'));
+      toast.success('Publicación actualizada localmente');
+      cancelEdit();
+      loadMyPosts();
+    } catch (error) {
+      console.error('Error updating post:', error);
+      toast.error('No se pudo actualizar la publicación');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (!currentUser) {
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <div className="container my-5">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+          <p className="mt-3">Cargando tus publicaciones...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container my-5">
+      <ToastContainer position="top-right" autoClose={3000} />
+      
       <h2 className="mb-4">Mis Publicaciones</h2>
-      {!currentUser ? (
-        <div className="alert alert-warning">
-          Debes iniciar sesión para ver tus publicaciones.
-        </div>
-      ) : posts.length === 0 ? (
+      
+      {posts.length === 0 ? (
         <div className="alert alert-secondary">
           No tienes publicaciones aún.
+          <Link to="/foro/crear" className="btn btn-primary ms-3">
+            Crear una publicación
+          </Link>
         </div>
       ) : (
         <div className="row row-cols-1 row-cols-md-2 g-4">
           {posts.map((post) => (
             <div className="col" key={post.id}>
               <div className="card h-100 shadow-sm border-0">
-                <div
-                  style={{
-                    height: 220,
-                    overflow: 'hidden',
-                    backgroundColor: '#f8f9fa',
-                  }}
-                >
+                <div style={{ height: 220, overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
                   <img
-                    src={
-                      (post.images && post.images[0]) ||
-                      '/assets/placeholder.webp'
-                    }
-                    alt=""
+                    src={(post.images && post.images[0]) || '/assets/placeholder.webp'}
+                    alt={post.title}
                     className="img-fluid w-100 h-100 object-fit-cover"
                   />
                 </div>
                 <div className="card-body d-flex flex-column">
                   {editingId === post.id ? (
                     <>
-                      <div className="input-group mb-2">
-                        <span className="input-group-text">Nombre</span>
+                      <div className="mb-2">
+                        <label className="form-label small">Título</label>
                         <input
                           className="form-control"
                           value={editForm.title}
-                          onChange={(e) =>
-                            setEditForm((s) => ({
-                              ...s,
-                              title: e.target.value,
-                            }))
-                          }
-                          aria-label="Nombre de la publicación"
+                          onChange={(e) => setEditForm(s => ({ ...s, title: e.target.value }))}
                         />
                       </div>
 
-                      <div className="input-group mb-2">
-                        <span className="input-group-text">Precio</span>
+                      <div className="mb-2">
+                        <label className="form-label small">Precio</label>
                         <input
+                          type="number"
                           className="form-control"
                           value={editForm.price}
-                          onChange={(e) =>
-                            setEditForm((s) => ({
-                              ...s,
-                              price: e.target.value,
-                            }))
-                          }
-                          aria-label="Precio de la publicación"
+                          onChange={(e) => setEditForm(s => ({ ...s, price: e.target.value }))}
                         />
                       </div>
 
-                      <div className="input-group mb-2">
-                        <span className="input-group-text">Descripción</span>
+                      <div className="mb-2">
+                        <label className="form-label small">Descripción</label>
                         <textarea
                           className="form-control"
                           rows={3}
                           value={editForm.description}
-                          onChange={(e) =>
-                            setEditForm((s) => ({
-                              ...s,
-                              description: e.target.value,
-                            }))
-                          }
-                          aria-label="Descripción de la publicación"
+                          onChange={(e) => setEditForm(s => ({ ...s, description: e.target.value }))}
                         />
                       </div>
 
-                      <div className="input-group mb-2">
-                        <span className="input-group-text">Contacto</span>
+                      <div className="mb-2">
+                        <label className="form-label small">Contacto</label>
                         <input
                           className="form-control"
                           value={editForm.contact}
-                          disabled
-                          aria-label="Contacto (no editable)"
+                          onChange={(e) => setEditForm(s => ({ ...s, contact: e.target.value }))}
                         />
                       </div>
+
                       <div className="mb-2">
+                        <label className="form-label small">Imágenes</label>
                         <input
                           ref={fileRef}
                           type="file"
@@ -271,20 +339,21 @@ export default function Publicaciones() {
                           onChange={handleEditFiles}
                           className="form-control"
                         />
-                        <small className="text-muted">
-                          Sube hasta 5 imágenes para reemplazar las actuales.
-                        </small>
+                        <small className="text-muted">Sube hasta 5 imágenes</small>
                       </div>
-                      <div className="d-flex gap-2 mt-auto">
+
+                      <div className="d-flex gap-2 mt-2">
                         <button
                           className="btn btn-sm btn-success"
                           onClick={() => saveEdit(post.id)}
+                          disabled={saving}
                         >
-                          Guardar
+                          {saving ? 'Guardando...' : 'Guardar'}
                         </button>
                         <button
                           className="btn btn-sm btn-secondary"
                           onClick={cancelEdit}
+                          disabled={saving}
                         >
                           Cancelar
                         </button>
@@ -293,11 +362,13 @@ export default function Publicaciones() {
                   ) : (
                     <>
                       <h5 className="card-title">{post.title}</h5>
-                      <p className="text-muted small mb-1">
-                        Precio: {post.price}
-                      </p>
+                      {post.price && (
+                        <p className="text-success fw-bold mb-1">
+                          ${typeof post.price === 'number' ? post.price.toLocaleString('es-AR') : post.price}
+                        </p>
+                      )}
                       <p className="card-text text-truncate mb-2">
-                        {post.description}
+                        {post.content || post.description}
                       </p>
                       <div className="mt-auto d-flex gap-2">
                         <Link
@@ -327,7 +398,6 @@ export default function Publicaciones() {
           ))}
         </div>
       )}
-      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }
