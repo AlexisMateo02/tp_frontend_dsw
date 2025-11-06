@@ -39,47 +39,78 @@ export default function Publicar() {
     return null;
   };
 
-  const compressImage = (file, maxWidth = 1200, quality = 0.75) =>
-    new Promise((resolve, reject) => {
-      try {
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-        img.onload = () => {
-          try {
-            const scale = Math.min(1, maxWidth / img.width);
-            const w = Math.round(img.width * scale);
-            const h = Math.round(img.height * scale);
-            const canvas = document.createElement("canvas");
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, w, h);
-            canvas.toBlob(
-              (blob) => {
-                if (!blob) return reject(new Error("Canvas is empty"));
+const compressImage = (file, maxWidth = 800, quality = 0.6) =>
+  new Promise((resolve, reject) => {
+    try {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        try {
+          // Calcular nuevas dimensiones
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Dibujar imagen comprimida
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convertir a JPEG con mayor compresión
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) return reject(new Error('Canvas empty'));
+              
+              // Verificar tamaño y comprimir más si es necesario
+              if (blob.size > 300000) {
+                canvas.toBlob(
+                  (smallerBlob) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      URL.revokeObjectURL(url);
+                      resolve(reader.result);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(smallerBlob);
+                  },
+                  'image/jpeg',
+                  quality * 0.7 // Más compresión
+                );
+              } else {
                 const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
+                reader.onload = () => {
+                  URL.revokeObjectURL(url);
+                  resolve(reader.result);
+                };
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
-              },
-              "image/jpeg",
-              quality
-            );
-          } catch (err) {
-            reject(err);
-          } finally {
-            URL.revokeObjectURL(url);
-          }
-        };
-        img.onerror = (e) => {
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        } catch (err) {
           URL.revokeObjectURL(url);
-          reject(e || new Error("Image load error"));
-        };
-        img.src = url;
-      } catch (e) {
-        reject(e);
-      }
-    });
+          reject(err);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Error loading image'));
+      };
+      img.src = url;
+    } catch (e) {
+      reject(e);
+    }
+  });
 
   const handleFiles = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, 5);
@@ -112,6 +143,9 @@ export default function Publicar() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('🔍 Iniciando submit...');
+    console.log('📸 Número de imágenes:', images.length);
+
     const err = validate();
     if (err) {
       toast.error(err);
@@ -121,19 +155,64 @@ export default function Publicar() {
     setLoading(true);
 
     try {
+      let imageUrls = [];
+
+      // Si hay API disponible, subir imágenes al servidor
+      if (api.hasApi() && images.length > 0) {
+        console.log('🔄 Subiendo imágenes al servidor...');
+        
+        try {
+          const uploadedUrls = [];
+          for (let i = 0; i < images.length; i++) {
+            const imageDataUrl = images[i];
+            console.log(`📤 Subiendo imagen ${i + 1}...`);
+            
+            try {
+              const uploadResult = await api.uploadForumImage(imageDataUrl);
+              console.log('✅ Imagen subida:', uploadResult);
+              uploadedUrls.push(uploadResult.imageUrl);
+            } catch (uploadError) {
+              console.error(`❌ Error subiendo imagen ${i + 1}:`, uploadError);
+              toast.warn(`No se pudo subir la imagen ${i + 1}, se omitirá`);
+            }
+          }
+          
+          if (uploadedUrls.length > 0) {
+            imageUrls = uploadedUrls;
+            console.log('📊 URLs de imágenes subidas:', imageUrls);
+          } else {
+            toast.error('No se pudieron subir las imágenes al servidor');
+            setLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.error('💥 Error en upload de imágenes:', error);
+          toast.warn('Error subiendo imágenes, guardando en base64');
+          // Fallback: usar base64 si falla el upload
+          imageUrls = images;
+        }
+      } else {
+        // Sin API o sin imágenes, usar base64
+        imageUrls = images;
+      }
+
       // Preparar datos para el backend
       const postData = {
         title: form.title.trim(),
         content: form.description.trim(),
         contactInfo: form.contact.trim(),
         authorId: currentUser.id,
-        images: images.slice(0, 5),
+        images: imageUrls, // Ahora pueden ser URLs o base64
         price: form.price.trim() ? parseFloat(form.price.trim()) : undefined,
       };
 
+      console.log('📨 Enviando datos de publicación:', {
+        ...postData,
+        images: imageUrls.length // Solo mostrar cantidad para no saturar console
+      });
+
       if (api.hasApi()) {
         try {
-          // Crear en el backend
           await api.createForumPost(postData);
           toast.success("Publicación creada correctamente");
           window.dispatchEvent(new Event("postsUpdated"));
@@ -165,7 +244,7 @@ export default function Publicar() {
       setTimeout(() => navigate("/foro"), 700);
       
     } catch (err) {
-      console.error('Error creating post:', err);
+      console.error('💥 Error general:', err);
       toast.error(err.message || "No se pudo crear la publicación");
     } finally {
       setLoading(false);
