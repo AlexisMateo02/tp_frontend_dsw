@@ -227,9 +227,6 @@ function Checkout() {
                 <div className="container my-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h6 className="fw-semibold mb-0">Ubicación de la tienda</h6>
-                    <a href="#" className="text-decoration-none small">
-                      Cambiar dirección
-                    </a>
                   </div>
 
                   <div className="mb-3">
