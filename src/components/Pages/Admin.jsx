@@ -78,6 +78,125 @@ function Admin() {
   const [boatTypes, setBoatTypes] = useState([]);
   const [articleTypes, setArticleTypes] = useState([]);
 
+  // Función para leer archivos como DataURL
+  const readFileAsDataURL = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 600;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          const compressedFile = new File([blob], file.name, {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+          });
+          resolve(compressedFile);
+        }, 'image/jpeg', 0.7);
+      };
+      
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+ const handleFileChange = async (e, imageNumber) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor selecciona un archivo de imagen válido');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('La imagen no debe superar los 2MB');
+      return;
+    }
+
+    try {
+      // 🔥 ESTA LÍNEA USA compressImage - por eso debe estar definida antes
+      const compressedFile = await compressImage(file);
+      const dataUrl = await readFileAsDataURL(compressedFile);
+      
+      console.log(`📏 Longitud de Base64 COMPRIMIDA: ${dataUrl.length} caracteres`);
+      
+      switch(imageNumber) {
+        case 1:
+          setP_image(dataUrl);
+          break;
+        case 2:
+          setP_secondImage(dataUrl);
+          break;
+        case 3:
+          setP_thirdImage(dataUrl);
+          break;
+        case 4:
+          setP_fourthImage(dataUrl);
+          break;
+        default:
+          break;
+      }
+      
+      toast.success('Imagen comprimida y cargada correctamente');
+    } catch (error) {
+      console.error('Error comprimiendo imagen:', error);
+      toast.error('Error al procesar la imagen');
+    }
+  };
+
+  // Eliminar imagen
+  const removeImage = (imageNumber) => {
+    switch(imageNumber) {
+      case 1:
+        setP_image('');
+        break;
+      case 2:
+        setP_secondImage('');
+        break;
+      case 3:
+        setP_thirdImage('');
+        break;
+      case 4:
+        setP_fourthImage('');
+        break;
+      default:
+        break;
+    }
+    toast.info('Imagen eliminada');
+  };
+
   // Cargar tipos disponibles para productos
   const fetchTypes = useCallback(async () => {
     try {
@@ -410,7 +529,17 @@ function Admin() {
         return;
     }
 
+    
     if (!isValid) return;
+
+    // 🔍 AGREGAR ESTO PARA DEBUG
+    console.log('🔍 Datos que se enviarán:', {
+        ...newEntity,
+        imageLength: newEntity.image ? newEntity.image.length : 0,
+        secondImageLength: newEntity.secondImage ? newEntity.secondImage.length : 0,
+        thirdImageLength: newEntity.thirdImage ? newEntity.thirdImage.length : 0,
+        fourthImageLength: newEntity.fourthImage ? newEntity.fourthImage.length : 0
+    });
 
     setLoading(true);
     try {
@@ -996,38 +1125,143 @@ function Admin() {
               </div>
             )}
 
-            <div className="col-12 mt-2">
-              <input
-                className="form-control"
-                placeholder="URL imagen principal"
-                value={p_image}
-                onChange={(e) => setP_image(e.target.value)}
-                required
-              />
-            </div>
-            <div className="col-md-6 mt-2">
-              <input
-                className="form-control"
-                placeholder="URL segunda imagen (opcional)"
-                value={p_secondImage}
-                onChange={(e) => setP_secondImage(e.target.value)}
-              />
-            </div>
-            <div className="col-md-6 mt-2">
-              <input
-                className="form-control"
-                placeholder="URL tercera imagen (opcional)"
-                value={p_thirdImage}
-                onChange={(e) => setP_thirdImage(e.target.value)}
-              />
-            </div>
-            <div className="col-12 mt-2">
-              <input
-                className="form-control"
-                placeholder="URL cuarta imagen (opcional)"
-                value={p_fourthImage}
-                onChange={(e) => setP_fourthImage(e.target.value)}
-              />
+            {/* NUEVA SECCIÓN PARA SUBIR IMÁGENES - REEMPLAZA LOS INPUTS DE URL */}
+            <div className="col-12 mt-3">
+              <h6>Imágenes del Producto</h6>
+              <div className="row">
+                {/* Imagen Principal */}
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-bold">Imagen Principal *</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 1)}
+                    className="form-control"
+                    required
+                  />
+                  {p_image && (
+                    <div className="mt-2">
+                      <img 
+                        src={p_image} 
+                        alt="Previsualización" 
+                        style={{ 
+                          width: '100px', 
+                          height: '100px', 
+                          objectFit: 'cover',
+                          border: '2px solid #ddd',
+                          borderRadius: '8px'
+                        }} 
+                      />
+                      <button 
+                        type="button" 
+                        className="btn btn-sm btn-danger ms-2"
+                        onClick={() => removeImage(1)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Segunda Imagen */}
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Segunda Imagen (Opcional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 2)}
+                    className="form-control"
+                  />
+                  {p_secondImage && (
+                    <div className="mt-2">
+                      <img 
+                        src={p_secondImage} 
+                        alt="Previsualización 2" 
+                        style={{ 
+                          width: '100px', 
+                          height: '100px', 
+                          objectFit: 'cover',
+                          border: '2px solid #ddd',
+                          borderRadius: '8px'
+                        }} 
+                      />
+                      <button 
+                        type="button" 
+                        className="btn btn-sm btn-danger ms-2"
+                        onClick={() => removeImage(2)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Tercera Imagen */}
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Tercera Imagen (Opcional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 3)}
+                    className="form-control"
+                  />
+                  {p_thirdImage && (
+                    <div className="mt-2">
+                      <img 
+                        src={p_thirdImage} 
+                        alt="Previsualización 3" 
+                        style={{ 
+                          width: '100px', 
+                          height: '100px', 
+                          objectFit: 'cover',
+                          border: '2px solid #ddd',
+                          borderRadius: '8px'
+                        }} 
+                      />
+                      <button 
+                        type="button" 
+                        className="btn btn-sm btn-danger ms-2"
+                        onClick={() => removeImage(3)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Cuarta Imagen */}
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Cuarta Imagen (Opcional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 4)}
+                    className="form-control"
+                  />
+                  {p_fourthImage && (
+                    <div className="mt-2">
+                      <img 
+                        src={p_fourthImage} 
+                        alt="Previsualización 4" 
+                        style={{ 
+                          width: '100px', 
+                          height: '100px', 
+                          objectFit: 'cover',
+                          border: '2px solid #ddd',
+                          borderRadius: '8px'
+                        }} 
+                      />
+                      <button 
+                        type="button" 
+                        className="btn btn-sm btn-danger ms-2"
+                        onClick={() => removeImage(4)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="col-12 mt-2">

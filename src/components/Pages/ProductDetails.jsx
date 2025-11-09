@@ -21,17 +21,75 @@ function ProductDetails() {
   const [reviewRating, setReviewRating] = useState(5);
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [combinedProducts, setCombinedProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
-  // Combine static products with marketplace products saved in localStorage (approved ones)
-  const marketplaceProducts = JSON.parse(
-    localStorage.getItem('marketplaceProducts') || '[]'
-  );
-  const combinedProducts = [
-    ...Products,
-    ...marketplaceProducts.filter((p) => p.approved),
-  ];
-  const product = combinedProducts.find((p) => Number(p.id) === Number(id));
   const navigate = useNavigate();
+
+  // CARGAR PRODUCTOS DESDE MÚLTIPLES FUENTES
+  useEffect(() => {
+    const loadAllProducts = async () => {
+      try {
+        setLoadingProducts(true);
+        
+        // 1. Cargar productos de la API (base de datos)
+        let apiProducts = [];
+        try {
+          const response = await fetch('http://localhost:3000/api/products');
+          if (response.ok) {
+            const result = await response.json();
+            apiProducts = result.data || [];
+            console.log('✅ Productos cargados desde API en ProductDetails:', apiProducts.length);
+            
+            // Filtrar solo productos aprobados y agregar seller info por defecto
+            apiProducts = apiProducts
+              .filter(p => p.approved)
+              .map(p => ({
+                ...p,
+                sellerId: p.sellerId || 0,
+                sellerName: p.sellerName || 'KBR',
+                approved: true,
+              }));
+          }
+        } catch (error) {
+          console.warn('❌ Error cargando productos de API en ProductDetails:', error);
+        }
+
+        // 2. Cargar productos del marketplace (localStorage)
+        const marketplaceProducts = JSON.parse(localStorage.getItem('marketplaceProducts') || '[]');
+        const approvedMarketplace = marketplaceProducts.filter((p) => p.approved);
+
+        // 3. Productos del JSON estático
+        const jsonProducts = Products.map((p) => ({
+          ...p,
+          sellerId: p.sellerId || 0,
+          sellerName: p.sellerName || 'KBR',
+          approved: true,
+        }));
+
+        // 4. COMBINAR TODAS LAS FUENTES
+        const combined = [
+          ...jsonProducts,
+          ...approvedMarketplace,
+          ...apiProducts
+        ];
+        
+        console.log('📊 Total productos combinados en ProductDetails:', combined.length);
+        
+        setCombinedProducts(combined);
+      } catch (error) {
+        console.error('Error loading products in ProductDetails:', error);
+        // Fallback a solo los productos del JSON si hay error
+        setCombinedProducts([...Products]);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    loadAllProducts();
+  }, []);
+
+  const product = combinedProducts.find((p) => Number(p.id) === Number(id));
 
   const getProductSpecs = () => {
     if (!product) return null;
@@ -201,6 +259,17 @@ function ProductDetails() {
     }
   };
 
+  if (loadingProducts) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Cargando producto...</span>
+        </div>
+        <p className="mt-3">Cargando producto...</p>
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div className="container text-center py-5">
@@ -239,29 +308,39 @@ function ProductDetails() {
         <div className="row">
           <div className="col-xl-6">
             <div className="d-flex flex-column-reverse flex-md-row mb-4">
-              <div className="d-flex flex-column me-3 thumbnail-images">
-                {images.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={`Thumb${idx}`}
-                    onClick={() => setMainImage(img)}
-                    className={`img-thumbnail ${
-                      mainImage === img ? 'border-dark' : ''
-                    }`}
-                    style={{
-                      width: '90px',
-                      height: '100px',
-                      objectFit: 'cover',
-                      cursor: 'pointer',
-                    }}
-                  />
-                ))}
-              </div>
+              {/* Miniaturas */}
+              {images.length > 1 && (
+                <div className="d-flex flex-md-column me-md-3 gap-2 thumbnail-images">
+                  {images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setMainImage(img)}
+                      className={`p-0 border-0 bg-transparent ${mainImage === img ? 'shadow' : ''}`}
+                      style={{ lineHeight: 0, cursor: 'pointer' }}
+                    >
+                      <img
+                        src={img}
+                        alt={`Miniatura ${idx + 1}`}
+                        loading="lazy"
+                        className={`img-thumbnail ${mainImage === img ? 'border border-2 border-dark' : ''}`}
+                        style={{
+                          width: 90,
+                          height: 100,
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Imagen principal */}
               <img
                 src={mainImage}
                 className="img-fluid"
-                alt="main"
+                alt="Imagen principal de la publicación"
                 style={{
                   width: '100%',
                   maxWidth: 450,

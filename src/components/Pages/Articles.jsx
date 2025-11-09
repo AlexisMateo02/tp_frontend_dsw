@@ -38,36 +38,84 @@ export default function Articles() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
 
+  // Nuevos filtros específicos
+  const [brandFilter, setBrandFilter] = useState('all');
+  const [materialFilter, setMaterialFilter] = useState('all');
+  const [paddlersFilter, setPaddlersFilter] = useState('all');
+  const [allProducts, setAllProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
   useEffect(() => {
     const onAuth = () => {};
     window.addEventListener('authChanged', onAuth);
     return () => window.removeEventListener('authChanged', onAuth);
   }, []);
 
-  // Nuevos filtros específicos
-  const [brandFilter, setBrandFilter] = useState('all');
-  const [materialFilter, setMaterialFilter] = useState('all');
-  const [paddlersFilter, setPaddlersFilter] = useState('all');
-  const [allProducts, setAllProducts] = useState([]);
-
-  //const navigate = useNavigate();
-
+  // CARGAR PRODUCTOS DESDE MÚLTIPLES FUENTES
   useEffect(() => {
-    // Combinar productos del JSON con productos del marketplace
-    const marketplaceProducts =
-      JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
-    const approvedMarketplace = marketplaceProducts.filter((p) => p.approved);
+    const loadProducts = async () => {
+      try {
+        setLoadingProducts(true);
+        
+        // 1. Cargar productos de la API (base de datos)
+        let apiProducts = [];
+        try {
+          const response = await fetch('http://localhost:3000/api/products');
+          if (response.ok) {
+            const result = await response.json();
+            apiProducts = result.data || [];
+            console.log('✅ Productos cargados desde API:', apiProducts.length);
+            
+            // Filtrar solo productos aprobados y agregar seller info por defecto
+            apiProducts = apiProducts
+              .filter(p => p.approved)
+              .map(p => ({
+                ...p,
+                sellerId: p.sellerId || 0,
+                sellerName: p.sellerName || 'KBR',
+                approved: true,
+              }));
+          }
+        } catch (error) {
+          console.warn('❌ Error cargando productos de API:', error);
+        }
 
-    // Agregar sellerId por defecto a productos del JSON
-    const jsonProducts = Products.map((p) => ({
-      ...p,
-      sellerId: p.sellerId || 0,
-      sellerName: p.sellerName || 'KBR',
-      approved: true,
-    }));
+        // 2. Cargar productos del marketplace (localStorage)
+        const marketplaceProducts = JSON.parse(localStorage.getItem('marketplaceProducts')) || [];
+        const approvedMarketplace = marketplaceProducts.filter((p) => p.approved);
 
-    const combined = [...jsonProducts, ...approvedMarketplace];
-    setAllProducts(combined);
+        // 3. Productos del JSON estático
+        const jsonProducts = Products.map((p) => ({
+          ...p,
+          sellerId: p.sellerId || 0,
+          sellerName: p.sellerName || 'KBR',
+          approved: true,
+        }));
+
+        // 4. COMBINAR TODAS LAS FUENTES
+        const combined = [
+          ...jsonProducts, 
+          ...approvedMarketplace, 
+          ...apiProducts
+        ];
+        
+        console.log('📊 Total productos combinados:', combined.length);
+        console.log('🗂️  Fuentes:', {
+          json: jsonProducts.length,
+          marketplace: approvedMarketplace.length,
+          api: apiProducts.length
+        });
+        
+        setAllProducts(combined);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        toast.error('Error al cargar productos');
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    loadProducts();
   }, []);
 
   const toggleCategory = (label, category) => {
@@ -310,6 +358,19 @@ export default function Articles() {
       </div>
     </div>
   );
+
+  if (loadingProducts) {
+    return (
+      <div className="container py-5">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Cargando productos...</span>
+          </div>
+          <p className="mt-3">Cargando productos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-5">
