@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
-import mpLogo from './../../assets/mercadopago-logo.webp';
 
 function Checkout() {
   const [deliveryOption, setDeliveryOption] = useState('ship');
@@ -88,7 +87,7 @@ function Checkout() {
     return () => window.removeEventListener('storesUpdated', onStoresUpdated);
   }, [selectedPickup]);
 
-  // handlePlaceOrder removed; use handleMercadoPago for payment flow
+  // handlePlaceOrder: finalizar el pedido sin integración de Mercado Pagov(lo sacamos, despues lo vemos para AD, ahora solo con un mensaje de que se hizo la compra alcanza)
 
   // Utilidades: funciones de validación
   const isEmail = (s) => {
@@ -104,15 +103,28 @@ function Checkout() {
 
   // La validación de expiración fue eliminada porque los campos de tarjeta fueron removidos
 
-  const handleMercadoPago = () => {
+  const handlePlaceOrder = () => {
     if (!validateOrder()) return;
     setIsSubmitting(true);
-    toast.info('Redirigiendo a Mercado Pago...');
-    // Abrir Mercado Pago en nueva pestaña (marcador/placeholder). En una integración real
-    // aquí harías una llamada a tu backend para crear la preferencia y luego redirigir al checkout.
-    window.open('https://www.mercadopago.com.ar/', '_blank');
-    // No limpiamos el carrito hasta confirmar pago en un flujo real
-    setIsSubmitting(false);
+    // Simular creación de pedido
+    setTimeout(() => {
+      // Limpiar carrito en localStorage según usuario
+      try {
+        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (cu) {
+          const key = `cart-${cu.id || cu.email}`;
+          localStorage.removeItem(key);
+        }
+      } catch {
+        /* noop */
+      }
+      localStorage.removeItem('cart');
+      setCartItems([]);
+      toast.success(
+        'Pedido creado correctamente. Pronto recibirás la confirmación.'
+      );
+      setIsSubmitting(false);
+    }, 800);
   };
 
   const validateOrder = () => {
@@ -359,18 +371,17 @@ function Checkout() {
               </p>
               <div className="p-3 mb-3 text-center">
                 <h6 className="fw-semibold">Forma de pago</h6>
-                <img
-                  src={mpLogo}
-                  alt="Mercado Pago"
-                  style={{ maxWidth: 120, marginBottom: 12 }}
-                />
+                <p className="text-muted">
+                  Selecciona 'Finalizar pedido' para completar la compra. El
+                  pago se coordinará posteriormente.
+                </p>
               </div>
               <button
                 className="btn w-100 mt-4 py-2 fw-semibold"
-                onClick={handleMercadoPago}
+                onClick={handlePlaceOrder}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Procesando...' : 'Pagar con Mercado Pago'}
+                {isSubmitting ? 'Procesando...' : 'Finalizar pedido'}
               </button>
 
               <div className="mt-5 border-top pt-3">
@@ -434,9 +445,8 @@ function Checkout() {
                 <span>Total</span>
                 <span>{formatCurrency(totalPrice + estimatedTax)}</span>
               </div>
-              <button className="btn w-100 mt-3" onClick={handleMercadoPago}>
-                <i className="ri-secure-payment-line me-2"></i> Pagar con
-                Mercado Pago
+              <button className="btn w-100 mt-3" onClick={handlePlaceOrder}>
+                <i className="ri-secure-payment-line me-2"></i> Finalizar pedido
               </button>
 
               <Link to="/cart" className="btn mt-2 text-decoration-none">

@@ -87,17 +87,17 @@ function Admin() {
       reader.readAsDataURL(file);
     });
 
-    const compressImage = (file) => {
+  const compressImage = (file) => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const img = new Image();
-      
+
       img.onload = () => {
         const MAX_WIDTH = 800;
         const MAX_HEIGHT = 600;
         let { width, height } = img;
-        
+
         if (width > height) {
           if (width > MAX_WIDTH) {
             height *= MAX_WIDTH / width;
@@ -109,29 +109,33 @@ function Admin() {
             height = MAX_HEIGHT;
           }
         }
-        
+
         canvas.width = width;
         canvas.height = height;
-        
+
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
-        
-        canvas.toBlob((blob) => {
-          const compressedFile = new File([blob], file.name, {
-            type: 'image/jpeg',
-            lastModified: Date.now()
-          });
-          resolve(compressedFile);
-        }, 'image/jpeg', 0.7);
+
+        canvas.toBlob(
+          (blob) => {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          },
+          'image/jpeg',
+          0.7
+        );
       };
-      
+
       img.onerror = reject;
       img.src = URL.createObjectURL(file);
     });
   };
 
- const handleFileChange = async (e, imageNumber) => {
+  const handleFileChange = async (e, imageNumber) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -149,10 +153,12 @@ function Admin() {
       // 🔥 ESTA LÍNEA USA compressImage - por eso debe estar definida antes
       const compressedFile = await compressImage(file);
       const dataUrl = await readFileAsDataURL(compressedFile);
-      
-      console.log(`📏 Longitud de Base64 COMPRIMIDA: ${dataUrl.length} caracteres`);
-      
-      switch(imageNumber) {
+
+      console.log(
+        `📏 Longitud de Base64 COMPRIMIDA: ${dataUrl.length} caracteres`
+      );
+
+      switch (imageNumber) {
         case 1:
           setP_image(dataUrl);
           break;
@@ -168,7 +174,7 @@ function Admin() {
         default:
           break;
       }
-      
+
       toast.success('Imagen comprimida y cargada correctamente');
     } catch (error) {
       console.error('Error comprimiendo imagen:', error);
@@ -178,7 +184,7 @@ function Admin() {
 
   // Eliminar imagen
   const removeImage = (imageNumber) => {
-    switch(imageNumber) {
+    switch (imageNumber) {
       case 1:
         setP_image('');
         break;
@@ -204,7 +210,7 @@ function Admin() {
         fetch(`${API_BASE}/kayakTypes`),
         fetch(`${API_BASE}/supTypes`),
         fetch(`${API_BASE}/boatTypes`),
-        fetch(`${API_BASE}/articleTypes`)
+        fetch(`${API_BASE}/articleTypes`),
       ]);
 
       if (kayakRes.ok) {
@@ -233,45 +239,48 @@ function Admin() {
     setLoading(true);
     try {
       let endpoint = '';
-      
-      switch(selectedTab) {
-        case 'kayakType': 
+
+      switch (selectedTab) {
+        case 'kayakType':
           endpoint = '/kayakTypes';
           break;
-        case 'articleType': 
+        case 'articleType':
           endpoint = '/articleTypes';
           break;
-        case 'supType': 
+        case 'supType':
           endpoint = '/supTypes';
           break;
-        case 'boatType': 
+        case 'boatType':
           endpoint = '/boatTypes';
           break;
         case 'product':
           endpoint = '/products';
           break;
-        default: return;
+        default:
+          return;
       }
 
       const url = `${API_BASE}${endpoint}`;
       console.log(`🔄 Fetching from: ${url}`);
-      
+
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
       });
-      
-      console.log(`📊 Response status: ${response.status} ${response.statusText}`);
-      
+
+      console.log(
+        `📊 Response status: ${response.status} ${response.statusText}`
+      );
+
       if (response.ok) {
         const result = await response.json();
         console.log(`✅ Full response:`, result);
-        
+
         // EXTRAER LOS DATOS DE LA PROPIEDAD 'data'
         const entitiesData = result.data || [];
         console.log(`✅ Entities data:`, entitiesData);
-        
+
         setEntities(Array.isArray(entitiesData) ? entitiesData : []);
       } else if (response.status === 404) {
         console.warn(`❌ Endpoint ${endpoint} not found`);
@@ -400,7 +409,8 @@ function Admin() {
 
   const validateProduct = () => {
     if (!p_Productname || p_Productname.length < 2) return false;
-    if (!p_price || !/^\$?\d+(\.\d{1,2})?$/.test(p_price.replace(',', '.'))) return false;
+    if (!p_price || !/^\$?\d+(\.\d{1,2})?$/.test(p_price.replace(',', '.')))
+      return false;
     if (!p_category) return false;
     if (!p_image) return false;
     if (p_stock < 0 || p_stock > 10000) return false;
@@ -416,12 +426,12 @@ function Admin() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
+
     let isValid = false;
     let newEntity = {};
     let endpoint = '';
 
-    switch(selectedTab) {
+    switch (selectedTab) {
       case 'kayakType':
         isValid = validateKayakType();
         endpoint = '/kayakTypes';
@@ -494,7 +504,9 @@ function Admin() {
             maxHorsePower: Number(bt_maxHorsePower) || 0,
           };
         } else {
-          toast.error('Completa las especificaciones de Embarcación correctamente');
+          toast.error(
+            'Completa las especificaciones de Embarcación correctamente'
+          );
         }
         break;
 
@@ -518,10 +530,14 @@ function Admin() {
             kayakTypeId: p_kayakTypeId ? Number(p_kayakTypeId) : undefined,
             supTypeId: p_supTypeId ? Number(p_supTypeId) : undefined,
             boatTypeId: p_boatTypeId ? Number(p_boatTypeId) : undefined,
-            articleTypeId: p_articleTypeId ? Number(p_articleTypeId) : undefined,
+            articleTypeId: p_articleTypeId
+              ? Number(p_articleTypeId)
+              : undefined,
           };
         } else {
-          toast.error('Completa los campos requeridos del producto correctamente');
+          toast.error(
+            'Completa los campos requeridos del producto correctamente'
+          );
         }
         break;
 
@@ -529,23 +545,26 @@ function Admin() {
         return;
     }
 
-    
     if (!isValid) return;
 
     // 🔍 AGREGAR ESTO PARA DEBUG
     console.log('🔍 Datos que se enviarán:', {
-        ...newEntity,
-        imageLength: newEntity.image ? newEntity.image.length : 0,
-        secondImageLength: newEntity.secondImage ? newEntity.secondImage.length : 0,
-        thirdImageLength: newEntity.thirdImage ? newEntity.thirdImage.length : 0,
-        fourthImageLength: newEntity.fourthImage ? newEntity.fourthImage.length : 0
+      ...newEntity,
+      imageLength: newEntity.image ? newEntity.image.length : 0,
+      secondImageLength: newEntity.secondImage
+        ? newEntity.secondImage.length
+        : 0,
+      thirdImageLength: newEntity.thirdImage ? newEntity.thirdImage.length : 0,
+      fourthImageLength: newEntity.fourthImage
+        ? newEntity.fourthImage.length
+        : 0,
     });
 
     setLoading(true);
     try {
       const url = `${API_BASE}${endpoint}`;
       console.log(`🚀 Creating entity at: ${url}`, newEntity);
-      
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -554,19 +573,72 @@ function Admin() {
         body: JSON.stringify(newEntity),
       });
 
-      console.log(`📨 Create response status: ${response.status} ${response.statusText}`);
+      console.log(
+        `📨 Create response status: ${response.status} ${response.statusText}`
+      );
 
       if (response.ok) {
         const result = await response.json();
         console.log('✅ Create response:', result);
-        
-        toast.success(`${selectedTab.replace('Type', ' Type')} creado exitosamente`);
+
+        toast.success(
+          `${selectedTab.replace('Type', ' Type')} creado exitosamente`
+        );
         resetForm();
         fetchEntities(); // Recargar la lista
       } else {
-        const errorText = await response.text();
-        console.error('❌ Error response:', errorText);
-        toast.error(`Error ${response.status}: No se pudo crear`);
+        // Intentar parsear JSON de error para mostrar información útil
+        let errorBody = null;
+        try {
+          errorBody = await response.json();
+        } catch {
+          try {
+            errorBody = await response.text();
+          } catch {
+            errorBody = `Error ${response.status}: ${response.statusText}`;
+          }
+        }
+
+        console.error('❌ Error response:', errorBody);
+
+        // Extraer un mensaje legible si el backend lo provee
+        let friendlyMessage = `Error ${response.status}: No se pudo crear`;
+        if (errorBody) {
+          if (typeof errorBody === 'string') {
+            friendlyMessage = errorBody;
+          } else if (errorBody.message) {
+            friendlyMessage = errorBody.message;
+          } else if (errorBody.errors) {
+            // Si el backend devuelve errores por campo, formatearlos
+            try {
+              if (Array.isArray(errorBody.errors)) {
+                friendlyMessage = errorBody.errors
+                  .map((e) => e.msg || e.message || JSON.stringify(e))
+                  .join('; ');
+              } else {
+                // objeto con claves por campo
+                friendlyMessage = Object.entries(errorBody.errors)
+                  .map(([k, v]) => `${k}: ${v}`)
+                  .join('; ');
+              }
+            } catch {
+              friendlyMessage = JSON.stringify(errorBody.errors);
+            }
+          } else {
+            // Fallback: stringify pequeño
+            try {
+              const s = JSON.stringify(errorBody);
+              friendlyMessage =
+                s.length > 200
+                  ? `Error ${response.status}: Revisar consola para más detalles`
+                  : s;
+            } catch {
+              /* noop */
+            }
+          }
+        }
+
+        toast.error(friendlyMessage);
       }
     } catch (error) {
       console.error('❌ Error creating entity:', error);
@@ -577,35 +649,50 @@ function Admin() {
   };
 
   const removeEntity = async (id) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este elemento?')) {
+    if (
+      !window.confirm('¿Estás seguro de que quieres eliminar este elemento?')
+    ) {
       return;
     }
 
     setLoading(true);
     try {
       let endpoint = '';
-      switch(selectedTab) {
-        case 'kayakType': endpoint = '/kayakTypes'; break;
-        case 'articleType': endpoint = '/articleTypes'; break;
-        case 'supType': endpoint = '/supTypes'; break;
-        case 'boatType': endpoint = '/boatTypes'; break;
-        case 'product': endpoint = '/products'; break;
-        default: return;
+      switch (selectedTab) {
+        case 'kayakType':
+          endpoint = '/kayakTypes';
+          break;
+        case 'articleType':
+          endpoint = '/articleTypes';
+          break;
+        case 'supType':
+          endpoint = '/supTypes';
+          break;
+        case 'boatType':
+          endpoint = '/boatTypes';
+          break;
+        case 'product':
+          endpoint = '/products';
+          break;
+        default:
+          return;
       }
 
       const url = `${API_BASE}${endpoint}/${id}`;
       console.log(`🗑️ Deleting entity at: ${url}`);
-      
+
       const response = await fetch(url, {
         method: 'DELETE',
       });
 
-      console.log(`📨 Delete response status: ${response.status} ${response.statusText}`);
+      console.log(
+        `📨 Delete response status: ${response.status} ${response.statusText}`
+      );
 
       if (response.ok) {
         const result = await response.json();
         console.log('✅ Delete response:', result);
-        
+
         toast.info(`${selectedTab.replace('Type', ' Type')} eliminado`);
         fetchEntities(); // Recargar la lista
       } else {
@@ -626,17 +713,19 @@ function Admin() {
     try {
       const url = `${API_BASE}/products/${id}/approve`;
       console.log(`✅ Approving product at: ${url}`);
-      
+
       const response = await fetch(url, {
         method: 'PATCH',
       });
 
-      console.log(`📨 Approve response status: ${response.status} ${response.statusText}`);
+      console.log(
+        `📨 Approve response status: ${response.status} ${response.statusText}`
+      );
 
       if (response.ok) {
         const result = await response.json();
         console.log('✅ Approve response:', result);
-        
+
         toast.success('Producto aprobado exitosamente');
         fetchEntities(); // Recargar la lista
       } else {
@@ -659,7 +748,7 @@ function Admin() {
   };
 
   const renderForm = () => {
-    switch(selectedTab) {
+    switch (selectedTab) {
       case 'kayakType':
         return (
           <>
@@ -1012,7 +1101,7 @@ function Admin() {
                 <option value="articulo">Artículo</option>
               </select>
             </div>
-            
+
             <div className="col-md-4 mt-2">
               <input
                 className="form-control"
@@ -1062,7 +1151,7 @@ function Admin() {
                   required
                 >
                   <option value="">Selecciona tipo de kayak</option>
-                  {kayakTypes.map(type => (
+                  {kayakTypes.map((type) => (
                     <option key={type.id} value={type.id}>
                       {type.brand} - {type.model}
                     </option>
@@ -1080,7 +1169,7 @@ function Admin() {
                   required
                 >
                   <option value="">Selecciona tipo de SUP</option>
-                  {supTypes.map(type => (
+                  {supTypes.map((type) => (
                     <option key={type.id} value={type.id}>
                       {type.brand} - {type.model}
                     </option>
@@ -1098,7 +1187,7 @@ function Admin() {
                   required
                 >
                   <option value="">Selecciona tipo de embarcación</option>
-                  {boatTypes.map(type => (
+                  {boatTypes.map((type) => (
                     <option key={type.id} value={type.id}>
                       {type.brand} - {type.model}
                     </option>
@@ -1116,7 +1205,7 @@ function Admin() {
                   required
                 >
                   <option value="">Selecciona tipo de artículo</option>
-                  {articleTypes.map(type => (
+                  {articleTypes.map((type) => (
                     <option key={type.id} value={type.id}>
                       {type.name}
                     </option>
@@ -1131,7 +1220,9 @@ function Admin() {
               <div className="row">
                 {/* Imagen Principal */}
                 <div className="col-md-6 mb-3">
-                  <label className="form-label fw-bold">Imagen Principal *</label>
+                  <label className="form-label fw-bold">
+                    Imagen Principal *
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
@@ -1141,19 +1232,19 @@ function Admin() {
                   />
                   {p_image && (
                     <div className="mt-2">
-                      <img 
-                        src={p_image} 
-                        alt="Previsualización" 
-                        style={{ 
-                          width: '100px', 
-                          height: '100px', 
+                      <img
+                        src={p_image}
+                        alt="Previsualización"
+                        style={{
+                          width: '100px',
+                          height: '100px',
                           objectFit: 'cover',
                           border: '2px solid #ddd',
-                          borderRadius: '8px'
-                        }} 
+                          borderRadius: '8px',
+                        }}
                       />
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="btn btn-sm btn-danger ms-2"
                         onClick={() => removeImage(1)}
                       >
@@ -1165,7 +1256,9 @@ function Admin() {
 
                 {/* Segunda Imagen */}
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Segunda Imagen (Opcional)</label>
+                  <label className="form-label">
+                    Segunda Imagen (Opcional)
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
@@ -1174,19 +1267,19 @@ function Admin() {
                   />
                   {p_secondImage && (
                     <div className="mt-2">
-                      <img 
-                        src={p_secondImage} 
-                        alt="Previsualización 2" 
-                        style={{ 
-                          width: '100px', 
-                          height: '100px', 
+                      <img
+                        src={p_secondImage}
+                        alt="Previsualización 2"
+                        style={{
+                          width: '100px',
+                          height: '100px',
                           objectFit: 'cover',
                           border: '2px solid #ddd',
-                          borderRadius: '8px'
-                        }} 
+                          borderRadius: '8px',
+                        }}
                       />
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="btn btn-sm btn-danger ms-2"
                         onClick={() => removeImage(2)}
                       >
@@ -1198,7 +1291,9 @@ function Admin() {
 
                 {/* Tercera Imagen */}
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Tercera Imagen (Opcional)</label>
+                  <label className="form-label">
+                    Tercera Imagen (Opcional)
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
@@ -1207,19 +1302,19 @@ function Admin() {
                   />
                   {p_thirdImage && (
                     <div className="mt-2">
-                      <img 
-                        src={p_thirdImage} 
-                        alt="Previsualización 3" 
-                        style={{ 
-                          width: '100px', 
-                          height: '100px', 
+                      <img
+                        src={p_thirdImage}
+                        alt="Previsualización 3"
+                        style={{
+                          width: '100px',
+                          height: '100px',
                           objectFit: 'cover',
                           border: '2px solid #ddd',
-                          borderRadius: '8px'
-                        }} 
+                          borderRadius: '8px',
+                        }}
                       />
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="btn btn-sm btn-danger ms-2"
                         onClick={() => removeImage(3)}
                       >
@@ -1240,19 +1335,19 @@ function Admin() {
                   />
                   {p_fourthImage && (
                     <div className="mt-2">
-                      <img 
-                        src={p_fourthImage} 
-                        alt="Previsualización 4" 
-                        style={{ 
-                          width: '100px', 
-                          height: '100px', 
+                      <img
+                        src={p_fourthImage}
+                        alt="Previsualización 4"
+                        style={{
+                          width: '100px',
+                          height: '100px',
                           objectFit: 'cover',
                           border: '2px solid #ddd',
-                          borderRadius: '8px'
-                        }} 
+                          borderRadius: '8px',
+                        }}
                       />
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="btn btn-sm btn-danger ms-2"
                         onClick={() => removeImage(4)}
                       >
@@ -1318,7 +1413,11 @@ function Admin() {
     }
 
     if (entities.length === 0) {
-      return <p className="text-muted">No hay {selectedTab.replace('Type', ' Types')} creados.</p>;
+      return (
+        <p className="text-muted">
+          No hay {selectedTab.replace('Type', ' Types')} creados.
+        </p>
+      );
     }
 
     return (
@@ -1329,14 +1428,20 @@ function Admin() {
             className="list-group-item d-flex justify-content-between align-items-center"
           >
             <div>
-              <strong>{entity.model || entity.name || entity.Productname}</strong>
+              <strong>
+                {entity.model || entity.name || entity.Productname}
+              </strong>
               <div className="text-muted small">
                 {entity.brand && `Marca: ${entity.brand}`}
                 {entity.mainUse && `Uso: ${entity.mainUse}`}
                 {entity.price && `Precio: $${entity.price}`}
                 {entity.category && `Categoría: ${entity.category}`}
                 {entity.approved !== undefined && (
-                  <span className={`badge ${entity.approved ? 'bg-success' : 'bg-warning'} ms-2`}>
+                  <span
+                    className={`badge ${
+                      entity.approved ? 'bg-success' : 'bg-warning'
+                    } ms-2`}
+                  >
                     {entity.approved ? 'Aprobado' : 'Pendiente'}
                   </span>
                 )}
@@ -1376,53 +1481,69 @@ function Admin() {
           </button>
         </div>
       </div>
-      
+
       <div className="mb-3 d-flex gap-2 flex-wrap">
         <button
           type="button"
-          className={`btn ${selectedTab === 'kayakType' ? 'btn-primary' : 'btn-outline-primary'}`}
+          className={`btn ${
+            selectedTab === 'kayakType' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
           onClick={() => setSelectedTab('kayakType')}
         >
           Tipo Kayak
         </button>
         <button
           type="button"
-          className={`btn ${selectedTab === 'articleType' ? 'btn-primary' : 'btn-outline-primary'}`}
+          className={`btn ${
+            selectedTab === 'articleType'
+              ? 'btn-primary'
+              : 'btn-outline-primary'
+          }`}
           onClick={() => setSelectedTab('articleType')}
         >
           Tipo Artículo
         </button>
         <button
           type="button"
-          className={`btn ${selectedTab === 'supType' ? 'btn-primary' : 'btn-outline-primary'}`}
+          className={`btn ${
+            selectedTab === 'supType' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
           onClick={() => setSelectedTab('supType')}
         >
           Tipo SUP
         </button>
         <button
           type="button"
-          className={`btn ${selectedTab === 'boatType' ? 'btn-primary' : 'btn-outline-primary'}`}
+          className={`btn ${
+            selectedTab === 'boatType' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
           onClick={() => setSelectedTab('boatType')}
         >
           Tipo Embarcación
         </button>
         <button
           type="button"
-          className={`btn ${selectedTab === 'product' ? 'btn-primary' : 'btn-outline-primary'}`}
+          className={`btn ${
+            selectedTab === 'product' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
           onClick={() => setSelectedTab('product')}
         >
           Productos
         </button>
         <button
           type="button"
-          className={`btn ${selectedTab === 'localty' ? 'btn-primary' : 'btn-outline-primary'}`}
+          className={`btn ${
+            selectedTab === 'localty' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
           onClick={() => setSelectedTab('localty')}
         >
           Localidades
         </button>
         <button
           type="button"
-          className={`btn ${selectedTab === 'store' ? 'btn-primary' : 'btn-outline-primary'}`}
+          className={`btn ${
+            selectedTab === 'store' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
           onClick={() => setSelectedTab('store')}
         >
           Alta Tienda
@@ -1434,14 +1555,20 @@ function Admin() {
         <>
           <div className="card p-4 mb-4">
             <h5 className="mb-3">
-              {selectedTab === 'product' ? 'Crear nuevo Producto' : `Crear nuevo ${selectedTab.replace('Type', ' Type')}`}
+              {selectedTab === 'product'
+                ? 'Crear nuevo Producto'
+                : `Crear nuevo ${selectedTab.replace('Type', ' Type')}`}
             </h5>
             <form onSubmit={handleCreate}>
               <div className="row g-2">
                 {renderForm()}
                 <div className="col-12 mt-3">
                   <button className="btn btn-primary" disabled={loading}>
-                    {loading ? 'Creando...' : selectedTab === 'product' ? 'Crear Producto' : `Crear ${selectedTab.replace('Type', ' Type')}`}
+                    {loading
+                      ? 'Creando...'
+                      : selectedTab === 'product'
+                      ? 'Crear Producto'
+                      : `Crear ${selectedTab.replace('Type', ' Type')}`}
                   </button>
                 </div>
               </div>
@@ -1450,7 +1577,9 @@ function Admin() {
 
           <div className="card p-4">
             <h5 className="mb-3">
-              {selectedTab === 'product' ? 'Productos existentes' : `${selectedTab.replace('Type', ' Types')} existentes`}
+              {selectedTab === 'product'
+                ? 'Productos existentes'
+                : `${selectedTab.replace('Type', ' Types')} existentes`}
             </h5>
             {renderEntityList()}
           </div>
