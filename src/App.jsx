@@ -23,6 +23,8 @@ import Publicar from "./components/Pages/Publicar.jsx";
 import Publicaciones from "./components/Pages/Publicaciones.jsx";
 import PublicacionDetails from "./components/Pages/PublicacionDetails.jsx";
 import Profile from "./components/Pages/Profile.jsx";
+import OrderConfirmation from "./components/Pages/orderConfirmation.jsx";
+import UserOrders from "./components/Pages/userOrders.jsx";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -64,6 +66,8 @@ function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+          <Route path="/user/orders" element={<UserOrders />} />
           <Route path="/about" element={<About />} />
           {/* /shop (seller panel) removed per request */}
           <Route path="/contact" element={<Contact />} />

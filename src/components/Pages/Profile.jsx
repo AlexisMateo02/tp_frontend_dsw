@@ -21,6 +21,8 @@ function Profile() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userOrders, setUserOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,6 +42,11 @@ function Profile() {
           email: userData.email || '',
           phone: userData.phone || '',
         });
+
+        // Cargar órdenes del usuario después de cargar el perfil
+        if (userData.id) {
+          loadUserOrders(userData.id);
+        }
       } catch (error) {
         console.error('Error loading profile:', error);
         
@@ -61,6 +68,34 @@ function Profile() {
 
     loadUserProfile();
   }, []);
+
+  // Función para cargar las órdenes del usuario
+  const loadUserOrders = async (userId) => {
+    try {
+      setLoadingOrders(true);
+      console.log('🔄 Cargando órdenes para usuario ID:', userId);
+      
+      const response = await fetch(`http://localhost:3000/api/orders/user/${userId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      console.log('✅ Órdenes recibidas:', result);
+      
+      if (result.data) {
+        setUserOrders(result.data);
+      } else {
+        setUserOrders([]);
+      }
+    } catch (error) {
+      console.error('❌ Error cargando órdenes:', error);
+      setUserOrders([]);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -218,6 +253,48 @@ function Profile() {
     toast.info('Cambio de contraseña cancelado');
   };
 
+  // Función para formatear moneda
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      minimumFractionDigits: 2,
+    }).format(value);
+  };
+
+  // Función para formatear fecha
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('es-AR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Función para obtener clase CSS del estado
+  const getStatusClass = (status) => {
+    const statusClassMap = {
+      'pending': 'bg-warning text-dark',
+      'confirmed': 'bg-info',
+      'shipped': 'bg-primary',
+      'delivered': 'bg-success',
+      'cancelled': 'bg-danger'
+    };
+    return statusClassMap[status] || 'bg-secondary';
+  };
+
+  // Función para traducir estados
+  const getStatusText = (status) => {
+    const statusMap = {
+      'pending': 'Pendiente',
+      'confirmed': 'Confirmada',
+      'shipped': 'Enviada',
+      'delivered': 'Entregada',
+      'cancelled': 'Cancelada'
+    };
+    return statusMap[status] || status;
+  };
+
   if (loading) {
     return (
       <div className="container" style={{ marginTop: '100px' }}>
@@ -244,7 +321,7 @@ function Profile() {
   }
 
   return (
-    <div className="container" style={{ marginTop: '100px', maxWidth: 900 }}>
+    <div className="container" style={{ marginTop: '100px', maxWidth: 1200 }}>
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
           <h3>Mi Perfil</h3>
@@ -258,7 +335,7 @@ function Profile() {
       <div className="row">
         {/* Información Personal */}
         <div className="col-md-6">
-          <div className="card">
+          <div className="card mb-4">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Información Personal</h5>
               <button
@@ -343,7 +420,7 @@ function Profile() {
 
         {/* Seguridad - Cambio de Contraseña */}
         <div className="col-md-6">
-          <div className="card">
+          <div className="card mb-4">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Seguridad</h5>
               <button
@@ -416,6 +493,70 @@ function Profile() {
                   <p className="text-muted">
                     Para cambiar tu contraseña, haz clic en el botón "Cambiar Contraseña".
                   </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 🆕 NUEVA SECCIÓN: Mis Órdenes Recientes */}
+          <div className="card">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">Mis Órdenes Recientes</h5>
+              <Link to="/user/orders" className="btn btn-outline-primary btn-sm">
+                Ver Todas
+              </Link>
+            </div>
+            <div className="card-body">
+              {loadingOrders ? (
+                <div className="text-center py-3">
+                  <div className="spinner-border spinner-border-sm" role="status">
+                    <span className="visually-hidden">Cargando órdenes...</span>
+                  </div>
+                  <p className="mt-2 mb-0 text-muted">Cargando órdenes...</p>
+                </div>
+              ) : userOrders.length === 0 ? (
+                <div className="text-center py-3">
+                  <i className="bi bi-inbox display-6 text-muted"></i>
+                  <p className="mt-2 mb-0 text-muted">No tienes órdenes realizadas</p>
+                  <Link to="/articles" className="btn btn-primary btn-sm mt-2">
+                    Realizar mi primera compra
+                  </Link>
+                </div>
+              ) : (
+                <div>
+                  {userOrders.slice(0, 3).map((order) => (
+                    <div key={order.id} className="border-bottom pb-2 mb-2">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div>
+                          <h6 className="mb-1">Orden #{order.orderNumber}</h6>
+                          <p className="mb-1 small text-muted">
+                            {formatDate(order.orderDate)} • {order.items?.length || 0} producto(s)
+                          </p>
+                          <p className="mb-1 fw-bold">{formatCurrency(order.totalAmount)}</p>
+                        </div>
+                        <div className="text-end">
+                          <span className={`badge ${getStatusClass(order.status)}`}>
+                            {getStatusText(order.status)}
+                          </span>
+                          <br />
+                          <Link 
+                            to={`/order-confirmation/${order.id}`} 
+                            className="btn btn-outline-primary btn-sm mt-1"
+                          >
+                            Ver
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {userOrders.length > 3 && (
+                    <div className="text-center mt-3">
+                      <Link to="/user/orders" className="btn btn-outline-secondary btn-sm">
+                        Ver todas las órdenes ({userOrders.length})
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

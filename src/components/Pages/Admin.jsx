@@ -13,6 +13,11 @@ function Admin() {
   const [entities, setEntities] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Estados para órdenes
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [orderFilter, setOrderFilter] = useState('pending');
+
   // Estados para KayakType
   const [kt_model, setKt_model] = useState('');
   const [kt_brand, setKt_brand] = useState('');
@@ -135,6 +140,98 @@ function Admin() {
     });
   };
 
+  // Función para cargar órdenes
+  const fetchOrders = useCallback(async (filter = 'all') => {
+    setLoadingOrders(true);
+    try {
+      let url = `${API_BASE}/orders`;
+      if (filter !== 'all') {
+        url += `?status=${filter}`;
+      }
+
+      console.log(`🔄 Fetching orders from: ${url}`);
+
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Orders loaded:', result);
+        setOrders(result.data || []);
+      } else {
+        console.error('❌ Error loading orders:', response.status);
+        toast.error('Error al cargar las órdenes');
+        setOrders([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching orders:', error);
+      toast.error('Error de conexión al cargar órdenes');
+      setOrders([]);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, []);
+
+  // Función para actualizar estado de orden
+  const updateOrderStatus = async (orderId, newStatus) => {
+    setLoadingOrders(true);
+    try {
+      const url = `${API_BASE}/orders/${orderId}/status`;
+      console.log(`🔄 Updating order status: ${url}`, { status: newStatus });
+
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Order status updated:', result);
+        toast.success(`Orden ${getStatusText(newStatus)} correctamente`);
+        fetchOrders(orderFilter); // Recargar órdenes con el filtro actual
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Error updating order:', errorText);
+        toast.error('Error al actualizar la orden');
+      }
+    } catch (error) {
+      console.error('❌ Error updating order status:', error);
+      toast.error('Error de conexión al actualizar orden');
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  // Función para traducir estados
+  const getStatusText = (status) => {
+    const statusMap = {
+      'pending': 'Pendiente',
+      'confirmed': 'Confirmada',
+      'shipped': 'Enviada',
+      'delivered': 'Entregada',
+      'cancelled': 'Cancelada'
+    };
+    return statusMap[status] || status;
+  };
+
+  // Función para obtener clase CSS del estado
+  const getStatusClass = (status) => {
+    const statusClassMap = {
+      'pending': 'bg-warning text-dark',
+      'confirmed': 'bg-info',
+      'shipped': 'bg-primary',
+      'delivered': 'bg-success',
+      'cancelled': 'bg-danger'
+    };
+    return statusClassMap[status] || 'bg-secondary';
+  };
+
   const handleFileChange = async (e, imageNumber) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -150,7 +247,6 @@ function Admin() {
     }
 
     try {
-      // 🔥 ESTA LÍNEA USA compressImage - por eso debe estar definida antes
       const compressedFile = await compressImage(file);
       const dataUrl = await readFileAsDataURL(compressedFile);
 
@@ -277,7 +373,6 @@ function Admin() {
         const result = await response.json();
         console.log(`✅ Full response:`, result);
 
-        // EXTRAER LOS DATOS DE LA PROPIEDAD 'data'
         const entitiesData = result.data || [];
         console.log(`✅ Entities data:`, entitiesData);
 
@@ -300,13 +395,17 @@ function Admin() {
   // Cargar entidades cuando cambia la pestaña
   useEffect(() => {
     console.log(`🔄 Selected tab changed to: ${selectedTab}`);
-    if (selectedTab !== 'localty' && selectedTab !== 'store') {
+    
+    if (selectedTab === 'orders') {
+      fetchOrders(orderFilter);
+    } else if (selectedTab !== 'localty' && selectedTab !== 'store') {
       fetchEntities();
     }
+    
     if (selectedTab === 'product') {
       fetchTypes();
     }
-  }, [fetchEntities, fetchTypes, selectedTab]);
+  }, [fetchEntities, fetchTypes, selectedTab, fetchOrders, orderFilter]);
 
   const resetForm = () => {
     // Reset KayakType
@@ -547,7 +646,6 @@ function Admin() {
 
     if (!isValid) return;
 
-    // 🔍 AGREGAR ESTO PARA DEBUG
     console.log('🔍 Datos que se enviarán:', {
       ...newEntity,
       imageLength: newEntity.image ? newEntity.image.length : 0,
@@ -585,9 +683,8 @@ function Admin() {
           `${selectedTab.replace('Type', ' Type')} creado exitosamente`
         );
         resetForm();
-        fetchEntities(); // Recargar la lista
+        fetchEntities();
       } else {
-        // Intentar parsear JSON de error para mostrar información útil
         let errorBody = null;
         try {
           errorBody = await response.json();
@@ -601,7 +698,6 @@ function Admin() {
 
         console.error('❌ Error response:', errorBody);
 
-        // Extraer un mensaje legible si el backend lo provee
         let friendlyMessage = `Error ${response.status}: No se pudo crear`;
         if (errorBody) {
           if (typeof errorBody === 'string') {
@@ -609,14 +705,12 @@ function Admin() {
           } else if (errorBody.message) {
             friendlyMessage = errorBody.message;
           } else if (errorBody.errors) {
-            // Si el backend devuelve errores por campo, formatearlos
             try {
               if (Array.isArray(errorBody.errors)) {
                 friendlyMessage = errorBody.errors
                   .map((e) => e.msg || e.message || JSON.stringify(e))
                   .join('; ');
               } else {
-                // objeto con claves por campo
                 friendlyMessage = Object.entries(errorBody.errors)
                   .map(([k, v]) => `${k}: ${v}`)
                   .join('; ');
@@ -625,7 +719,6 @@ function Admin() {
               friendlyMessage = JSON.stringify(errorBody.errors);
             }
           } else {
-            // Fallback: stringify pequeño
             try {
               const s = JSON.stringify(errorBody);
               friendlyMessage =
@@ -694,7 +787,7 @@ function Admin() {
         console.log('✅ Delete response:', result);
 
         toast.info(`${selectedTab.replace('Type', ' Type')} eliminado`);
-        fetchEntities(); // Recargar la lista
+        fetchEntities();
       } else {
         const errorText = await response.text();
         console.error('❌ Error response:', errorText);
@@ -727,7 +820,7 @@ function Admin() {
         console.log('✅ Approve response:', result);
 
         toast.success('Producto aprobado exitosamente');
-        fetchEntities(); // Recargar la lista
+        fetchEntities();
       } else {
         const errorText = await response.text();
         console.error('❌ Error response:', errorText);
@@ -745,6 +838,188 @@ function Admin() {
     localStorage.removeItem('currentUser');
     window.dispatchEvent(new Event('authChanged'));
     navigate('/');
+  };
+
+  // Función para renderizar la lista de órdenes
+  const renderOrdersList = () => {
+    if (loadingOrders) {
+      return (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando órdenes...</span>
+          </div>
+          <p className="mt-2">Cargando órdenes...</p>
+        </div>
+      );
+    }
+
+    if (orders.length === 0) {
+      return (
+        <div className="text-center py-5">
+          <i className="bi bi-inbox display-1 text-muted"></i>
+          <h5 className="mt-3">No hay órdenes</h5>
+          <p className="text-muted">
+            {orderFilter !== 'all' 
+              ? `No hay órdenes con estado "${getStatusText(orderFilter)}"`
+              : 'No hay órdenes en el sistema'
+            }
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="row">
+        {orders.map((order) => (
+          <div key={order.id} className="col-12 mb-4">
+            <div className="card shadow-sm">
+              <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Orden #{order.orderNumber}</strong>
+                  <span className={`badge ${getStatusClass(order.status)} ms-2`}>
+                    {getStatusText(order.status)}
+                  </span>
+                </div>
+                <small className="text-muted">
+                  {new Date(order.orderDate).toLocaleDateString('es-AR')}
+                </small>
+              </div>
+              
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-6">
+                    <h6 className="fw-bold">Información del Cliente</h6>
+                    <p className="mb-1"><strong>Contacto:</strong> {order.buyerContact}</p>
+                    {order.user && (
+                      <p className="mb-1">
+                        <strong>Usuario:</strong> {order.user.firstName} {order.user.lastName}
+                      </p>
+                    )}
+                    {order.shippingAddress && (
+                      <p className="mb-1">
+                        <strong>🚚 Envío a:</strong> {order.shippingAddress}
+                      </p>
+                    )}
+                    {order.pickUpPoint && (
+                      <p className="mb-1">
+                        <strong>🏪 Retiro en:</strong> {order.pickUpPoint.storeName}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <h6 className="fw-bold">Detalles de la Orden</h6>
+                    <p className="mb-1">
+                      <strong>Total:</strong> ${order.totalAmount}
+                    </p>
+                    <p className="mb-1">
+                      <strong>Productos:</strong> {order.items?.length || 0}
+                    </p>
+                    {order.notes && (
+                      <p className="mb-1">
+                        <strong>Notas:</strong> {order.notes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Items de la orden */}
+                {order.items && order.items.length > 0 && (
+                  <div className="mt-3">
+                    <h6 className="fw-bold">Productos</h6>
+                    <div className="table-responsive">
+                      <table className="table table-sm table-borderless">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th className="text-center">Cantidad</th>
+                            <th className="text-end">Precio Unit.</th>
+                            <th className="text-end">Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {order.items.map((item, index) => (
+                            <tr key={index}>
+                              <td>
+                                <div className="d-flex align-items-center">
+                                  {item.productImage && (
+                                    <img 
+                                      src={item.productImage} 
+                                      alt={item.productName}
+                                      className="rounded me-2"
+                                      style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                                    />
+                                  )}
+                                  <span>{item.productName}</span>
+                                </div>
+                              </td>
+                              <td className="text-center">{item.quantity}</td>
+                              <td className="text-end">${parseFloat(item.priceAtPurchase)}</td>
+                              <td className="text-end fw-bold">${item.subtotal}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Botones de acción según estado */}
+                <div className="mt-3">
+                  <h6 className="fw-bold">Acciones</h6>
+                  <div className="d-flex gap-2 flex-wrap">
+                    {order.status === 'pending' && (
+                      <>
+                        <button
+                          className="btn btn-success btn-sm"
+                          onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                          disabled={loadingOrders}
+                        >
+                          ✅ Confirmar Orden
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => updateOrderStatus(order.id, 'cancelled')}
+                          disabled={loadingOrders}
+                        >
+                          ❌ Cancelar Orden
+                        </button>
+                      </>
+                    )}
+                    
+                    {order.status === 'confirmed' && (
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => updateOrderStatus(order.id, 'shipped')}
+                        disabled={loadingOrders}
+                      >
+                        🚚 Marcar como Enviada
+                      </button>
+                    )}
+                    
+                    {order.status === 'shipped' && (
+                      <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => updateOrderStatus(order.id, 'delivered')}
+                        disabled={loadingOrders}
+                      >
+                        📦 Marcar como Entregada
+                      </button>
+                    )}
+                    
+                    {(order.status === 'delivered' || order.status === 'cancelled') && (
+                      <span className="text-muted small">
+                        Esta orden está {order.status === 'delivered' ? 'completada' : 'cancelada'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const renderForm = () => {
@@ -1214,11 +1489,10 @@ function Admin() {
               </div>
             )}
 
-            {/* NUEVA SECCIÓN PARA SUBIR IMÁGENES - REEMPLAZA LOS INPUTS DE URL */}
+            {/* Imágenes del Producto */}
             <div className="col-12 mt-3">
               <h6>Imágenes del Producto</h6>
               <div className="row">
-                {/* Imagen Principal */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label fw-bold">
                     Imagen Principal *
@@ -1254,7 +1528,6 @@ function Admin() {
                   )}
                 </div>
 
-                {/* Segunda Imagen */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label">
                     Segunda Imagen (Opcional)
@@ -1289,7 +1562,6 @@ function Admin() {
                   )}
                 </div>
 
-                {/* Tercera Imagen */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label">
                     Tercera Imagen (Opcional)
@@ -1324,7 +1596,6 @@ function Admin() {
                   )}
                 </div>
 
-                {/* Cuarta Imagen */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Cuarta Imagen (Opcional)</label>
                   <input
@@ -1394,6 +1665,9 @@ function Admin() {
             </div>
           </>
         );
+
+      case 'orders':
+        return null;
 
       default:
         return null;
@@ -1533,6 +1807,15 @@ function Admin() {
         <button
           type="button"
           className={`btn ${
+            selectedTab === 'orders' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
+          onClick={() => setSelectedTab('orders')}
+        >
+          Gestión de Órdenes
+        </button>
+        <button
+          type="button"
+          className={`btn ${
             selectedTab === 'localty' ? 'btn-primary' : 'btn-outline-primary'
           }`}
           onClick={() => setSelectedTab('localty')}
@@ -1550,8 +1833,45 @@ function Admin() {
         </button>
       </div>
 
+      {/* Gestión de Órdenes */}
+      {selectedTab === 'orders' && (
+        <div className="card p-4">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h5 className="mb-0">Gestión de Órdenes</h5>
+            <div className="d-flex gap-2 align-items-center">
+              <span className="text-muted small">Filtrar por estado:</span>
+              <select 
+                className="form-select form-select-sm" 
+                style={{width: 'auto'}}
+                value={orderFilter}
+                onChange={(e) => {
+                  setOrderFilter(e.target.value);
+                  fetchOrders(e.target.value);
+                }}
+              >
+                <option value="all">Todas</option>
+                <option value="pending">Pendientes</option>
+                <option value="confirmed">Confirmadas</option>
+                <option value="shipped">Enviadas</option>
+                <option value="delivered">Entregadas</option>
+                <option value="cancelled">Canceladas</option>
+              </select>
+              <button 
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => fetchOrders(orderFilter)}
+                disabled={loadingOrders}
+              >
+                🔄 Actualizar
+              </button>
+            </div>
+          </div>
+          
+          {renderOrdersList()}
+        </div>
+      )}
+
       {/* Tipos de Productos */}
-      {selectedTab !== 'store' && selectedTab !== 'localty' && (
+      {selectedTab !== 'store' && selectedTab !== 'localty' && selectedTab !== 'orders' && (
         <>
           <div className="card p-4 mb-4">
             <h5 className="mb-3">
