@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-//Data
-import Products from '../../data/Product.json';
-import KayakTypes from '../../data/KayakTypes.json';
-import SUPTypes from '../../data/SUPTypes.json';
-import BoatTypes from '../../data/BoatTypes.json';
-import ArticleTypes from '../../data/ArticleTypes.json';
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+// Product.json static file removed — products loaded from API/localStorage
+import KayakTypes from "../../data/KayakTypes.json";
+import SUPTypes from "../../data/SUPTypes.json";
+import BoatTypes from "../../data/BoatTypes.json";
+import ArticleTypes from "../../data/ArticleTypes.json";
 
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 
 function ProductDetails() {
   const { id } = useParams();
 
-  const [mainImage, setMainImage] = useState('/assets/placeholder.webp');
+  const [mainImage, setMainImage] = useState("/assets/placeholder.webp");
   const [images, setImages] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [reviews, setReviews] = useState([]);
-  const [reviewName, setReviewName] = useState('');
-  const [reviewText, setReviewText] = useState('');
+  const [reviewName, setReviewName] = useState("");
+  const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -31,56 +31,64 @@ function ProductDetails() {
     const loadAllProducts = async () => {
       try {
         setLoadingProducts(true);
-        
+
         // 1. Cargar productos de la API (base de datos)
         let apiProducts = [];
         try {
-          const response = await fetch('http://localhost:3000/api/products');
+          const response = await fetch("http://localhost:3000/api/products");
           if (response.ok) {
             const result = await response.json();
             apiProducts = result.data || [];
-            console.log('✅ Productos cargados desde API en ProductDetails:', apiProducts.length);
-            
+            console.log(
+              "✅ Productos cargados desde API en ProductDetails:",
+              apiProducts.length
+            );
+
             // Filtrar solo productos aprobados y agregar seller info por defecto
             apiProducts = apiProducts
-              .filter(p => p.approved)
-              .map(p => ({
+              .filter((p) => p.approved)
+              .map((p) => ({
                 ...p,
                 sellerId: p.sellerId || 0,
-                sellerName: p.sellerName || 'KBR',
+                sellerName: p.sellerName || "KBR",
                 approved: true,
               }));
           }
         } catch (error) {
-          console.warn('❌ Error cargando productos de API en ProductDetails:', error);
+          console.warn(
+            "❌ Error cargando productos de API en ProductDetails:",
+            error
+          );
         }
 
         // 2. Cargar productos del marketplace (localStorage)
-        const marketplaceProducts = JSON.parse(localStorage.getItem('marketplaceProducts') || '[]');
-        const approvedMarketplace = marketplaceProducts.filter((p) => p.approved);
+        const marketplaceProducts = JSON.parse(
+          localStorage.getItem("marketplaceProducts") || "[]"
+        );
+        const approvedMarketplace = marketplaceProducts.filter(
+          (p) => p.approved
+        );
 
-        // 3. Productos del JSON estático
-        const jsonProducts = Products.map((p) => ({
-          ...p,
-          sellerId: p.sellerId || 0,
-          sellerName: p.sellerName || 'KBR',
-          approved: true,
-        }));
+        // 3. Productos del JSON estático (removido)
+        const jsonProducts = [];
 
         // 4. COMBINAR TODAS LAS FUENTES
         const combined = [
           ...jsonProducts,
           ...approvedMarketplace,
-          ...apiProducts
+          ...apiProducts,
         ];
-        
-        console.log('📊 Total productos combinados en ProductDetails:', combined.length);
-        
+
+        console.log(
+          "📊 Total productos combinados en ProductDetails:",
+          combined.length
+        );
+
         setCombinedProducts(combined);
       } catch (error) {
-        console.error('Error loading products in ProductDetails:', error);
-        // Fallback a solo los productos del JSON si hay error
-        setCombinedProducts([...Products]);
+        console.error("Error loading products in ProductDetails:", error);
+        // Fallback: no static JSON products available
+        setCombinedProducts([]);
       } finally {
         setLoadingProducts(false);
       }
@@ -99,16 +107,16 @@ function ProductDetails() {
       return product.kayakType;
     }
 
-    if (product.category === 'kayak' && product.kayakTypeId) {
+    if (product.category === "kayak" && product.kayakTypeId) {
       return KayakTypes.find((k) => k.id === product.kayakTypeId);
     }
-    if (product.category === 'sup' && product.supTypeId) {
+    if (product.category === "sup" && product.supTypeId) {
       return SUPTypes.find((s) => s.id === product.supTypeId);
     }
-    if (product.category === 'embarcacion' && product.boatTypeId) {
+    if (product.category === "embarcacion" && product.boatTypeId) {
       return BoatTypes.find((b) => b.id === product.boatTypeId);
     }
-    if (product.category === 'articulo' && product.articleTypeId) {
+    if (product.category === "articulo" && product.articleTypeId) {
       return ArticleTypes.find((a) => a.id === product.articleTypeId);
     }
     return null;
@@ -118,36 +126,41 @@ function ProductDetails() {
 
   useEffect(() => {
     if (product) {
-      // sanitize images: only keep up to 4 valid strings and avoid extremely large dataURLs
+      // sanitize images: accept fields which may be string, array or object
       try {
-        const raw = [
+        const candidates = [];
+        [
           product.image,
           product.secondImage,
           product.thirdImage,
           product.fourthImage,
-        ].filter(Boolean);
+        ].forEach((field) => {
+          if (!field) return;
+          if (Array.isArray(field)) {
+            field.forEach((f) => f && candidates.push(f));
+            return;
+          }
+          candidates.push(field);
+        });
+
         const MAX_LEN = 2_000_000; // ~2MB base64 length threshold
-        const safe = raw
-          .filter((i) => typeof i === 'string')
-          .filter((i) => i.length < MAX_LEN)
+        const safeStrings = candidates
+          .map((i) => {
+            // if object, normalizeImagePath will extract URL
+            return normalizeImagePath(i);
+          })
+          .filter(Boolean)
+          .filter((s) => typeof s === "string" && s.length < MAX_LEN)
           .slice(0, 4);
 
-        const chosen =
-          safe[0] ||
-          (typeof product.image === 'string' && product.image.length < MAX_LEN
-            ? product.image
-            : undefined) ||
-          '/assets/placeholder.webp';
-
+        const chosen = safeStrings[0] || "/assets/placeholder.webp";
         setMainImage(chosen);
-        setImages(safe);
-      } catch (err) {
-        // if anything goes wrong parsing images, fall back to placeholder
-        console.error('Error procesando imágenes del producto', err);
-        setMainImage('/assets/placeholder.webp');
+        setImages(safeStrings);
+      } catch (error) {
+        console.error("Error loading products in ProductDetails:", error);
         setImages([]);
+        setMainImage("/assets/placeholder.webp");
       }
-      setQuantity(1);
     }
   }, [product]);
 
@@ -159,7 +172,7 @@ function ProductDetails() {
     }
     const loadCurrent = () => {
       try {
-        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
         setCurrentUser(cu);
         if (cu) {
           // use the login email as the reviewer identifier (unique)
@@ -167,9 +180,9 @@ function ProductDetails() {
             cu.email ||
               cu.username ||
               (
-                (cu.firstName || '') + (cu.lastName ? ` ${cu.lastName}` : '')
+                (cu.firstName || "") + (cu.lastName ? ` ${cu.lastName}` : "")
               ).trim() ||
-              'Usuario'
+              "Usuario"
           );
         }
       } catch {
@@ -177,11 +190,11 @@ function ProductDetails() {
       }
     };
     loadCurrent();
-    window.addEventListener('authChanged', loadCurrent);
-    window.addEventListener('storage', loadCurrent);
+    window.addEventListener("authChanged", loadCurrent);
+    window.addEventListener("storage", loadCurrent);
     return () => {
-      window.removeEventListener('authChanged', loadCurrent);
-      window.removeEventListener('storage', loadCurrent);
+      window.removeEventListener("authChanged", loadCurrent);
+      window.removeEventListener("storage", loadCurrent);
     };
   }, [product]);
 
@@ -193,13 +206,13 @@ function ProductDetails() {
       return;
     }
     if (!reviewText.trim()) {
-      toast.info('Completa nombre y reseña');
+      toast.info("Completa nombre y reseña");
       return;
     }
     const key = `reviews-${product.id}`;
     // use currentUser email as the author (unique identifier)
     const authorName =
-      (currentUser && (currentUser.email || currentUser.username)) || 'Usuario';
+      (currentUser && (currentUser.email || currentUser.username)) || "Usuario";
     const newReview = {
       id: Date.now(),
       name: authorName,
@@ -212,14 +225,14 @@ function ProductDetails() {
     localStorage.setItem(key, JSON.stringify(updated));
     setReviews(updated);
     // keep reviewName as the user's email (non-editable)
-    setReviewText('');
+    setReviewText("");
     setReviewRating(5);
-    toast.success('Reseña agregada');
+    toast.success("Reseña agregada");
   };
 
   const addToCart = (product) => {
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setShowLoginModal(true);
         return;
@@ -231,14 +244,14 @@ function ProductDetails() {
         const updatedProduct = { ...product, quantity: 1 };
         const updatedCart = [...existing, updatedProduct];
         localStorage.setItem(key, JSON.stringify(updatedCart));
-        window.dispatchEvent(new Event('cartUpdated'));
+        window.dispatchEvent(new Event("cartUpdated"));
         toast.success(`${product.Productname} agregado al carrito`);
       } else {
         toast.info(`${product.Productname} ya está en el carrito`);
       }
     } catch (e) {
       console.error(e);
-      toast.error('Error al agregar al carrito');
+      toast.error("Error al agregar al carrito");
     }
   };
 
@@ -252,7 +265,7 @@ function ProductDetails() {
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
       localStorage.setItem(key, JSON.stringify(updated));
-      window.dispatchEvent(new Event('wishlistUpdated'));
+      window.dispatchEvent(new Event("wishlistUpdated"));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
@@ -290,13 +303,13 @@ function ProductDetails() {
         </li>
         <li className="position-relative active">
           <Link to="/articles" className="ps-5">
-            {product.category === 'kayak'
-              ? 'Kayaks'
-              : product.category === 'sup'
-              ? 'SUP'
-              : product.category === 'embarcacion'
-              ? 'Embarcaciones'
-              : 'Artículos'}
+            {product.category === "kayak"
+              ? "Kayaks"
+              : product.category === "sup"
+              ? "SUP"
+              : product.category === "embarcacion"
+              ? "Embarcaciones"
+              : "Artículos"}
           </Link>
         </li>
         <li className="position-relative active">
@@ -316,19 +329,23 @@ function ProductDetails() {
                       key={idx}
                       type="button"
                       onClick={() => setMainImage(img)}
-                      className={`p-0 border-0 bg-transparent ${mainImage === img ? 'shadow' : ''}`}
-                      style={{ lineHeight: 0, cursor: 'pointer' }}
+                      className={`p-0 border-0 bg-transparent ${
+                        mainImage === img ? "shadow" : ""
+                      }`}
+                      style={{ lineHeight: 0, cursor: "pointer" }}
                     >
                       <img
                         src={img}
                         alt={`Miniatura ${idx + 1}`}
                         loading="lazy"
-                        className={`img-thumbnail ${mainImage === img ? 'border border-2 border-dark' : ''}`}
+                        className={`img-thumbnail ${
+                          mainImage === img ? "border border-2 border-dark" : ""
+                        }`}
                         style={{
                           width: 90,
                           height: 100,
-                          objectFit: 'cover',
-                          display: 'block',
+                          objectFit: "cover",
+                          display: "block",
                         }}
                       />
                     </button>
@@ -342,10 +359,10 @@ function ProductDetails() {
                 className="img-fluid"
                 alt="Imagen principal de la publicación"
                 style={{
-                  width: '100%',
+                  width: "100%",
                   maxWidth: 450,
                   height: 300,
-                  objectFit: 'cover',
+                  objectFit: "cover",
                 }}
               />
             </div>
@@ -356,23 +373,23 @@ function ProductDetails() {
               className="badge mb-2"
               style={{
                 backgroundColor:
-                  product.category === 'kayak'
-                    ? '#007bff'
-                    : product.category === 'sup'
-                    ? '#28a745'
-                    : product.category === 'embarcacion'
-                    ? '#dc3545'
-                    : '#ffc107',
-                color: '#fff',
+                  product.category === "kayak"
+                    ? "#007bff"
+                    : product.category === "sup"
+                    ? "#28a745"
+                    : product.category === "embarcacion"
+                    ? "#dc3545"
+                    : "#ffc107",
+                color: "#fff",
               }}
             >
-              {product.category === 'kayak'
-                ? 'Kayak'
-                : product.category === 'sup'
-                ? 'SUP'
-                : product.category === 'embarcacion'
-                ? 'Embarcación'
-                : 'Artículo'}
+              {product.category === "kayak"
+                ? "Kayak"
+                : product.category === "sup"
+                ? "SUP"
+                : product.category === "embarcacion"
+                ? "Embarcación"
+                : "Artículo"}
             </span>
             <h5 className="fw-bold">{product.price}</h5>
             <h2 className="mb-4 fw-semibold">{product.Productname}</h2>
@@ -381,7 +398,7 @@ function ProductDetails() {
             <div className="d-flex align-items-center gap-3 mb-4 quantity">
               <div
                 className="d-flex align-items-center Quantity-box"
-                style={{ maxWidth: '180px' }}
+                style={{ maxWidth: "180px" }}
               >
                 <button
                   className="btn-count border-0"
@@ -420,21 +437,21 @@ function ProductDetails() {
               className="btn-custome2 w-100 border-0"
               onClick={() => {
                 addToCart(product);
-                navigate('/cart');
+                navigate("/cart");
               }}
             >
               Comprar ahora
             </button>
             <hr />
             <p>
-              <strong>Dueño:</strong> {product.owner || 'KBR'}
+              <strong>Dueño:</strong> {product.owner || "KBR"}
             </p>
             <p>
-              <strong>Descripción:</strong>{' '}
-              {product.description || 'Sin descripción'}
+              <strong>Descripción:</strong>{" "}
+              {product.description || "Sin descripción"}
             </p>
             <p>
-              <strong>Incluye:</strong> {product.includes || '—'}
+              <strong>Incluye:</strong> {product.includes || "—"}
             </p>
 
             {product.sellerId && product.sellerId !== 0 && (
@@ -443,25 +460,14 @@ function ProductDetails() {
                 <h5 className="fw-bold mb-3">Vendedor</h5>
                 <div className="d-flex align-items-center gap-3">
                   <div className="flex-grow-1">
-                    <Link
-                      to={`/seller/${product.sellerId}`}
-                      className="text-decoration-none"
-                    >
-                      <h6 className="mb-1">
-                        {product.sellerName || 'Vendedor KBR'}
-                      </h6>
-                    </Link>
+                    <h6 className="mb-1">
+                      {product.sellerName || "Vendedor KBR"}
+                    </h6>
                     <small className="text-muted">
                       <i className="bi bi-star-fill text-warning"></i>
                       5.0 · Vendedor verificado
                     </small>
                   </div>
-                  <Link
-                    to={`/seller/${product.sellerId}`}
-                    className="btn btn-outline-dark btn-sm"
-                  >
-                    Ver tienda
-                  </Link>
                 </div>
               </>
             )}
@@ -471,7 +477,7 @@ function ProductDetails() {
                 <hr />
                 <h5 className="fw-bold mb-3">Especificaciones Técnicas</h5>
 
-                {product.category === 'kayak' && (
+                {product.category === "kayak" && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -514,7 +520,7 @@ function ProductDetails() {
                   </div>
                 )}
 
-                {product.category === 'sup' && (
+                {product.category === "sup" && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -559,13 +565,13 @@ function ProductDetails() {
                     <div className="col-6 mb-2">
                       <small className="text-muted">Quillas:</small>
                       <p className="mb-0 fw-semibold">
-                        {specs.finConfiguration || 'N/A'}
+                        {specs.finConfiguration || "N/A"}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {product.category === 'embarcacion' && (
+                {product.category === "embarcacion" && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -624,7 +630,7 @@ function ProductDetails() {
                   </div>
                 )}
 
-                {product.category === 'articulo' && (
+                {product.category === "articulo" && (
                   <div className="row">
                     <div className="col-12 mb-2">
                       <small className="text-muted">Tipo de artículo:</small>
@@ -708,7 +714,7 @@ function ProductDetails() {
                   >
                     {[5, 4, 3, 2, 1].map((r) => (
                       <option key={r} value={r}>
-                        {r} {'⭐'.repeat(r)}
+                        {r} {"⭐".repeat(r)}
                       </option>
                     ))}
                   </select>
@@ -732,7 +738,7 @@ function ProductDetails() {
                         <small>{new Date(r.date).toLocaleString()}</small>
                       </div>
                       <div className="text-warning">
-                        {'⭐'.repeat(r.rating)}
+                        {"⭐".repeat(r.rating)}
                       </div>
                       <p className="mb-0">{r.text}</p>
                     </li>
@@ -755,15 +761,15 @@ function ProductDetails() {
         <div
           className="modal-backdrop"
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             zIndex: 1050,
           }}
           role="dialog"
@@ -771,7 +777,7 @@ function ProductDetails() {
         >
           <div
             className="card p-4"
-            style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+            style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
           >
             <h5 className="mb-3">Inicia sesión para continuar</h5>
             <p className="mb-3">Debes iniciar sesión para dejar una reseña.</p>
@@ -780,7 +786,7 @@ function ProductDetails() {
                 className="btn btn-primary"
                 onClick={() => {
                   setShowLoginModal(false);
-                  navigate('/login');
+                  navigate("/login");
                 }}
               >
                 Ir a iniciar sesión

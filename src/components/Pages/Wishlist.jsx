@@ -1,8 +1,9 @@
 /* Se utiliza para mostrar la lista de deseos del usuario. */
-import React, { useState, useEffect } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
+import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router-dom";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -12,14 +13,14 @@ function Wishlist() {
 
   useEffect(() => {
     try {
-      const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (cu) {
         const cartKey = `cart-${cu.id || cu.email}`;
-        const userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+        const userCart = JSON.parse(localStorage.getItem(cartKey) || "[]");
         const wishKey = `wishlist-${cu.id || cu.email}`;
         const storedWishlist = JSON.parse(
-          localStorage.getItem(wishKey) || '[]'
+          localStorage.getItem(wishKey) || "[]"
         );
         setCart(userCart.length ? userCart : storedCart);
         setCurrentUser(cu);
@@ -40,23 +41,23 @@ function Wishlist() {
     const updatedWishlist = wishlist.filter((item) => item.id !== productId);
     setWishlist(updatedWishlist);
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (cu) {
         const key = `wishlist-${cu.id || cu.email}`;
         localStorage.setItem(key, JSON.stringify(updatedWishlist));
       } else {
-        localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+        localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
       }
     } catch {
-      localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+      localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     }
-    window.dispatchEvent(new Event('wishlistUpdated'));
-    toast.error('Producto eliminado de la lista de deseos');
+    window.dispatchEvent(new Event("wishlistUpdated"));
+    toast.error("Producto eliminado de la lista de deseos");
   };
 
   const addToCart = (product) => {
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setShowLoginModal(true);
         return;
@@ -75,14 +76,14 @@ function Wishlist() {
       }
       setCart(updatedCart);
       localStorage.setItem(key, JSON.stringify(updatedCart));
-      window.dispatchEvent(new Event('cartUpdated'));
+      window.dispatchEvent(new Event("cartUpdated"));
       const productLabel =
         product.Productname ||
         product.ProductName ||
         product.name ||
-        'Producto';
+        "Producto";
       toast.success(`${productLabel} agregado al carrito`, {
-        position: 'top-right',
+        position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -92,7 +93,7 @@ function Wishlist() {
       });
     } catch (e) {
       console.error(e);
-      toast.error('Error al agregar al carrito');
+      toast.error("Error al agregar al carrito");
     }
   };
 
@@ -101,15 +102,15 @@ function Wishlist() {
     <div
       className="modal-backdrop"
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         zIndex: 1050,
       }}
       role="dialog"
@@ -117,7 +118,7 @@ function Wishlist() {
     >
       <div
         className="card p-4"
-        style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+        style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
       >
         <h5 className="mb-3">Inicia sesión para continuar</h5>
         <p className="mb-3">
@@ -177,17 +178,17 @@ function Wishlist() {
                 <div className="card h-100 shadow-sm border-0">
                   <div
                     className="position-relative overflow-hidden"
-                    style={{ height: '250px', backgroundColor: '#f8f9fa' }}
+                    style={{ height: "250px", backgroundColor: "#f8f9fa" }}
                   >
                     <img
-                      src={product.image}
+                      src={normalizeImagePath(product.image)}
                       className="card-img-top h-100 object-fit-cover"
                       alt=""
                     />
                     {product.tag && (
                       <span
                         className={`badge position-absolute top-0 end-0 m-2 ${
-                          product.tag === 'New' ? 'bg-danger' : 'bg-success'
+                          product.tag === "New" ? "bg-danger" : "bg-success"
                         }`}
                       >
                         {product.tag}

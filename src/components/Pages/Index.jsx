@@ -4,12 +4,12 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Navigation } from "swiper/modules";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 
 import "react-toastify/dist/ReactToastify.css";
 import "swiper/css";
 import "swiper/css/effect-fade";
-//Data
-import Products from "../../data/Product.json";
+// Product.json removed — static products are no longer imported
 import subBanner1 from "./../../assets/banner-1.webp";
 import subBanner2 from "./../../assets/banner-2.webp";
 import femalebanner from "./../../assets/banner-female.webp";
@@ -61,61 +61,63 @@ function Index() {
     const loadAllProducts = async () => {
       try {
         setLoadingProducts(true);
-        
+
         // 1. Cargar productos de la API (base de datos)
         let apiProducts = [];
         try {
-          const response = await fetch('http://localhost:3000/api/products');
+          const response = await fetch("http://localhost:3000/api/products");
           if (response.ok) {
             const result = await response.json();
             apiProducts = result.data || [];
-            console.log('✅ Productos cargados desde API en Index:', apiProducts.length);
-            
+            console.log(
+              "✅ Productos cargados desde API en Index:",
+              apiProducts.length
+            );
+
             // Filtrar solo productos aprobados y agregar seller info por defecto
             apiProducts = apiProducts
-              .filter(p => p.approved)
-              .map(p => ({
+              .filter((p) => p.approved)
+              .map((p) => ({
                 ...p,
                 sellerId: p.sellerId || 0,
-                sellerName: p.sellerName || 'KBR',
+                sellerName: p.sellerName || "KBR",
                 approved: true,
               }));
           }
         } catch (error) {
-          console.warn('❌ Error cargando productos de API en Index:', error);
+          console.warn("❌ Error cargando productos de API en Index:", error);
         }
 
         // 2. Cargar productos del marketplace (localStorage)
-        const marketplaceProducts = JSON.parse(localStorage.getItem("marketplaceProducts") || "[]");
-        const approvedMarketplace = marketplaceProducts.filter((p) => p.approved);
+        const marketplaceProducts = JSON.parse(
+          localStorage.getItem("marketplaceProducts") || "[]"
+        );
+        const approvedMarketplace = marketplaceProducts.filter(
+          (p) => p.approved
+        );
 
-        // 3. Productos del JSON estático
-        const jsonProducts = Products.map((p) => ({
-          ...p,
-          sellerId: p.sellerId || 0,
-          sellerName: p.sellerName || 'KBR',
-          approved: true,
-        }));
+        // 3. Productos del JSON estático (removido)
+        const jsonProducts = [];
 
         // 4. COMBINAR TODAS LAS FUENTES
         const combined = [
           ...jsonProducts,
           ...approvedMarketplace,
-          ...apiProducts
+          ...apiProducts,
         ];
-        
-        console.log('📊 Total productos combinados en Index:', combined.length);
-        console.log('🗂️  Fuentes en Index:', {
+
+        console.log("📊 Total productos combinados en Index:", combined.length);
+        console.log("🗂️  Fuentes en Index:", {
           json: jsonProducts.length,
           marketplace: approvedMarketplace.length,
-          api: apiProducts.length
+          api: apiProducts.length,
         });
-        
+
         setCombinedProducts(combined);
       } catch (error) {
-        console.error('Error loading products in Index:', error);
-        // Fallback a solo los productos del JSON si hay error
-        setCombinedProducts([...Products]);
+        console.error("Error loading products in Index:", error);
+        // Fallback: no static JSON products available
+        setCombinedProducts([]);
       } finally {
         setLoadingProducts(false);
       }
@@ -279,12 +281,12 @@ function Index() {
                   <div className="product-item text-center position-relative">
                     <div className="product-image w-60 h-40 object-fit-contain position-relative overflow-hidden">
                       <img
-                        src={product.image}
+                        src={normalizeImagePath(product.image)}
                         alt=""
                         className="img-fluid w-60 h-40 object-fit-cover"
                       />
                       <img
-                        src={product.secondImage}
+                        src={normalizeImagePath(product.secondImage)}
                         alt=""
                         className="img-fluid w-60 h-40 object-fit-cover "
                       />
@@ -414,12 +416,12 @@ function Index() {
                         <div className="product-item mb-5 text-center position-relative">
                           <div className="product-image w-100 position-relative overflow-hidden">
                             <img
-                              src={product.image}
+                              src={normalizeImagePath(product.image)}
                               alt="product"
                               className="img-fluid"
                             />
                             <img
-                              src={product.secondImage}
+                              src={normalizeImagePath(product.secondImage)}
                               alt="product"
                               className="img-fluid"
                             />

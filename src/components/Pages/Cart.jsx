@@ -1,10 +1,10 @@
 /* Carrito */
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 // Data
-import Products from '../../data/Product.json';
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -13,23 +13,21 @@ function Cart() {
   useEffect(() => {
     // load current user and user-specific cart
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setCartItems([]);
         setShowLoginModal(true);
       } else {
         const key = `cart-${cu.id || cu.email}`;
-        const savedCart = JSON.parse(localStorage.getItem(key) || '[]');
+        const savedCart = JSON.parse(localStorage.getItem(key) || "[]");
 
         // Actualizar precios del carrito según src/data/Product.json (por id)
         if (Array.isArray(savedCart) && savedCart.length > 0) {
           const marketplaceProducts = JSON.parse(
-            localStorage.getItem('marketplaceProducts') || '[]'
+            localStorage.getItem("marketplaceProducts") || "[]"
           );
-          const combined = [
-            ...Products,
-            ...marketplaceProducts.filter((p) => p.approved),
-          ];
+          // Static Product.json removed; use marketplace products (approved)
+          const combined = [...marketplaceProducts.filter((p) => p.approved)];
           const prodMap = Object.fromEntries(
             combined.map((p) => [String(p.id), p])
           );
@@ -54,68 +52,68 @@ function Cart() {
     // sincronizar cuando otro componente actualiza el carrito del usuario
     const onCartUpdated = () => {
       try {
-        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
         if (!cu) return setCartItems([]);
         const key = `cart-${cu.id || cu.email}`;
-        const next = JSON.parse(localStorage.getItem(key) || '[]');
+        const next = JSON.parse(localStorage.getItem(key) || "[]");
         setCartItems(next);
       } catch {
         setCartItems([]);
       }
     };
-    window.addEventListener('cartUpdated', onCartUpdated);
-    return () => window.removeEventListener('cartUpdated', onCartUpdated);
+    window.addEventListener("cartUpdated", onCartUpdated);
+    return () => window.removeEventListener("cartUpdated", onCartUpdated);
   }, []);
 
   const updateQuantity = (id, type) => {
     const updated = cartItems.map((item) => {
       if (item.id === id) {
         const q = Number(item.quantity ?? 1);
-        if (type === 'increase') return { ...item, quantity: q + 1 };
-        if (type === 'decrease' && q > 1) return { ...item, quantity: q - 1 };
+        if (type === "increase") return { ...item, quantity: q + 1 };
+        if (type === "decrease" && q > 1) return { ...item, quantity: q - 1 };
       }
       return item;
     });
 
     setCartItems(updated);
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (cu) {
         const key = `cart-${cu.id || cu.email}`;
         localStorage.setItem(key, JSON.stringify(updated));
       } else {
-        localStorage.setItem('cart', JSON.stringify(updated));
+        localStorage.setItem("cart", JSON.stringify(updated));
       }
     } catch {
-      localStorage.setItem('cart', JSON.stringify(updated));
+      localStorage.setItem("cart", JSON.stringify(updated));
     }
-    window.dispatchEvent(new Event('cartUpdated'));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const removeItem = (id) => {
     const updated = cartItems.filter((item) => item.id !== id);
     setCartItems(updated);
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (cu) {
         const key = `cart-${cu.id || cu.email}`;
         localStorage.setItem(key, JSON.stringify(updated));
       } else {
-        localStorage.setItem('cart', JSON.stringify(updated));
+        localStorage.setItem("cart", JSON.stringify(updated));
       }
     } catch {
-      localStorage.setItem('cart', JSON.stringify(updated));
+      localStorage.setItem("cart", JSON.stringify(updated));
     }
-    window.dispatchEvent(new Event('cartUpdated'));
-    toast.error('Item removido del carrito!');
+    window.dispatchEvent(new Event("cartUpdated"));
+    toast.error("Item removido del carrito!");
   };
 
   // Para que entienda "$52.000" o "$1.556,00", igualemente cambiamos todos los precios a $1 para usar una api
   const parsePrice = (p) => {
     const clean = String(p)
-      .replace(/[^\d,.-]/g, '') // saca "$" y texto
-      .replace(/\.(?=\d{3}(?:\D|$))/g, '') // quita puntos de miles
-      .replace(',', '.'); // coma a punto
+      .replace(/[^\d,.-]/g, "") // saca "$" y texto
+      .replace(/\.(?=\d{3}(?:\D|$))/g, "") // quita puntos de miles
+      .replace(",", "."); // coma a punto
     const num = Number(clean);
     return Number.isFinite(num) ? num : 0;
   };
@@ -160,8 +158,8 @@ function Cart() {
                   <div className="row align-items-center">
                     <div className="col-3">
                       <img
-                        src={item.image}
-                        alt=""
+                        src={normalizeImagePath(item.image)}
+                        alt={item.Productname || item.name || ""}
                         className="img-fluid rounded-3"
                       />
                     </div>
@@ -181,14 +179,14 @@ function Cart() {
                       <div className="d-flex align-items-center gap-3 mt-3 mt-md-0">
                         <button
                           className="btn btn-sm"
-                          onClick={() => updateQuantity(item.id, 'decrease')}
+                          onClick={() => updateQuantity(item.id, "decrease")}
                         >
                           -
                         </button>
                         <span>{item.quantity ?? 1}</span>
                         <button
                           className="btn btn-sm"
-                          onClick={() => updateQuantity(item.id, 'increase')}
+                          onClick={() => updateQuantity(item.id, "increase")}
                         >
                           +
                         </button>
@@ -241,15 +239,15 @@ function Cart() {
           <div
             className="modal-backdrop"
             style={{
-              position: 'fixed',
+              position: "fixed",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "rgba(0,0,0,0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               zIndex: 1050,
             }}
             role="dialog"
@@ -257,7 +255,7 @@ function Cart() {
           >
             <div
               className="card p-4"
-              style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+              style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
             >
               <h5 className="mb-3">Inicia sesión para continuar</h5>
               <p className="mb-3">
