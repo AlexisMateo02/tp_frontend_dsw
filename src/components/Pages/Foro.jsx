@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../../services/api";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 
 export default function Foro() {
   const [posts, setPosts] = useState([]);
@@ -13,7 +14,7 @@ export default function Foro() {
   const loadPosts = async () => {
     try {
       setLoading(true);
-      
+
       if (api.hasApi()) {
         // Intentar cargar desde el backend
         try {
@@ -21,17 +22,17 @@ export default function Foro() {
           setPosts(backendPosts || []);
           return;
         } catch (error) {
-          console.warn('Backend no disponible, usando localStorage:', error);
-          toast.info('Mostrando publicaciones locales');
+          console.warn("Backend no disponible, usando localStorage:", error);
+          toast.info("Mostrando publicaciones locales");
         }
       }
-      
+
       // Fallback a localStorage
       const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
       setPosts(localPosts);
     } catch (error) {
-      console.error('Error loading posts:', error);
-      toast.error('Error al cargar publicaciones');
+      console.error("Error loading posts:", error);
+      toast.error("Error al cargar publicaciones");
       setPosts([]);
     } finally {
       setLoading(false);
@@ -40,10 +41,10 @@ export default function Foro() {
 
   useEffect(() => {
     loadPosts();
-    
+
     const onPostsUpdated = () => loadPosts();
     window.addEventListener("postsUpdated", onPostsUpdated);
-    
+
     return () => {
       window.removeEventListener("postsUpdated", onPostsUpdated);
     };
@@ -58,7 +59,7 @@ export default function Foro() {
   // Filtrar y ordenar posts
   const q = (debouncedTerm || "").toLowerCase();
   let filteredPosts = posts.slice();
-  
+
   if (q) {
     filteredPosts = posts.filter((p) => {
       const fields = [
@@ -74,11 +75,15 @@ export default function Foro() {
       return fields.some((f) => f && String(f).toLowerCase().includes(q));
     });
   }
-  
+
   // Ordenar por fecha de creación
   filteredPosts.sort((a, b) => {
-    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : Number(a.id) || 0;
-    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : Number(b.id) || 0;
+    const aTime = a.createdAt
+      ? new Date(a.createdAt).getTime()
+      : Number(a.id) || 0;
+    const bTime = b.createdAt
+      ? new Date(b.createdAt).getTime()
+      : Number(b.id) || 0;
     return bTime - aTime;
   });
 
@@ -98,7 +103,7 @@ export default function Foro() {
   return (
     <div className="container my-5">
       <ToastContainer position="top-right" autoClose={3000} />
-      
+
       <div className="section-title text-center mb-4">
         <h2 className="fw-semibold">Foro para Ventas</h2>
       </div>
@@ -110,7 +115,10 @@ export default function Foro() {
               <i className="bi bi-plus-circle me-2"></i> Crear Publicación
             </Link>
 
-            <Link to="/foro/mis" className="btn btn-outline-primary btn-lg py-3">
+            <Link
+              to="/foro/mis"
+              className="btn btn-outline-primary btn-lg py-3"
+            >
               <i className="bi bi-files me-2"></i> Mis Publicaciones
             </Link>
 
@@ -150,7 +158,7 @@ export default function Foro() {
         <div className="row">
           <div className="col-12">
             <h4 className="mb-3">Comunidad KBR</h4>
-            
+
             {posts.length === 0 ? (
               <div className="alert alert-secondary">
                 No hay publicaciones todavía.
@@ -169,17 +177,12 @@ export default function Foro() {
                   {filteredPosts.map((post) => {
                     const title = post.title || "Sin título";
                     // Manejar tanto URLs del servidor como base64
-                    let img = "/assets/placeholder.webp";
-                    if (post.images && post.images[0]) {
-                      const imgSrc = post.images[0];
-                      // Si es una URL del servidor, agregar la base URL
-                      if (imgSrc.startsWith('/uploads/')) {
-                        img = `${api.baseURL.replace('/api', '')}${imgSrc}`;
-                      } else {
-                        img = imgSrc; // Base64 o URL completa
-                      }
-                    }
-                    const owner = post.author 
+                    const img =
+                      normalizeImagePath(
+                        (post.images && post.images[0]) || "",
+                        "forum"
+                      ) || "/assets/placeholder.webp";
+                    const owner = post.author
                       ? `${post.author.firstName} ${post.author.lastName}`.trim()
                       : post.owner || "Anónimo";
                     const desc = post.content || post.description || "";
@@ -206,10 +209,15 @@ export default function Foro() {
                           </div>
                           <div className="card-body d-flex flex-column">
                             <h5 className="card-title">{title}</h5>
-                            <p className="text-muted small mb-2">Por: {owner}</p>
+                            <p className="text-muted small mb-2">
+                              Por: {owner}
+                            </p>
                             {price && (
                               <p className="text-success fw-bold mb-2">
-                                ${typeof price === 'number' ? price.toLocaleString('es-AR') : price}
+                                $
+                                {typeof price === "number"
+                                  ? price.toLocaleString("es-AR")
+                                  : price}
                               </p>
                             )}
                             <p className="card-text text-truncate">{desc}</p>

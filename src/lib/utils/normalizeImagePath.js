@@ -26,6 +26,16 @@ export default function normalizeImagePath(img, subfolder = "products") {
     trimmed.startsWith("data:") ||
     trimmed.startsWith("blob:")
   ) {
+    // If it's a root-relative uploads path, prefix the API host so the
+    // browser requests the file from the backend (not from the dev server).
+    // Example: "/uploads/forum/abc.jpg" -> "http://localhost:3000/uploads/forum/abc.jpg"
+    if (trimmed.startsWith("/uploads/")) {
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+      const host = apiUrl.replace(/\/api\/?$/, "").replace(/\/$/, "");
+      return `${host}${trimmed}`;
+    }
+
     return trimmed;
   }
 

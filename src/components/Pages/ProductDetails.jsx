@@ -420,13 +420,13 @@ function ProductDetails() {
                 </button>
               </div>
               <button
-                className="btn-custome w-50"
+                className="btn-custome bi bi-cart w-50"
                 onClick={() => addToCart(product)}
               >
                 Agregar al carrito
               </button>
               <button
-                className="btn-custome w-50"
+                className="btn-custome bi bi-heart w-50"
                 onClick={() => addToWishlist(product)}
               >
                 Agregar a la lista de deseos

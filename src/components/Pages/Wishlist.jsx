@@ -153,7 +153,7 @@ function Wishlist() {
       </ol>
 
       <div className="contain my-5">
-        <h2 className="text-center fw-bold mb-4">Lista de Deseos</h2>
+        <h2 className="text-center fw-bold mb-4">Lista de Deseos ❤️</h2>
 
         {!currentUser ? (
           <div className="text-center">

@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import { Link, useNavigate } from 'react-router-dom';
-import 'react-toastify/dist/ReactToastify.css';
-import api from '../../services/api';
+import React, { useEffect, useState, useRef } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
+import api from "../../services/api";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 
 export default function Publicaciones() {
   const [posts, setPosts] = useState([]);
@@ -14,11 +15,11 @@ export default function Publicaciones() {
   const fileRef = useRef(null);
   const navigate = useNavigate();
 
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
 
   const loadMyPosts = async () => {
     if (!currentUser) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -29,24 +30,25 @@ export default function Publicaciones() {
         try {
           // Cargar todas las publicaciones y filtrar las del usuario
           const allPosts = await api.getForumPosts();
-          const myPosts = allPosts.filter(p => 
-            p.author?.id === currentUser.id || 
-            p.author?.email === currentUser.email
+          const myPosts = allPosts.filter(
+            (p) =>
+              p.author?.id === currentUser.id ||
+              p.author?.email === currentUser.email
           );
           setPosts(myPosts);
           return;
         } catch (error) {
-          console.warn('Backend no disponible, usando localStorage:', error);
+          console.warn("Backend no disponible, usando localStorage:", error);
         }
       }
 
       // Fallback a localStorage
-      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
-      const myPosts = localPosts.filter(p => isOwnedByUser(p, currentUser));
+      const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      const myPosts = localPosts.filter((p) => isOwnedByUser(p, currentUser));
       setPosts(myPosts);
     } catch (error) {
-      console.error('Error loading posts:', error);
-      toast.error('Error al cargar publicaciones');
+      console.error("Error loading posts:", error);
+      toast.error("Error al cargar publicaciones");
     } finally {
       setLoading(false);
     }
@@ -56,13 +58,13 @@ export default function Publicaciones() {
     loadMyPosts();
 
     const onUpdated = () => loadMyPosts();
-    window.addEventListener('postsUpdated', onUpdated);
-    return () => window.removeEventListener('postsUpdated', onUpdated);
+    window.addEventListener("postsUpdated", onUpdated);
+    return () => window.removeEventListener("postsUpdated", onUpdated);
   }, []);
 
   const isOwnedByUser = (post, user) => {
     if (!user) return false;
-    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
     return (
       (post.ownerEmail && user.email && post.ownerEmail === user.email) ||
       (post.contact && user.email && post.contact === user.email) ||
@@ -72,7 +74,11 @@ export default function Publicaciones() {
   };
 
   const remove = async (id) => {
-    if (!window.confirm('¿Eliminar publicación? Esta acción no se puede deshacer.')) {
+    if (
+      !window.confirm(
+        "¿Eliminar publicación? Esta acción no se puede deshacer."
+      )
+    ) {
       return;
     }
 
@@ -80,35 +86,35 @@ export default function Publicaciones() {
       if (api.hasApi()) {
         try {
           await api.deleteForumPost(id);
-          toast.success('Publicación eliminada');
-          window.dispatchEvent(new Event('postsUpdated'));
+          toast.success("Publicación eliminada");
+          window.dispatchEvent(new Event("postsUpdated"));
           loadMyPosts();
           return;
         } catch (error) {
-          console.warn('Error en backend, eliminando localmente:', error);
+          console.warn("Error en backend, eliminando localmente:", error);
         }
       }
 
       // Fallback a localStorage
-      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
-      const filtered = localPosts.filter(p => String(p.id) !== String(id));
-      localStorage.setItem('userPosts', JSON.stringify(filtered));
-      window.dispatchEvent(new Event('postsUpdated'));
-      toast.success('Publicación eliminada localmente');
+      const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      const filtered = localPosts.filter((p) => String(p.id) !== String(id));
+      localStorage.setItem("userPosts", JSON.stringify(filtered));
+      window.dispatchEvent(new Event("postsUpdated"));
+      toast.success("Publicación eliminada localmente");
       loadMyPosts();
     } catch (error) {
-      console.error('Error deleting post:', error);
-      toast.error('No se pudo eliminar la publicación');
+      console.error("Error deleting post:", error);
+      toast.error("No se pudo eliminar la publicación");
     }
   };
 
   const startEdit = (post) => {
     setEditingId(post.id);
     setEditForm({
-      title: post.title || '',
-      price: post.price || '',
-      description: post.content || post.description || '',
-      contact: post.contactInfo || post.contact || '',
+      title: post.title || "",
+      price: post.price || "",
+      description: post.content || post.description || "",
+      contact: post.contactInfo || post.contact || "",
     });
     setEditImages(post.images || []);
   };
@@ -118,9 +124,9 @@ export default function Publicaciones() {
     setEditForm(null);
     setEditImages([]);
     try {
-      if (fileRef.current) fileRef.current.value = '';
+      if (fileRef.current) fileRef.current.value = "";
     } catch (e) {
-      console.warn('Could not reset edit file input', e);
+      console.warn("Could not reset edit file input", e);
     }
   };
 
@@ -134,20 +140,20 @@ export default function Publicaciones() {
             const scale = Math.min(1, maxWidth / img.width);
             const w = Math.round(img.width * scale);
             const h = Math.round(img.height * scale);
-            const canvas = document.createElement('canvas');
+            const canvas = document.createElement("canvas");
             canvas.width = w;
             canvas.height = h;
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, w, h);
             canvas.toBlob(
               (blob) => {
-                if (!blob) return reject(new Error('Canvas is empty'));
+                if (!blob) return reject(new Error("Canvas is empty"));
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
               },
-              'image/jpeg',
+              "image/jpeg",
               quality
             );
           } catch (err) {
@@ -158,7 +164,7 @@ export default function Publicaciones() {
         };
         img.onerror = (e) => {
           URL.revokeObjectURL(url);
-          reject(e || new Error('Image load error'));
+          reject(e || new Error("Image load error"));
         };
         img.src = url;
       } catch (e) {
@@ -176,17 +182,21 @@ export default function Publicaciones() {
       setEditImages(dataUrls);
     } catch (err) {
       console.error(err);
-      toast.error('No se pudieron procesar las imágenes');
+      toast.error("No se pudieron procesar las imágenes");
     }
   };
 
   const saveEdit = async (id) => {
-    if (!editForm.title.trim() || !editForm.description.trim() || !editForm.contact.trim()) {
-      toast.error('Completa los campos obligatorios');
+    if (
+      !editForm.title.trim() ||
+      !editForm.description.trim() ||
+      !editForm.contact.trim()
+    ) {
+      toast.error("Completa los campos obligatorios");
       return;
     }
     if (!editImages || editImages.length === 0) {
-      toast.error('Debes incluir al menos 1 imagen');
+      toast.error("Debes incluir al menos 1 imagen");
       return;
     }
 
@@ -198,26 +208,28 @@ export default function Publicaciones() {
         content: editForm.description.trim(),
         contactInfo: editForm.contact.trim(),
         images: editImages.slice(0, 5),
-        price: editForm.price.trim() ? parseFloat(editForm.price.trim()) : undefined,
+        price: editForm.price.trim()
+          ? parseFloat(editForm.price.trim())
+          : undefined,
         authorId: currentUser.id,
       };
 
       if (api.hasApi()) {
         try {
           await api.updateForumPost(id, updateData);
-          toast.success('Publicación actualizada');
-          window.dispatchEvent(new Event('postsUpdated'));
+          toast.success("Publicación actualizada");
+          window.dispatchEvent(new Event("postsUpdated"));
           cancelEdit();
           loadMyPosts();
           return;
         } catch (error) {
-          console.warn('Error en backend, actualizando localmente:', error);
+          console.warn("Error en backend, actualizando localmente:", error);
         }
       }
 
       // Fallback a localStorage
-      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
-      const updated = localPosts.map(p => {
+      const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      const updated = localPosts.map((p) => {
         if (String(p.id) === String(id)) {
           return {
             ...p,
@@ -233,14 +245,14 @@ export default function Publicaciones() {
         }
         return p;
       });
-      localStorage.setItem('userPosts', JSON.stringify(updated));
-      window.dispatchEvent(new Event('postsUpdated'));
-      toast.success('Publicación actualizada localmente');
+      localStorage.setItem("userPosts", JSON.stringify(updated));
+      window.dispatchEvent(new Event("postsUpdated"));
+      toast.success("Publicación actualizada localmente");
       cancelEdit();
       loadMyPosts();
     } catch (error) {
-      console.error('Error updating post:', error);
-      toast.error('No se pudo actualizar la publicación');
+      console.error("Error updating post:", error);
+      toast.error("No se pudo actualizar la publicación");
     } finally {
       setSaving(false);
     }
@@ -266,9 +278,9 @@ export default function Publicaciones() {
   return (
     <div className="container my-5">
       <ToastContainer position="top-right" autoClose={3000} />
-      
+
       <h2 className="mb-4">Mis Publicaciones</h2>
-      
+
       {posts.length === 0 ? (
         <div className="alert alert-secondary">
           No tienes publicaciones aún.
@@ -281,9 +293,20 @@ export default function Publicaciones() {
           {posts.map((post) => (
             <div className="col" key={post.id}>
               <div className="card h-100 shadow-sm border-0">
-                <div style={{ height: 220, overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
+                <div
+                  style={{
+                    height: 220,
+                    overflow: "hidden",
+                    backgroundColor: "#f8f9fa",
+                  }}
+                >
                   <img
-                    src={(post.images && post.images[0]) || '/assets/placeholder.webp'}
+                    src={
+                      normalizeImagePath(
+                        (post.images && post.images[0]) || "",
+                        "forum"
+                      ) || "/assets/placeholder.webp"
+                    }
                     alt={post.title}
                     className="img-fluid w-100 h-100 object-fit-cover"
                   />
@@ -296,7 +319,12 @@ export default function Publicaciones() {
                         <input
                           className="form-control"
                           value={editForm.title}
-                          onChange={(e) => setEditForm(s => ({ ...s, title: e.target.value }))}
+                          onChange={(e) =>
+                            setEditForm((s) => ({
+                              ...s,
+                              title: e.target.value,
+                            }))
+                          }
                         />
                       </div>
 
@@ -306,7 +334,12 @@ export default function Publicaciones() {
                           type="number"
                           className="form-control"
                           value={editForm.price}
-                          onChange={(e) => setEditForm(s => ({ ...s, price: e.target.value }))}
+                          onChange={(e) =>
+                            setEditForm((s) => ({
+                              ...s,
+                              price: e.target.value,
+                            }))
+                          }
                         />
                       </div>
 
@@ -316,7 +349,12 @@ export default function Publicaciones() {
                           className="form-control"
                           rows={3}
                           value={editForm.description}
-                          onChange={(e) => setEditForm(s => ({ ...s, description: e.target.value }))}
+                          onChange={(e) =>
+                            setEditForm((s) => ({
+                              ...s,
+                              description: e.target.value,
+                            }))
+                          }
                         />
                       </div>
 
@@ -325,7 +363,12 @@ export default function Publicaciones() {
                         <input
                           className="form-control"
                           value={editForm.contact}
-                          onChange={(e) => setEditForm(s => ({ ...s, contact: e.target.value }))}
+                          onChange={(e) =>
+                            setEditForm((s) => ({
+                              ...s,
+                              contact: e.target.value,
+                            }))
+                          }
                         />
                       </div>
 
@@ -339,7 +382,9 @@ export default function Publicaciones() {
                           onChange={handleEditFiles}
                           className="form-control"
                         />
-                        <small className="text-muted">Sube hasta 5 imágenes</small>
+                        <small className="text-muted">
+                          Sube hasta 5 imágenes
+                        </small>
                       </div>
 
                       <div className="d-flex gap-2 mt-2">
@@ -348,7 +393,7 @@ export default function Publicaciones() {
                           onClick={() => saveEdit(post.id)}
                           disabled={saving}
                         >
-                          {saving ? 'Guardando...' : 'Guardar'}
+                          {saving ? "Guardando..." : "Guardar"}
                         </button>
                         <button
                           className="btn btn-sm btn-secondary"
@@ -364,7 +409,10 @@ export default function Publicaciones() {
                       <h5 className="card-title">{post.title}</h5>
                       {post.price && (
                         <p className="text-success fw-bold mb-1">
-                          ${typeof post.price === 'number' ? post.price.toLocaleString('es-AR') : post.price}
+                          $
+                          {typeof post.price === "number"
+                            ? post.price.toLocaleString("es-AR")
+                            : post.price}
                         </p>
                       )}
                       <p className="card-text text-truncate mb-2">
