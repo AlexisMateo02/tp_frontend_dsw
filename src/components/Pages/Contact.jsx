@@ -5,21 +5,22 @@ enlaces a redes sociales.
 import React, { useState } from 'react';
 
 function Contact() {
+  // Estados para los campos del formulario, los actualizo vacios ingresar o recargar la pagina
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
+  //Definimos handle para enviar el formulario
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Número destinatario en formato internacional sin signos: 5493416475580
-    const phone = '5493416475580';
+    const phone = '5493416475580'; // Numero destinatario
     const text = `Nombre: ${name}%0AEmail: ${email}%0AMensaje: ${encodeURIComponent(
-      message
+      message //texto del mensaje codificado para URL
     )}`;
     // Abrir WhatsApp Web / App
     const url = `https://wa.me/${phone}?text=${text}`;
     window.open(url, '_blank');
-    // Limpiar formulario
+    // Limpiar formulario cuando se envia
     setName('');
     setEmail('');
     setMessage('');
@@ -50,7 +51,7 @@ function Contact() {
                 </a>
               </div>
             </div>
-            {/*Contact*/}
+            {/*como contactarnos*/}
             <div className="contact-col">
               <div className="contact-box bg-transparent border-0">
                 <i className="ri-phone-line icon"></i>
@@ -63,7 +64,7 @@ function Contact() {
                 </p>
               </div>
             </div>
-            {/*Hours*/}
+            {/*Horarios*/}
             <div className="contact-col">
               <div className="contact-box bg-transparent border-0">
                 <i className="ri-time-line icon"></i>
@@ -81,7 +82,7 @@ function Contact() {
       </section>
 
       <div className="contact-page">
-        {/*Map Section*/}
+        {/*Ver la ubicacion en el mapa*/}
         <section className="map-section container">
           <iframe
             title="Nuestra Ubicacion"
@@ -89,7 +90,7 @@ function Contact() {
             src="https://www.google.com/maps/embed?pb=!1m26!1m12!1m3!1d942.9713838910083!2d-60.64404054782861!3d-32.9545006518788!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m11!3e6!4m3!3m2!1d-32.954482899999995!2d-60.643856199999995!4m5!1s0x95b7ab11d0eb49c3%3A0x11f1d3d54f950dd0!2s2000%2C%20Zeballos%201341%2C%20S2000%20Rosario%2C%20Santa%20Fe!3m2!1d-32.9545032!2d-60.643819!5e0!3m2!1sen!2sar!4v1760470609915!5m2!1sen!2sar"
           ></iframe>
         </section>
-        {/*Contact Form Section */}
+        {/*Seccion del formulario para enviar mensajes, ingresamos nombre, correo y mensaje*/}
         <section className="message-section">
           <h2 className="form-title">Enviar mensaje </h2>
           <form className="contact-form" onSubmit={handleSubmit}>
