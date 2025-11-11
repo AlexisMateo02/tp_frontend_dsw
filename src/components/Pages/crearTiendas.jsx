@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -90,14 +89,14 @@ export default function CrearTiendas() {
 
   const startCreate = () => {
     setEditingId(null);
-    setForm({ 
-      name: '', 
-      address: '', 
-      phone: '', 
-      hours: '', 
-      image: undefined, 
+    setForm({
+      name: '',
+      address: '',
+      phone: '',
+      hours: '',
+      image: undefined,
       adressDescription: '',
-      localtyId: ''
+      localtyId: '',
     });
   };
 
@@ -116,18 +115,22 @@ export default function CrearTiendas() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    
+
     console.log('📝 Form data completo:', form);
     console.log('📝 localtyId value:', form.localtyId);
     console.log('📝 localtyId type:', typeof form.localtyId);
-    
+
     if (!form.name.trim() || !form.address.trim() || !form.localtyId) {
       toast.error('Nombre, dirección y localidad son obligatorios');
       return;
     }
 
     // Verificar explícitamente que localtyId tenga un valor
-    if (form.localtyId === '' || form.localtyId === undefined || form.localtyId === null) {
+    if (
+      form.localtyId === '' ||
+      form.localtyId === undefined ||
+      form.localtyId === null
+    ) {
       toast.error('Debe seleccionar una localidad válida');
       return;
     }
@@ -154,7 +157,7 @@ export default function CrearTiendas() {
       console.log('🚀 localty en requestBody:', requestBody.localty);
 
       let url, method;
-      
+
       if (editingId) {
         url = `${API_BASE}/pickUpPoints/${editingId}`;
         method = 'PUT';
@@ -178,16 +181,22 @@ export default function CrearTiendas() {
       if (response.ok) {
         const result = await response.json();
         console.log('✅ Success response:', result);
-        toast.success(editingId ? 'Tienda actualizada' : 'Tienda creada exitosamente');
+        toast.success(
+          editingId ? 'Tienda actualizada' : 'Tienda creada exitosamente'
+        );
         fetchStores();
         startCreate();
       } else {
         const errorText = await response.text();
         console.error('❌ Error response:', errorText);
-        
+
         try {
           const errorJson = JSON.parse(errorText);
-          toast.error(`Error ${response.status}: ${errorJson.message || 'Error del servidor'}`);
+          toast.error(
+            `Error ${response.status}: ${
+              errorJson.message || 'Error del servidor'
+            }`
+          );
         } catch {
           toast.error(`Error ${response.status}: ${errorText}`);
         }
@@ -245,18 +254,22 @@ export default function CrearTiendas() {
               className="form-control"
               placeholder="Nombre de la tienda *"
               value={form.name}
-              onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, name: e.target.value }))
+              }
               required
               disabled={loading}
             />
           </div>
-          
+
           <div className="col-md-6">
             <input
               className="form-control"
               placeholder="Teléfono"
               value={form.phone}
-              onChange={(e) => setForm(prev => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, phone: e.target.value }))
+              }
               disabled={loading}
             />
           </div>
@@ -266,7 +279,9 @@ export default function CrearTiendas() {
               className="form-control"
               placeholder="Dirección *"
               value={form.address}
-              onChange={(e) => setForm(prev => ({ ...prev, address: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, address: e.target.value }))
+              }
               required
               disabled={loading}
             />
@@ -277,7 +292,12 @@ export default function CrearTiendas() {
               className="form-control"
               placeholder="Descripción de la dirección (piso, entre calles, referencia, etc.)"
               value={form.adressDescription}
-              onChange={(e) => setForm(prev => ({ ...prev, adressDescription: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  adressDescription: e.target.value,
+                }))
+              }
               rows="2"
               disabled={loading}
             />
@@ -288,7 +308,9 @@ export default function CrearTiendas() {
               className="form-control"
               placeholder="Horarios (ej. Lun a Vie 9-18)"
               value={form.hours}
-              onChange={(e) => setForm(prev => ({ ...prev, hours: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, hours: e.target.value }))
+              }
               disabled={loading}
             />
           </div>
@@ -301,8 +323,13 @@ export default function CrearTiendas() {
               value={form.localtyId}
               onChange={(e) => {
                 const selectedValue = e.target.value;
-                console.log('📍 Localidad seleccionada:', selectedValue, 'Tipo:', typeof selectedValue);
-                setForm(prev => ({ ...prev, localtyId: selectedValue }));
+                console.log(
+                  '📍 Localidad seleccionada:',
+                  selectedValue,
+                  'Tipo:',
+                  typeof selectedValue
+                );
+                setForm((prev) => ({ ...prev, localtyId: selectedValue }));
               }}
               required
               disabled={loading}
@@ -310,14 +337,15 @@ export default function CrearTiendas() {
               <option value="">Seleccionar localidad</option>
               {localties.map((localty) => (
                 <option key={localty.id} value={localty.id}>
-                  {localty.name}, {localty.province?.name} - CP: {localty.zipcode}
+                  {localty.name}, {localty.province?.name} - CP:{' '}
+                  {localty.zipcode}
                 </option>
               ))}
             </select>
             <div className="form-text">
-              {localties.length === 0 ? 
-                'Cargando localidades...' : 
-                `${localties.length} localidades disponibles`}
+              {localties.length === 0
+                ? 'Cargando localidades...'
+                : `${localties.length} localidades disponibles`}
             </div>
           </div>
 
@@ -348,23 +376,28 @@ export default function CrearTiendas() {
           )}
 
           <div className="col-12 mt-3">
-            <button 
-              className="btn btn-primary me-2" 
+            <button
+              className="btn btn-primary me-2"
               type="submit"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                  ></span>
                   {editingId ? 'Guardando...' : 'Creando...'}
                 </>
+              ) : editingId ? (
+                'Guardar cambios'
               ) : (
-                editingId ? 'Guardar cambios' : 'Crear tienda'
+                'Crear tienda'
               )}
             </button>
             {editingId && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-outline-secondary"
                 onClick={startCreate}
                 disabled={loading}
@@ -404,11 +437,13 @@ export default function CrearTiendas() {
                     <strong>{store.storeName}</strong>
                     <div className="small text-muted">{store.address}</div>
                     <div className="small text-muted">
-                      {store.phoneNumber} {store.horary ? '• ' + store.horary : ''}
+                      {store.phoneNumber}{' '}
+                      {store.horary ? '• ' + store.horary : ''}
                     </div>
                     {store.localty && (
                       <div className="small text-muted">
-                        📍 {store.localty.name}, {store.localty.province?.name} - CP: {store.localty.zipcode}
+                        📍 {store.localty.name}, {store.localty.province?.name}{' '}
+                        - CP: {store.localty.zipcode}
                       </div>
                     )}
                   </div>

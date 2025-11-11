@@ -629,35 +629,38 @@ discover-img img {
 /*Footer*/
 
 .footer {
-  background-color: #f8f8f8;
+  background-color: #f8f8f8; /* Color de fondo del pie de página */
 }
 
-.footer h3 {
+.footer h3 { /* Estilo para los títulos en el pie de página */
   color: var(--black-color);
   font-size: 20px;
   font-family: var(--Plus-Jakarta_font);
 }
-.footer p {
+.footer p { /* Estilo para los párrafos en el pie de página */
   color: #333333;
 }
-.footer ul li a {
+.footer ul li a { /* Estilo para los enlaces en las listas del pie de página */
   font-family: var(--Poppins);
   color: #333333;
   cursor: pointer;
   transition: var(--transition-slow);
 }
-.footer ul li a:hover {
+.footer ul li a:hover { /* Efecto hover para los enlaces en las listas del pie de página */
   color: var(--black-color);
   margin-left: 10px;
 }
-.footer .suscribe-box input {
+.footer .suscribe-box input { /* Estilo para el campo de entrada en la sección de suscripción del pie de página */
   color: var(--text-color);
   background-color: var(--white-color);
   border: 1px solid #eeeee0;
-  box-shadow: none;
-  padding: 10px 18px;
+  box-shadow: none; 
+  padding: 10px 18px; 
   font-size: 16px;
 }
+
+
+
 /*About page*/
 .about-glowing-section {
   min-height: 80vh;

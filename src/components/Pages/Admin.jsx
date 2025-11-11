@@ -17,6 +17,10 @@ function Admin() {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [orderFilter, setOrderFilter] = useState('pending');
+  // Filtro por nombre de comprador
+  const [buyerFilter, setBuyerFilter] = useState('');
+  // Filtro por número de orden
+  const [orderNumberFilter, setOrderNumberFilter] = useState('');
 
   // Estados para KayakType
   const [kt_model, setKt_model] = useState('');
@@ -141,47 +145,79 @@ function Admin() {
   };
 
   // Función para cargar órdenes (fetch all y filtrar en cliente para robustez)
-  const fetchOrders = useCallback(async (filter = 'all') => {
-    setLoadingOrders(true);
-    try {
-      const url = `${API_BASE}/orders`;
-      console.log(`🔄 Fetching orders from: ${url} (client filter: ${filter})`);
+  const fetchOrders = useCallback(
+    async (filter = 'all', buyerName = '', orderNumber = '') => {
+      setLoadingOrders(true);
+      try {
+        const url = `${API_BASE}/orders`;
+        console.log(
+          `🔄 Fetching orders from: ${url} (client filter: ${filter}, buyer: ${buyerName}, order#: ${orderNumber})`
+        );
 
-      const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (response.ok) {
-        const result = await response.json();
-        const allOrders = result.data || [];
-        console.log(`✅ Orders loaded: ${allOrders.length} total`);
+        if (response.ok) {
+          const result = await response.json();
+          const allOrders = result.data || [];
+          console.log(`✅ Orders loaded: ${allOrders.length} total`);
 
-        if (filter && filter !== 'all') {
-          const filtered = allOrders.filter(
-            (o) => String(o.status) === String(filter)
-          );
-          console.log(
-            `🔎 Applying client-side filter '${filter}': ${filtered.length} matched`
-          );
+          // Primero filtrar por estado si se solicitó
+          let filtered = allOrders;
+          if (filter && filter !== 'all') {
+            filtered = filtered.filter(
+              (o) => String(o.status) === String(filter)
+            );
+            console.log(
+              `🔎 Applying client-side status filter '${filter}': ${filtered.length} matched`
+            );
+          }
+
+          // Luego filtrar por nombre del comprador (si se pasó)
+          if (buyerName && buyerName.trim() !== '') {
+            const q = buyerName.trim().toLowerCase();
+            filtered = filtered.filter((o) => {
+              const fullName = `${o.user?.firstName || ''} ${
+                o.user?.lastName || ''
+              }`.trim();
+              const contact = String(o.buyerContact || '').toLowerCase();
+              return fullName.toLowerCase().includes(q) || contact.includes(q);
+            });
+            console.log(
+              `🔎 Applying buyer-name filter '${buyerName}': ${filtered.length} matched`
+            );
+          }
+
+          // Filtrar por número de orden (si se pasó)
+          if (orderNumber && String(orderNumber).trim() !== '') {
+            const qn = String(orderNumber).trim().toLowerCase();
+            filtered = filtered.filter((o) =>
+              String(o.orderNumber).toLowerCase().includes(qn)
+            );
+            console.log(
+              `🔎 Applying order-number filter '${orderNumber}': ${filtered.length} matched`
+            );
+          }
+
           setOrders(filtered);
         } else {
-          setOrders(allOrders);
+          console.error('❌ Error loading orders:', response.status);
+          toast.error('Error al cargar las órdenes');
+          setOrders([]);
         }
-      } else {
-        console.error('❌ Error loading orders:', response.status);
-        toast.error('Error al cargar las órdenes');
+      } catch (error) {
+        console.error('❌ Error fetching orders:', error);
+        toast.error('Error de conexión al cargar órdenes');
         setOrders([]);
+      } finally {
+        setLoadingOrders(false);
       }
-    } catch (error) {
-      console.error('❌ Error fetching orders:', error);
-      toast.error('Error de conexión al cargar órdenes');
-      setOrders([]);
-    } finally {
-      setLoadingOrders(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Función para actualizar estado de orden
   const updateOrderStatus = async (orderId, newStatus) => {
@@ -202,7 +238,7 @@ function Admin() {
         const result = await response.json();
         console.log('✅ Order status updated:', result);
         toast.success(`Orden ${getStatusText(newStatus)} correctamente`);
-        fetchOrders(orderFilter); // Recargar órdenes con el filtro actual
+        fetchOrders(orderFilter, buyerFilter, orderNumberFilter); // Recargar órdenes con el filtro actual
       } else {
         const errorText = await response.text();
         console.error('❌ Error updating order:', errorText);
@@ -405,7 +441,7 @@ function Admin() {
     console.log(`🔄 Selected tab changed to: ${selectedTab}`);
 
     if (selectedTab === 'orders') {
-      fetchOrders(orderFilter);
+      fetchOrders(orderFilter, buyerFilter, orderNumberFilter);
     } else if (selectedTab !== 'localty' && selectedTab !== 'store') {
       fetchEntities();
     }
@@ -413,7 +449,15 @@ function Admin() {
     if (selectedTab === 'product') {
       fetchTypes();
     }
-  }, [fetchEntities, fetchTypes, selectedTab, fetchOrders, orderFilter]);
+  }, [
+    fetchEntities,
+    fetchTypes,
+    selectedTab,
+    fetchOrders,
+    orderFilter,
+    buyerFilter,
+    orderNumberFilter,
+  ]);
 
   const resetForm = () => {
     // Reset KayakType
@@ -1875,7 +1919,7 @@ function Admin() {
                 value={orderFilter}
                 onChange={(e) => {
                   setOrderFilter(e.target.value);
-                  fetchOrders(e.target.value);
+                  fetchOrders(e.target.value, buyerFilter, orderNumberFilter);
                 }}
               >
                 <option value="all">Todas</option>
@@ -1885,9 +1929,33 @@ function Admin() {
                 <option value="delivered">Entregadas</option>
                 <option value="cancelled">Canceladas</option>
               </select>
+              <input
+                type="search"
+                className="form-control form-control-sm"
+                style={{ width: '220px' }}
+                placeholder="Filtrar por comprador"
+                value={buyerFilter}
+                onChange={(e) => {
+                  setBuyerFilter(e.target.value);
+                  fetchOrders(orderFilter, e.target.value, orderNumberFilter);
+                }}
+              />
+              <input
+                type="search"
+                className="form-control form-control-sm"
+                style={{ width: '160px' }}
+                placeholder="Nº de orden"
+                value={orderNumberFilter}
+                onChange={(e) => {
+                  setOrderNumberFilter(e.target.value);
+                  fetchOrders(orderFilter, buyerFilter, e.target.value);
+                }}
+              />
               <button
                 className="btn btn-outline-secondary btn-sm"
-                onClick={() => fetchOrders(orderFilter)}
+                onClick={() =>
+                  fetchOrders(orderFilter, buyerFilter, orderNumberFilter)
+                }
                 disabled={loadingOrders}
               >
                 🔄 Actualizar

@@ -1,10 +1,9 @@
 /* Aca vamos a definir una componente llamada Footer que va a representar el pie de pagina 
 de nuestra pagina web. */
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react'; //importamos react
+import { Link } from 'react-router-dom'; //importamos link para navegar entre paginas
 
-/*Aca estaba lo de las tarjetas y lo tuve sacar*/
-
+//Definimos la componente Footer
 function Footer() {
   return (
     <>
@@ -15,9 +14,9 @@ function Footer() {
               <div className="row">
                 <div className="col-md-4 text-center">
                   <h3 className="mb-3">Centros de distribucion</h3>
-                  <p className="mb-0">Encontra uno cerca de tu ubicacion</p>
+                  <p className="mb-0">Encontra uno cerca de tu ubicacion.</p>
                   <p className="mb-4">
-                    Vos. Mira{' '}
+                    Mira{' '}
                     <strong>
                       <Link
                         to="/stores"
@@ -30,7 +29,7 @@ function Footer() {
                   <p className="mb-0">
                     <strong>+54 9 341 6666992</strong>
                   </p>
-                  <p>hello@domain.com</p>
+                  <p>kayaksbrokers@gmail.com</p>
                 </div>
                 <div className="col-md-4 text-center">
                   <h3 className="mb-3">Links Utiles</h3>
@@ -39,8 +38,8 @@ function Footer() {
                       <a
                         href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                         className="text-decoration-none"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target="_blank" //se va a abrir en una nueva pestaña
+                        rel="noopener noreferrer" //mejora la seguridad por que se abre en otra pestaña
                       >
                         - Instagram
                       </a>
@@ -95,27 +94,14 @@ function Footer() {
                     justify-content-lg-end"
                 >
                   <p>KBR 2025| Powered by KBR</p>
-                  <div className="footer-icons d-flex gap-2">
-                    <a
-                      href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-reset"
-                    >
-                      <i className="ri-instagram-line"></i>
-                    </a>
-                    <i className="ri-twitter-x-line"></i>
-                    <i className="ri-facebook-circle-fill"></i>
-                    <i className="ri-youtube-fill"></i>
-                  </div>
                 </div>
               </div>
               <div className="col-lg-4">
                 <div className="footer-logo text-center">
                   <a href="#" className="navbar-brand mx-auto order-0">
                     <h3
-                      className="m-0 fw-bold"
-                      style={{ letterSpacing: '2px' }}
+                      className="m-05 fw-bold"
+                      style={{ letterSpacing: '3px' }}
                     >
                       KBR
                     </h3>
