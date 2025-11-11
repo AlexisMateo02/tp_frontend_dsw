@@ -140,16 +140,12 @@ function Admin() {
     });
   };
 
-  // Función para cargar órdenes
+  // Función para cargar órdenes (fetch all y filtrar en cliente para robustez)
   const fetchOrders = useCallback(async (filter = 'all') => {
     setLoadingOrders(true);
     try {
-      let url = `${API_BASE}/orders`;
-      if (filter !== 'all') {
-        url += `?status=${filter}`;
-      }
-
-      console.log(`🔄 Fetching orders from: ${url}`);
+      const url = `${API_BASE}/orders`;
+      console.log(`🔄 Fetching orders from: ${url} (client filter: ${filter})`);
 
       const response = await fetch(url, {
         headers: {
@@ -159,8 +155,20 @@ function Admin() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Orders loaded:', result);
-        setOrders(result.data || []);
+        const allOrders = result.data || [];
+        console.log(`✅ Orders loaded: ${allOrders.length} total`);
+
+        if (filter && filter !== 'all') {
+          const filtered = allOrders.filter(
+            (o) => String(o.status) === String(filter)
+          );
+          console.log(
+            `🔎 Applying client-side filter '${filter}': ${filtered.length} matched`
+          );
+          setOrders(filtered);
+        } else {
+          setOrders(allOrders);
+        }
       } else {
         console.error('❌ Error loading orders:', response.status);
         toast.error('Error al cargar las órdenes');
@@ -211,11 +219,11 @@ function Admin() {
   // Función para traducir estados
   const getStatusText = (status) => {
     const statusMap = {
-      'pending': 'Pendiente',
-      'confirmed': 'Confirmada',
-      'shipped': 'Enviada',
-      'delivered': 'Entregada',
-      'cancelled': 'Cancelada'
+      pending: 'Pendiente',
+      confirmed: 'Confirmada',
+      shipped: 'Enviada',
+      delivered: 'Entregada',
+      cancelled: 'Cancelada',
     };
     return statusMap[status] || status;
   };
@@ -223,11 +231,11 @@ function Admin() {
   // Función para obtener clase CSS del estado
   const getStatusClass = (status) => {
     const statusClassMap = {
-      'pending': 'bg-warning text-dark',
-      'confirmed': 'bg-info',
-      'shipped': 'bg-primary',
-      'delivered': 'bg-success',
-      'cancelled': 'bg-danger'
+      pending: 'bg-warning text-dark',
+      confirmed: 'bg-info',
+      shipped: 'bg-primary',
+      delivered: 'bg-success',
+      cancelled: 'bg-danger',
     };
     return statusClassMap[status] || 'bg-secondary';
   };
@@ -395,13 +403,13 @@ function Admin() {
   // Cargar entidades cuando cambia la pestaña
   useEffect(() => {
     console.log(`🔄 Selected tab changed to: ${selectedTab}`);
-    
+
     if (selectedTab === 'orders') {
       fetchOrders(orderFilter);
     } else if (selectedTab !== 'localty' && selectedTab !== 'store') {
       fetchEntities();
     }
-    
+
     if (selectedTab === 'product') {
       fetchTypes();
     }
@@ -859,10 +867,9 @@ function Admin() {
           <i className="bi bi-inbox display-1 text-muted"></i>
           <h5 className="mt-3">No hay órdenes</h5>
           <p className="text-muted">
-            {orderFilter !== 'all' 
+            {orderFilter !== 'all'
               ? `No hay órdenes con estado "${getStatusText(orderFilter)}"`
-              : 'No hay órdenes en el sistema'
-            }
+              : 'No hay órdenes en el sistema'}
           </p>
         </div>
       );
@@ -876,7 +883,9 @@ function Admin() {
               <div className="card-header bg-light d-flex justify-content-between align-items-center">
                 <div>
                   <strong>Orden #{order.orderNumber}</strong>
-                  <span className={`badge ${getStatusClass(order.status)} ms-2`}>
+                  <span
+                    className={`badge ${getStatusClass(order.status)} ms-2`}
+                  >
                     {getStatusText(order.status)}
                   </span>
                 </div>
@@ -884,15 +893,18 @@ function Admin() {
                   {new Date(order.orderDate).toLocaleDateString('es-AR')}
                 </small>
               </div>
-              
+
               <div className="card-body">
                 <div className="row">
                   <div className="col-md-6">
                     <h6 className="fw-bold">Información del Cliente</h6>
-                    <p className="mb-1"><strong>Contacto:</strong> {order.buyerContact}</p>
+                    <p className="mb-1">
+                      <strong>Contacto:</strong> {order.buyerContact}
+                    </p>
                     {order.user && (
                       <p className="mb-1">
-                        <strong>Usuario:</strong> {order.user.firstName} {order.user.lastName}
+                        <strong>Usuario:</strong> {order.user.firstName}{' '}
+                        {order.user.lastName}
                       </p>
                     )}
                     {order.shippingAddress && (
@@ -902,11 +914,12 @@ function Admin() {
                     )}
                     {order.pickUpPoint && (
                       <p className="mb-1">
-                        <strong>🏪 Retiro en:</strong> {order.pickUpPoint.storeName}
+                        <strong>🏪 Retiro en:</strong>{' '}
+                        {order.pickUpPoint.storeName}
                       </p>
                     )}
                   </div>
-                  
+
                   <div className="col-md-6">
                     <h6 className="fw-bold">Detalles de la Orden</h6>
                     <p className="mb-1">
@@ -943,19 +956,27 @@ function Admin() {
                               <td>
                                 <div className="d-flex align-items-center">
                                   {item.productImage && (
-                                    <img 
-                                      src={item.productImage} 
+                                    <img
+                                      src={item.productImage}
                                       alt={item.productName}
                                       className="rounded me-2"
-                                      style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                                      style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        objectFit: 'cover',
+                                      }}
                                     />
                                   )}
                                   <span>{item.productName}</span>
                                 </div>
                               </td>
                               <td className="text-center">{item.quantity}</td>
-                              <td className="text-end">${parseFloat(item.priceAtPurchase)}</td>
-                              <td className="text-end fw-bold">${item.subtotal}</td>
+                              <td className="text-end">
+                                ${parseFloat(item.priceAtPurchase)}
+                              </td>
+                              <td className="text-end fw-bold">
+                                ${item.subtotal}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -972,21 +993,25 @@ function Admin() {
                       <>
                         <button
                           className="btn btn-success btn-sm"
-                          onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                          onClick={() =>
+                            updateOrderStatus(order.id, 'confirmed')
+                          }
                           disabled={loadingOrders}
                         >
                           ✅ Confirmar Orden
                         </button>
                         <button
                           className="btn btn-danger btn-sm"
-                          onClick={() => updateOrderStatus(order.id, 'cancelled')}
+                          onClick={() =>
+                            updateOrderStatus(order.id, 'cancelled')
+                          }
                           disabled={loadingOrders}
                         >
                           ❌ Cancelar Orden
                         </button>
                       </>
                     )}
-                    
+
                     {order.status === 'confirmed' && (
                       <button
                         className="btn btn-primary btn-sm"
@@ -996,7 +1021,7 @@ function Admin() {
                         🚚 Marcar como Enviada
                       </button>
                     )}
-                    
+
                     {order.status === 'shipped' && (
                       <button
                         className="btn btn-success btn-sm"
@@ -1006,10 +1031,14 @@ function Admin() {
                         📦 Marcar como Entregada
                       </button>
                     )}
-                    
-                    {(order.status === 'delivered' || order.status === 'cancelled') && (
+
+                    {(order.status === 'delivered' ||
+                      order.status === 'cancelled') && (
                       <span className="text-muted small">
-                        Esta orden está {order.status === 'delivered' ? 'completada' : 'cancelada'}
+                        Esta orden está{' '}
+                        {order.status === 'delivered'
+                          ? 'completada'
+                          : 'cancelada'}
                       </span>
                     )}
                   </div>
@@ -1840,9 +1869,9 @@ function Admin() {
             <h5 className="mb-0">Gestión de Órdenes</h5>
             <div className="d-flex gap-2 align-items-center">
               <span className="text-muted small">Filtrar por estado:</span>
-              <select 
-                className="form-select form-select-sm" 
-                style={{width: 'auto'}}
+              <select
+                className="form-select form-select-sm"
+                style={{ width: 'auto' }}
                 value={orderFilter}
                 onChange={(e) => {
                   setOrderFilter(e.target.value);
@@ -1856,7 +1885,7 @@ function Admin() {
                 <option value="delivered">Entregadas</option>
                 <option value="cancelled">Canceladas</option>
               </select>
-              <button 
+              <button
                 className="btn btn-outline-secondary btn-sm"
                 onClick={() => fetchOrders(orderFilter)}
                 disabled={loadingOrders}
@@ -1865,46 +1894,48 @@ function Admin() {
               </button>
             </div>
           </div>
-          
+
           {renderOrdersList()}
         </div>
       )}
 
       {/* Tipos de Productos */}
-      {selectedTab !== 'store' && selectedTab !== 'localty' && selectedTab !== 'orders' && (
-        <>
-          <div className="card p-4 mb-4">
-            <h5 className="mb-3">
-              {selectedTab === 'product'
-                ? 'Crear nuevo Producto'
-                : `Crear nuevo ${selectedTab.replace('Type', ' Type')}`}
-            </h5>
-            <form onSubmit={handleCreate}>
-              <div className="row g-2">
-                {renderForm()}
-                <div className="col-12 mt-3">
-                  <button className="btn btn-primary" disabled={loading}>
-                    {loading
-                      ? 'Creando...'
-                      : selectedTab === 'product'
-                      ? 'Crear Producto'
-                      : `Crear ${selectedTab.replace('Type', ' Type')}`}
-                  </button>
+      {selectedTab !== 'store' &&
+        selectedTab !== 'localty' &&
+        selectedTab !== 'orders' && (
+          <>
+            <div className="card p-4 mb-4">
+              <h5 className="mb-3">
+                {selectedTab === 'product'
+                  ? 'Crear nuevo Producto'
+                  : `Crear nuevo ${selectedTab.replace('Type', ' Type')}`}
+              </h5>
+              <form onSubmit={handleCreate}>
+                <div className="row g-2">
+                  {renderForm()}
+                  <div className="col-12 mt-3">
+                    <button className="btn btn-primary" disabled={loading}>
+                      {loading
+                        ? 'Creando...'
+                        : selectedTab === 'product'
+                        ? 'Crear Producto'
+                        : `Crear ${selectedTab.replace('Type', ' Type')}`}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </form>
-          </div>
+              </form>
+            </div>
 
-          <div className="card p-4">
-            <h5 className="mb-3">
-              {selectedTab === 'product'
-                ? 'Productos existentes'
-                : `${selectedTab.replace('Type', ' Types')} existentes`}
-            </h5>
-            {renderEntityList()}
-          </div>
-        </>
-      )}
+            <div className="card p-4">
+              <h5 className="mb-3">
+                {selectedTab === 'product'
+                  ? 'Productos existentes'
+                  : `${selectedTab.replace('Type', ' Types')} existentes`}
+              </h5>
+              {renderEntityList()}
+            </div>
+          </>
+        )}
 
       {/* Localidades */}
       {selectedTab === 'localty' && (
