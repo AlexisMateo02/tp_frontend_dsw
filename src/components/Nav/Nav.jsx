@@ -1,53 +1,66 @@
+// Este componente representa la barra de navegación principal de la aplicación.
+// Contiene enlaces a diferentes secciones y funcionalidades de la aplicación.
+
 import React, { useEffect, useState } from 'react'; //Importa libreria React
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; //Importa Bootstrap JS para funcionalidades interactivas
 import { Link } from 'react-router-dom';
 
+// Definimos Componente Nav
 function Nav() {
-  //Componente Nav
-  // Este componente representa la barra de navegación principal de la aplicación.
-  // Contiene enlaces a diferentes secciones y funcionalidades de la aplicación.
-  const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
-  const [currentUser, setCurrentUser] = useState(null);
+  // Estados para contar items en carrito, lista de deseos y para el usuario actual
+  const [cartCount, setCartCount] = useState(0); // Inicializa el estado del contador de carrito en 0
+  const [wishlistCount, setWishlistCount] = useState(0); // Inicializa el estado del contador de lista de deseos en 0
+  const [currentUser, setCurrentUser] = useState(null); // Inicializa el estado del usuario actual en null
 
+  // Función para actualizar los contadores de carrito y lista de deseos
   const updateCounts = () => {
-    // compute cart and wishlist per current user if available
-    let cart = [];
-    let wishlist = [];
+    let cart = []; // Inicializa el carrito como un array vacío
+    let wishlist = []; // Inicializa la lista de deseos como un array vacío
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null'); // Obtiene el usuario actual del localStorage
       if (cu) {
+        // Si hay un usuario actual. actualiza carrito y lista de desesos correspondientes a ese usuario
         const cartKey = `cart-${cu.id || cu.email}`;
         const wishKey = `wishlist-${cu.id || cu.email}`;
         cart = JSON.parse(localStorage.getItem(cartKey)) || [];
         wishlist = JSON.parse(localStorage.getItem(wishKey)) || [];
+        // Si no encontro el usuario ingresado deja los arrays vacios
       } else {
         cart = [];
         wishlist = [];
       }
+      //si ocurre algun error en el try pasa al catch y deja los arrays vacios
     } catch {
       cart = [];
       wishlist = [];
     }
+    // Calcula el total de items en el carrito sumando las cantidades
     const totalCartItems = cart.reduce(
       (acc, item) => acc + (item.quantity || 1),
       0
     );
+    // Actualiza los estados con los nuevos contadores
     setCartCount(totalCartItems);
     setWishlistCount(wishlist.length);
-  };
-  useEffect(() => {
-    updateCounts();
+  }; // Termina funcion que se dedica a actualizar los contadores
 
+  // useEffect para inicializar y escuchar cambios en carrito, lista de deseos y autenticación
+  useEffect(() => {
+    updateCounts(); // Llama a funcion definida antes para actualizar contadores
+
+    //Define handlers/manejadores que sirven que para cuando pasa algo en el carrito o wishlist
+    // y se vuelvan a actualizar los contadores, por ejemplo cuando se agrega un item se vuelven a refrescar
     const handleCartUpdate = () => updateCounts();
     const handleWishlistUpdate = () => updateCounts();
     const handleWishlistUpdatesAlt = () => updateCounts();
 
-    window.addEventListener('cartUpdated', handleCartUpdate);
-    // listen for both event names (some components dispatch 'wishlistUpdated' and others 'wishlistUpdates')
+    // Agrega event listeners para detectar cambios en carrito y lista de deseos
+    window.addEventListener('cartUpdated', handleCartUpdate); //si se escucha que se actualizo el carrito (cartUpdated) llama a la funcion handler para actualizar contadores
     window.addEventListener('wishlistUpdated', handleWishlistUpdate);
     window.addEventListener('wishlistUpdates', handleWishlistUpdatesAlt);
 
+    // sirve para mantener contadores sincronizados cuando el carrito/wishlist cambian en otra pestaña
+    //es decir que si yo tengo dos pestañas abiertas y en una agrego un item al carrito, en la otra pestaña se actualiza el contador automaticamente
     const onStorageChange = (e) => {
       const k = e.key || '';
       if (
@@ -61,22 +74,27 @@ function Nav() {
     };
     window.addEventListener('storage', onStorageChange);
 
-    // load currentUser and listen for auth changes
+    // Intento de leer al usuario actual desde localStorage y guardarlo en estado
     try {
-      const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      setCurrentUser(u);
+      const u = JSON.parse(localStorage.getItem('currentUser') || 'null'); // Obtiene el usuario actual del localStorage y se guarda en u, por ejemplo el JSON puede recibir un {"id":1,"name":"Rafi"}
+      setCurrentUser(u); // Actualiza el estado del usuario actual con u, como actual usuario
     } catch {
+      //esto es por si oucrre algun error en el try, se actualiza como null
       setCurrentUser(null);
     }
+
+    // Escucha cambios en la autenticación (login/logout)
     const onAuth = () => {
       try {
         const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        // If user just logged in, migrate any global cart/wishlist into per-user keys
         if (u) {
+          //si u existe, es decir si hay un usuario logueado
+          // va a intentar migrar carrito y wishlist globales a los específicos del usuario si es necesario
+          // (igual no se puede poner cosas en favorito o carrito sin estar logueado)
           try {
             const cartKey = `cart-${u.id || u.email}`;
             const wishKey = `wishlist-${u.id || u.email}`;
-            const globalCart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const globalCart = JSON.parse(localStorage.getItem('cart') || '[]'); // carrito global, lo podriamos sacar
             const userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
             if (globalCart.length && (!userCart || userCart.length === 0)) {
               localStorage.setItem(cartKey, JSON.stringify(globalCart));
@@ -92,11 +110,11 @@ function Nav() {
               window.dispatchEvent(new Event('wishlistUpdated'));
             }
           } catch {
-            // swallow migration errors
+            // no hacer nada si hay error
           }
         }
         setCurrentUser(u);
-        // update counts after auth change / possible migration
+        // actualiza contadores despues de cambio de auth / posible migracion
         updateCounts();
       } catch {
         setCurrentUser(null);
@@ -114,20 +132,21 @@ function Nav() {
     };
   }, []);
 
+  // Función para cerrar sesión del usuario
   const logout = () => {
-    localStorage.removeItem('currentUser');
-    setCurrentUser(null);
-    window.dispatchEvent(new Event('authChanged'));
-    // navigate to home
-    window.location.href = '/';
+    localStorage.removeItem('currentUser'); // Elimina el usuario actual del localStorage
+    setCurrentUser(null); // Actualiza el estado del usuario actual a null
+    window.dispatchEvent(new Event('authChanged')); // Notifica a otros componentes que la autenticación ha cambiado
+    window.location.href = '/'; // vuelve a la página de inicio
   };
 
+  // El diseño de los elementos de la barra de navegacion se realiza todo aca, y es lo que nos estaria mostrando en pantalla la funcion Nav
   return (
     <>
       {/* Navbar principal */}
       <div className="nav w-100 fixed-top bd-white shadow-sm mb-10">
         <nav className="navbar navbar-expand-lg py-3 fixed-top justify-content-between align-items-center w-100 nav-wrapper">
-          {/* Toggle button */}
+          {/* Boton que aparece en pantallas pequeñas para desplegar el menu */}
           <button
             className="navbar-toggler"
             type="button"
@@ -140,13 +159,8 @@ function Nav() {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          {/* Mobile Icons */}
+          {/* iconos que aparecen en pantallas pequeñas: persona, corazon y bolsa*/}
           <ul className="d-lg-none d-flex align-items-center gap-3">
-            <li className="nav-item">
-              <a href="#">
-                <i className="bi bi-search fs-5 text-dark"></i>
-              </a>
-            </li>
             <li className="nav-item">
               <Link to="/login">
                 <i className="bi bi-person fs-5 text-dark"></i>
@@ -214,29 +228,32 @@ function Nav() {
                 </Link>
               </li>
             </ul>
-            {/* Center Logo */}
+            {/* Logo central Kayaks Brokers*/}
             <Link to="/" className="navbar-brand order-@ d-none d-lg-flex">
               <h2 className="m-@ fw-bold" style={{ letterSpacing: '2px' }}>
                 KAYAKS BROKERS
               </h2>
             </Link>
 
-            {/* Right Icons */}
+            {/* Iconos o parte del navegador de la derecha -> los mismos que estaban para pantallas pequeñas */}
             <ul className="navbar-nav d-none d-lg-flex align-items-center gap-4">
               <li className="nav-item">
                 {currentUser ? (
                   <div className="d-flex align-items-center gap-2">
                     <span className="nav-link">
-                      Hola, {currentUser.firstName || currentUser.email}
+                      Hola, {currentUser.firstName || currentUser.email}{' '}
+                      {/*para cuando inicias sesion te muestre un mensaje de bienvenida*/}
                     </span>
                     <button
-                      className="btn nav-link"
-                      onClick={logout}
+                      className="btn" //saque nav-link para que no se vea raro el boton con ese efecto
+                      onClick={
+                        logout
+                      } /*boton que al hacer click llama a la funcion logout para cerrar sesion*/
                       style={{
                         padding: '6px 8px',
                         backgroundColor: '#ffffff',
                         borderRadius: '6px',
-                        border: '1px solid rgba(0,0,0,0.06)',
+                        border: '1px solid rgba(0, 0, 0, 1)',
                         color: 'inherit',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -277,84 +294,6 @@ function Nav() {
           </div>
         </nav>
       </div>
-
-      {/*
-        Sign Up Modal (deshabilitado):
-        <div
-          className="modal fade"
-          id="SignUpModal"
-          tabIndex="-1"
-          aria-labelledby="SignUpModalLabel"
-          aria-hidden="true"
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content p-4">
-              <div className="modal-header border-0">
-                <h5 className="modal-title fw-bold" id="SignUpModalLabel">
-                  Ingresa con su cuenta
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="mb-3">
-                    <label className="form-label">Usuario</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Ingresa tu nombre"
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Email</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="Ingresa correo electronico"
-                      required
-                    />
-                    <label className="form-label">Contraseña</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      placeholder="Ingresa contraseña"
-                      required
-                    />
-                  </div>
-                  <p className="text-muted">
-                    Al ingresar, aceptas nuestros&nbsp;
-                    <a href="/terms" className="text-success text-decoration-none">
-                      Términos
-                    </a>
-                    &nbsp;y&nbsp;
-                    <a href="/terms" className="text-success text-decoration-none">
-                      Política de Privacidad
-                    </a>
-                    .
-                  </p>
-
-                  <button type="button" className="btn btn-dark w-100">Ingresar</button>
-                </form>
-                <div className="text-center mt-3">
-                  <p>
-                    Ya tiene una cuenta?
-                    <a href="/register" className="text-success fw-bold"> Registrarse</a>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      */}
-      {/* antes con esto podiamos iniciar sesion en el mismo navegador 
-      pero para hacerlo mas facil el tema de registar e inciar sesion lo hacemos ahora por 
-      separado */}
     </>
   );
 }
