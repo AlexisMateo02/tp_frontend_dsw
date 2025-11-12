@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import CrearTiendas from './crearTiendas.jsx';
 import CrearLocalidades from './crearLocalidades.jsx';
+import CrearProvincias from './crearProvincias.jsx';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -151,7 +152,7 @@ function Admin() {
       try {
         const url = `${API_BASE}/orders`;
         console.log(
-          `🔄 Fetching orders from: ${url} (client filter: ${filter}, buyer: ${buyerName}, order#: ${orderNumber})`
+          `Fetching orders from: ${url} (client filter: ${filter}, buyer: ${buyerName}, order#: ${orderNumber})`
         );
 
         const response = await fetch(url, {
@@ -163,7 +164,7 @@ function Admin() {
         if (response.ok) {
           const result = await response.json();
           const allOrders = result.data || [];
-          console.log(`✅ Orders loaded: ${allOrders.length} total`);
+          console.log(`Orders loaded: ${allOrders.length} total`);
 
           // Primero filtrar por estado si se solicitó
           let filtered = allOrders;
@@ -172,7 +173,7 @@ function Admin() {
               (o) => String(o.status) === String(filter)
             );
             console.log(
-              `🔎 Applying client-side status filter '${filter}': ${filtered.length} matched`
+              `Applying client-side status filter '${filter}': ${filtered.length} matched`
             );
           }
 
@@ -187,7 +188,7 @@ function Admin() {
               return fullName.toLowerCase().includes(q) || contact.includes(q);
             });
             console.log(
-              `🔎 Applying buyer-name filter '${buyerName}': ${filtered.length} matched`
+              `Applying buyer-name filter '${buyerName}': ${filtered.length} matched`
             );
           }
 
@@ -198,18 +199,18 @@ function Admin() {
               String(o.orderNumber).toLowerCase().includes(qn)
             );
             console.log(
-              `🔎 Applying order-number filter '${orderNumber}': ${filtered.length} matched`
+              `Applying order-number filter '${orderNumber}': ${filtered.length} matched`
             );
           }
 
           setOrders(filtered);
         } else {
-          console.error('❌ Error loading orders:', response.status);
+          console.error('Error loading orders:', response.status);
           toast.error('Error al cargar las órdenes');
           setOrders([]);
         }
       } catch (error) {
-        console.error('❌ Error fetching orders:', error);
+        console.error('Error fetching orders:', error);
         toast.error('Error de conexión al cargar órdenes');
         setOrders([]);
       } finally {
@@ -224,7 +225,7 @@ function Admin() {
     setLoadingOrders(true);
     try {
       const url = `${API_BASE}/orders/${orderId}/status`;
-      console.log(`🔄 Updating order status: ${url}`, { status: newStatus });
+      console.log(`Updating order status: ${url}`, { status: newStatus });
 
       const response = await fetch(url, {
         method: 'PATCH',
@@ -236,16 +237,16 @@ function Admin() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Order status updated:', result);
+        console.log('Order status updated:', result);
         toast.success(`Orden ${getStatusText(newStatus)} correctamente`);
         fetchOrders(orderFilter, buyerFilter, orderNumberFilter); // Recargar órdenes con el filtro actual
       } else {
         const errorText = await response.text();
-        console.error('❌ Error updating order:', errorText);
+        console.error('Error updating order:', errorText);
         toast.error('Error al actualizar la orden');
       }
     } catch (error) {
-      console.error('❌ Error updating order status:', error);
+      console.error('Error updating order status:', error);
       toast.error('Error de conexión al actualizar orden');
     } finally {
       setLoadingOrders(false);
@@ -401,7 +402,7 @@ function Admin() {
       }
 
       const url = `${API_BASE}${endpoint}`;
-      console.log(`🔄 Fetching from: ${url}`);
+      console.log(`Fetching from: ${url}`);
 
       const response = await fetch(url, {
         headers: {
@@ -410,26 +411,26 @@ function Admin() {
       });
 
       console.log(
-        `📊 Response status: ${response.status} ${response.statusText}`
+        `Response status: ${response.status} ${response.statusText}`
       );
 
       if (response.ok) {
         const result = await response.json();
-        console.log(`✅ Full response:`, result);
+        console.log(`Full response:`, result);
 
         const entitiesData = result.data || [];
-        console.log(`✅ Entities data:`, entitiesData);
+        console.log(`Entities data:`, entitiesData);
 
         setEntities(Array.isArray(entitiesData) ? entitiesData : []);
       } else if (response.status === 404) {
-        console.warn(`❌ Endpoint ${endpoint} not found`);
+        console.warn(`Endpoint ${endpoint} not found`);
         setEntities([]);
       } else {
-        console.error(`❌ Error ${response.status}: ${response.statusText}`);
+        console.error(`Error ${response.status}: ${response.statusText}`);
         toast.error(`Error ${response.status} al cargar los datos`);
       }
     } catch (error) {
-      console.error('❌ Error fetching entities:', error);
+      console.error('Error fetching entities:', error);
       toast.error('Error de conexión con el servidor');
     } finally {
       setLoading(false);
@@ -438,11 +439,11 @@ function Admin() {
 
   // Cargar entidades cuando cambia la pestaña
   useEffect(() => {
-    console.log(`🔄 Selected tab changed to: ${selectedTab}`);
+    console.log(`Selected tab changed to: ${selectedTab}`);
 
     if (selectedTab === 'orders') {
       fetchOrders(orderFilter, buyerFilter, orderNumberFilter);
-    } else if (selectedTab !== 'localty' && selectedTab !== 'store') {
+    } else if (selectedTab !== 'localty' && selectedTab !== 'province' && selectedTab !== 'store') {
       fetchEntities();
     }
 
@@ -698,7 +699,7 @@ function Admin() {
 
     if (!isValid) return;
 
-    console.log('🔍 Datos que se enviarán:', {
+    console.log('Datos que se enviarán:', {
       ...newEntity,
       imageLength: newEntity.image ? newEntity.image.length : 0,
       secondImageLength: newEntity.secondImage
@@ -713,7 +714,7 @@ function Admin() {
     setLoading(true);
     try {
       const url = `${API_BASE}${endpoint}`;
-      console.log(`🚀 Creating entity at: ${url}`, newEntity);
+      console.log(`Creating entity at: ${url}`, newEntity);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -724,12 +725,12 @@ function Admin() {
       });
 
       console.log(
-        `📨 Create response status: ${response.status} ${response.statusText}`
+        `Create response status: ${response.status} ${response.statusText}`
       );
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Create response:', result);
+        console.log('Create response:', result);
 
         toast.success(
           `${selectedTab.replace('Type', ' Type')} creado exitosamente`
@@ -748,7 +749,7 @@ function Admin() {
           }
         }
 
-        console.error('❌ Error response:', errorBody);
+        console.error('Error response:', errorBody);
 
         let friendlyMessage = `Error ${response.status}: No se pudo crear`;
         if (errorBody) {
@@ -786,7 +787,7 @@ function Admin() {
         toast.error(friendlyMessage);
       }
     } catch (error) {
-      console.error('❌ Error creating entity:', error);
+      console.error('Error creating entity:', error);
       toast.error('Error de conexión con el servidor');
     } finally {
       setLoading(false);
@@ -824,29 +825,29 @@ function Admin() {
       }
 
       const url = `${API_BASE}${endpoint}/${id}`;
-      console.log(`🗑️ Deleting entity at: ${url}`);
+      console.log(`Deleting entity at: ${url}`);
 
       const response = await fetch(url, {
         method: 'DELETE',
       });
 
       console.log(
-        `📨 Delete response status: ${response.status} ${response.statusText}`
+        `Delete response status: ${response.status} ${response.statusText}`
       );
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Delete response:', result);
+        console.log('Delete response:', result);
 
         toast.info(`${selectedTab.replace('Type', ' Type')} eliminado`);
         fetchEntities();
       } else {
         const errorText = await response.text();
-        console.error('❌ Error response:', errorText);
+        console.error('Error response:', errorText);
         toast.error(`Error ${response.status}: No se pudo eliminar`);
       }
     } catch (error) {
-      console.error('❌ Error deleting entity:', error);
+      console.error('Error deleting entity:', error);
       toast.error('Error de conexión');
     } finally {
       setLoading(false);
@@ -857,29 +858,29 @@ function Admin() {
     setLoading(true);
     try {
       const url = `${API_BASE}/products/${id}/approve`;
-      console.log(`✅ Approving product at: ${url}`);
+      console.log(`Approving product at: ${url}`);
 
       const response = await fetch(url, {
         method: 'PATCH',
       });
 
       console.log(
-        `📨 Approve response status: ${response.status} ${response.statusText}`
+        `Approve response status: ${response.status} ${response.statusText}`
       );
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Approve response:', result);
+        console.log('Approve response:', result);
 
         toast.success('Producto aprobado exitosamente');
         fetchEntities();
       } else {
         const errorText = await response.text();
-        console.error('❌ Error response:', errorText);
+        console.error('Error response:', errorText);
         toast.error(`Error ${response.status}: No se pudo aprobar el producto`);
       }
     } catch (error) {
-      console.error('❌ Error approving product:', error);
+      console.error('Error approving product:', error);
       toast.error('Error de conexión');
     } finally {
       setLoading(false);
@@ -1898,11 +1899,20 @@ function Admin() {
         <button
           type="button"
           className={`btn ${
+            selectedTab === 'province' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
+          onClick={() => setSelectedTab('province')}
+        >
+          Provincias
+        </button>
+        <button
+          type="button"
+          className={`btn ${
             selectedTab === 'store' ? 'btn-primary' : 'btn-outline-primary'
           }`}
           onClick={() => setSelectedTab('store')}
         >
-          Alta Tienda
+          Tiendas
         </button>
       </div>
 
@@ -1958,7 +1968,7 @@ function Admin() {
                 }
                 disabled={loadingOrders}
               >
-                🔄 Actualizar
+                Actualizar
               </button>
             </div>
           </div>
@@ -1970,6 +1980,7 @@ function Admin() {
       {/* Tipos de Productos */}
       {selectedTab !== 'store' &&
         selectedTab !== 'localty' &&
+        selectedTab !== 'province' &&
         selectedTab !== 'orders' && (
           <>
             <div className="card p-4 mb-4">
@@ -2009,6 +2020,13 @@ function Admin() {
       {selectedTab === 'localty' && (
         <div className="card p-4">
           <CrearLocalidades />
+        </div>
+      )}
+
+      {/* Provincias */}
+      {selectedTab === 'province' && (
+        <div className="card p-4">
+          <CrearProvincias />
         </div>
       )}
 
