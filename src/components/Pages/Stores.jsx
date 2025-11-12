@@ -10,10 +10,10 @@ no borramos lo anterior por las dudas, quedaba lindo :)*/
 cargada en el alta tienda*/
 
 /*Pero ahora aca lo usamos para alojar las tiendas dadas de alta*/
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../../services/api";
-import normalizeImagePath from "../../lib/utils/normalizeImagePath";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../../services/api';
+import normalizeImagePath from '../../lib/utils/normalizeImagePath';
 
 function Stores() {
   const [stores, setStores] = useState([]);
@@ -31,17 +31,17 @@ function Stores() {
           return;
         }
 
-        const result = await api.getPickUpPoints();
-        // `api.request` devuelve data || data.data; asegurarse que sea array
+        const result = await api.getPickUpPoints(); //aca es donde se cargan las tiendas dadas de alta que estan en el backend entonces va a mostar esas
+
         const list = Array.isArray(result)
           ? result
           : result && Array.isArray(result.data)
           ? result.data
           : [];
-        console.log("🛰️ Stores API result:", list);
+        console.log('🛰️ Stores API result:', list);
         setStores(list);
       } catch (err) {
-        console.error("Error cargando tiendas desde la BDD:", err);
+        console.error('Error cargando tiendas desde la BDD:', err);
         setStores([]);
       }
     };
@@ -76,15 +76,15 @@ function Stores() {
               className="row align-items-center g-5 mb-4"
             >
               <div className="col-lg-5 mb-3 mb-lg-0 d-flex justify-content-center">
-                <div style={{ width: "100%", maxWidth: 520 }}>
+                <div style={{ width: '100%', maxWidth: 520 }}>
                   <img
                     src={
-                      normalizeImagePath(s.image || "", "forum") ||
-                      "/assets/placeholder.webp"
+                      normalizeImagePath(s.image || '', 'forum') ||
+                      '/assets/placeholder.webp'
                     }
                     alt={s.storeName || s.name}
                     className="img-fluid rounded"
-                    style={{ width: "100%", height: 320, objectFit: "cover" }}
+                    style={{ width: '100%', height: 320, objectFit: 'cover' }}
                   />
                 </div>
               </div>
@@ -93,7 +93,7 @@ function Stores() {
                 <div className="row">
                   <div className="col-md-4 mb-3">
                     <h6 className="mb-1 fw-semibold">Dirección</h6>
-                    <p className="text-muted mb-0">{s.address || "—"}</p>
+                    <p className="text-muted mb-0">{s.address || '—'}</p>
                     {s.adressDescription && (
                       <small className="text-muted d-block">
                         {s.adressDescription}
@@ -103,13 +103,13 @@ function Stores() {
                   <div className="col-md-4 mb-3">
                     <h6 className="mb-1 fw-semibold">Horario</h6>
                     <p className="text-muted mb-0">
-                      {s.horary || s.hours || "—"}
+                      {s.horary || s.hours || '—'}
                     </p>
                   </div>
                   <div className="col-md-4 mb-3">
                     <h6 className="mb-1 fw-semibold">Teléfono</h6>
                     <p className="text-muted mb-0">
-                      {s.phoneNumber || s.phone || "—"}
+                      {s.phoneNumber || s.phone || '—'}
                     </p>
                   </div>
                 </div>
