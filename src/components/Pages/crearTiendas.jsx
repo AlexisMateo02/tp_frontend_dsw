@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+// Componente para crear y gestionar tiendas
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import ApiService from '../../services/api.js';
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = 'http://localhost:3000/api';
 
 export default function CrearTiendas() {
   const [stores, setStores] = useState([]);
@@ -9,13 +11,13 @@ export default function CrearTiendas() {
   const [localties, setLocalties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    name: "",
-    address: "",
-    phone: "",
-    hours: "",
+    name: '',
+    address: '',
+    phone: '',
+    hours: '',
     image: undefined,
-    adressDescription: "",
-    localtyId: "",
+    adressDescription: '',
+    localtyId: '',
   });
 
   // Cargar datos iniciales
@@ -32,8 +34,8 @@ export default function CrearTiendas() {
         setStores(result.data || []);
       }
     } catch (error) {
-      console.error("Error fetching stores:", error);
-      toast.error("Error al cargar las tiendas");
+      console.error('Error fetching stores:', error);
+      toast.error('Error al cargar las tiendas');
     }
   };
 
@@ -43,15 +45,15 @@ export default function CrearTiendas() {
       const response = await fetch(`${API_BASE}/localties`);
       if (response.ok) {
         const result = await response.json();
-        console.log("✅ Localidades cargadas:", result.data);
+        console.log('✅ Localidades cargadas:', result.data);
         setLocalties(result.data || []);
       } else {
-        console.error("❌ Error en respuesta de localidades:", response.status);
-        toast.error("Error al cargar las localidades");
+        console.error('❌ Error en respuesta de localidades:', response.status);
+        toast.error('Error al cargar las localidades');
       }
     } catch (error) {
-      console.error("❌ Error fetching localties:", error);
-      toast.error("Error de conexión al cargar localidades");
+      console.error('❌ Error fetching localties:', error);
+      toast.error('Error de conexión al cargar localidades');
     }
   };
 
@@ -66,12 +68,12 @@ export default function CrearTiendas() {
             const scale = Math.min(1, maxWidth / img.width);
             const w = Math.round(img.width * scale);
             const h = Math.round(img.height * scale);
-            const canvas = document.createElement("canvas");
+            const canvas = document.createElement('canvas');
             canvas.width = w;
             canvas.height = h;
-            const ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
-            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
             resolve(dataUrl);
           } catch (err) {
             reject(err);
@@ -81,7 +83,7 @@ export default function CrearTiendas() {
         };
         img.onerror = (e) => {
           URL.revokeObjectURL(url);
-          reject(e || new Error("Image load error"));
+          reject(e || new Error('Image load error'));
         };
         img.src = url;
       } catch (e) {
@@ -93,13 +95,13 @@ export default function CrearTiendas() {
   const startCreate = () => {
     setEditingId(null);
     setForm({
-      name: "",
-      address: "",
-      phone: "",
-      hours: "",
+      name: '',
+      address: '',
+      phone: '',
+      hours: '',
       image: undefined,
-      adressDescription: "",
-      localtyId: "",
+      adressDescription: '',
+      localtyId: '',
     });
   };
 
@@ -107,35 +109,35 @@ export default function CrearTiendas() {
   const startEdit = (store) => {
     setEditingId(store.id);
     setForm({
-      name: store.storeName || "",
-      address: store.address || "",
-      phone: store.phoneNumber || "",
-      hours: store.horary || "",
+      name: store.storeName || '',
+      address: store.address || '',
+      phone: store.phoneNumber || '',
+      hours: store.horary || '',
       image: store.image,
-      adressDescription: store.adressDescription || "",
-      localtyId: store.localty?.id || store.localtyId || "",
+      adressDescription: store.adressDescription || '',
+      localtyId: store.localty?.id || store.localtyId || '',
     });
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
 
-    console.log("📝 Form data completo:", form);
-    console.log("📝 localtyId value:", form.localtyId);
-    console.log("📝 localtyId type:", typeof form.localtyId);
+    console.log('📝 Form data completo:', form);
+    console.log('📝 localtyId value:', form.localtyId);
+    console.log('📝 localtyId type:', typeof form.localtyId);
 
     if (!form.name.trim() || !form.address.trim() || !form.localtyId) {
-      toast.error("Nombre, dirección y localidad son obligatorios");
+      toast.error('Nombre, dirección y localidad son obligatorios');
       return;
     }
 
     // Verificar explícitamente que localtyId tenga un valor
     if (
-      form.localtyId === "" ||
+      form.localtyId === '' ||
       form.localtyId === undefined ||
       form.localtyId === null
     ) {
-      toast.error("Debe seleccionar una localidad válida");
+      toast.error('Debe seleccionar una localidad válida');
       return;
     }
 
@@ -144,8 +146,31 @@ export default function CrearTiendas() {
       // Asegurarnos de que localtyId sea un número
       const localtyId = parseInt(form.localtyId);
       if (isNaN(localtyId)) {
-        toast.error("ID de localidad inválido");
+        toast.error('ID de localidad inválido');
         return;
+      }
+
+      // Si hay imagen en formato dataURL, subirla primero usando el endpoint
+      // de uploads (reutilizamos uploadForumImage que convierte a FormData).
+      let imageUrl = null;
+      if (form.image && String(form.image).startsWith('data:')) {
+        try {
+          const uploadResult = await ApiService.uploadForumImage(form.image);
+          // uploadResult puede variar según backend; intentamos varios paths
+          imageUrl =
+            (uploadResult && (uploadResult.imageUrl || uploadResult.url)) ||
+            (uploadResult && uploadResult.data && uploadResult.data.imageUrl) ||
+            null;
+          console.log('✅ Imagen subida, url:', imageUrl);
+        } catch (uploadError) {
+          console.warn(
+            '❌ Error subiendo imagen, se continuará sin imagen:',
+            uploadError
+          );
+          toast.error(
+            'No se pudo subir la imagen, se guardará la tienda sin imagen'
+          );
+        }
       }
 
       const requestBody = {
@@ -154,21 +179,21 @@ export default function CrearTiendas() {
         adressDescription: form.adressDescription.trim(),
         phoneNumber: form.phone.trim(),
         horary: form.hours.trim(),
-        image: form.image, // incluir imagen (dataURL) para guardarla en la BDD
+        image: imageUrl || null,
         localty: localtyId, // Usar el número convertido
       };
 
-      console.log("🚀 Enviando datos al servidor:", requestBody);
-      console.log("🚀 localty en requestBody:", requestBody.localty);
+      console.log('🚀 Enviando datos al servidor:', requestBody);
+      console.log('🚀 localty en requestBody:', requestBody.localty);
 
       let url, method;
 
       if (editingId) {
         url = `${API_BASE}/pickUpPoints/${editingId}`;
-        method = "PUT";
+        method = 'PUT';
       } else {
         url = `${API_BASE}/pickUpPoints`;
-        method = "POST";
+        method = 'POST';
       }
 
       console.log(`📨 ${method} request to: ${url}`);
@@ -176,31 +201,31 @@ export default function CrearTiendas() {
       const response = await fetch(url, {
         method: method,
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
       });
 
-      console.log("📊 Response status:", response.status);
+      console.log('📊 Response status:', response.status);
 
       // cuando editamos tienda que se actualice en el backend
       if (response.ok) {
         const result = await response.json();
-        console.log("✅ Success response:", result);
+        console.log('✅ Success response:', result);
         toast.success(
-          editingId ? "Tienda actualizada" : "Tienda creada exitosamente"
+          editingId ? 'Tienda actualizada' : 'Tienda creada exitosamente'
         );
         fetchStores();
         startCreate();
       } else {
         const errorText = await response.text();
-        console.error("❌ Error response:", errorText);
+        console.error('❌ Error response:', errorText);
 
         try {
           const errorJson = JSON.parse(errorText);
           toast.error(
             `Error ${response.status}: ${
-              errorJson.message || "Error del servidor"
+              errorJson.message || 'Error del servidor'
             }`
           );
         } catch {
@@ -208,8 +233,8 @@ export default function CrearTiendas() {
         }
       }
     } catch (error) {
-      console.error("❌ Error saving store:", error);
-      toast.error("Error de conexión con el servidor");
+      console.error('❌ Error saving store:', error);
+      toast.error('Error de conexión con el servidor');
     } finally {
       setLoading(false);
     }
@@ -223,30 +248,30 @@ export default function CrearTiendas() {
       setForm((s) => ({ ...s, image: dataUrl }));
     } catch (err) {
       console.error(err);
-      toast.error("No se pudo procesar la imagen");
+      toast.error('No se pudo procesar la imagen');
     }
   };
 
   //eliminamos tienda, que se elimine en el backend
   const remove = async (id) => {
-    if (!window.confirm("¿Eliminar tienda? Esta acción no se puede deshacer."))
+    if (!window.confirm('¿Eliminar tienda? Esta acción no se puede deshacer.'))
       return;
 
     try {
       const response = await fetch(`${API_BASE}/pickUpPoints/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
 
       if (response.ok) {
-        toast.info("Tienda eliminada");
+        toast.info('Tienda eliminada');
         fetchStores();
       } else {
         const errorText = await response.text();
         toast.error(`Error al eliminar: ${errorText}`);
       }
     } catch (error) {
-      console.error("Error deleting store:", error);
-      toast.error("Error de conexión");
+      console.error('Error deleting store:', error);
+      toast.error('Error de conexión');
     }
   };
 
@@ -332,9 +357,9 @@ export default function CrearTiendas() {
               onChange={(e) => {
                 const selectedValue = e.target.value;
                 console.log(
-                  "📍 Localidad seleccionada:",
+                  '📍 Localidad seleccionada:',
                   selectedValue,
-                  "Tipo:",
+                  'Tipo:',
                   typeof selectedValue
                 );
                 setForm((prev) => ({ ...prev, localtyId: selectedValue }));
@@ -345,14 +370,14 @@ export default function CrearTiendas() {
               <option value="">Seleccionar localidad</option>
               {localties.map((localty) => (
                 <option key={localty.id} value={localty.id}>
-                  {localty.name}, {localty.province?.name} - CP:{" "}
+                  {localty.name}, {localty.province?.name} - CP:{' '}
                   {localty.zipcode}
                 </option>
               ))}
             </select>
             <div className="form-text">
               {localties.length === 0
-                ? "Cargando localidades..."
+                ? 'Cargando localidades...'
                 : `${localties.length} localidades disponibles`}
             </div>
           </div>
@@ -377,7 +402,7 @@ export default function CrearTiendas() {
                 <img
                   src={form.image}
                   alt="preview"
-                  style={{ maxWidth: 220, maxHeight: 140, objectFit: "cover" }}
+                  style={{ maxWidth: 220, maxHeight: 140, objectFit: 'cover' }}
                 />
               </div>
             </div>
@@ -395,12 +420,12 @@ export default function CrearTiendas() {
                     className="spinner-border spinner-border-sm me-2"
                     role="status"
                   ></span>
-                  {editingId ? "Guardando..." : "Creando..."}
+                  {editingId ? 'Guardando...' : 'Creando...'}
                 </>
               ) : editingId ? (
-                "Guardar cambios"
+                'Guardar cambios'
               ) : (
-                "Crear tienda"
+                'Crear tienda'
               )}
             </button>
             {editingId && (
@@ -436,7 +461,7 @@ export default function CrearTiendas() {
                       style={{
                         width: 80,
                         height: 60,
-                        objectFit: "cover",
+                        objectFit: 'cover',
                         marginRight: 12,
                       }}
                     />
@@ -445,12 +470,12 @@ export default function CrearTiendas() {
                     <strong>{store.storeName}</strong>
                     <div className="small text-muted">{store.address}</div>
                     <div className="small text-muted">
-                      {store.phoneNumber}{" "}
-                      {store.horary ? "• " + store.horary : ""}
+                      {store.phoneNumber}{' '}
+                      {store.horary ? '• ' + store.horary : ''}
                     </div>
                     {store.localty && (
                       <div className="small text-muted">
-                        📍 {store.localty.name}, {store.localty.province?.name}{" "}
+                        📍 {store.localty.name}, {store.localty.province?.name}{' '}
                         - CP: {store.localty.zipcode}
                       </div>
                     )}
