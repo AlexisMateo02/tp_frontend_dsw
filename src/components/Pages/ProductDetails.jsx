@@ -1,25 +1,18 @@
+// Componente para ver los detalles de un producto individual
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-
-//Importaciones
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import KayakTypes from '../../data/KayakTypes.json';
-import SUPTypes from '../../data/SUPTypes.json';
-import BoatTypes from '../../data/BoatTypes.json';
-import ArticleTypes from '../../data/ArticleTypes.json';
-import { ToastContainer, toast } from 'react-toastify';
-import normalizeImagePath from '../../lib/utils/normalizeImagePath';
+import { ToastContainer, toast } from "react-toastify";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 
 function ProductDetails() {
   const { id } = useParams();
 
-  const [mainImage, setMainImage] = useState('/assets/placeholder.webp');
+  const [mainImage, setMainImage] = useState("/assets/placeholder.webp");
   const [images, setImages] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [reviews, setReviews] = useState([]);
-  const [reviewName, setReviewName] = useState('');
-  const [reviewText, setReviewText] = useState('');
+  const [reviewName, setReviewName] = useState("");
+  const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -37,12 +30,12 @@ function ProductDetails() {
         // caragmos los productos desde las API, es decir desde el backend
         let apiProducts = [];
         try {
-          const response = await fetch('http://localhost:3000/api/products');
+          const response = await fetch("http://localhost:3000/api/products");
           if (response.ok) {
             const result = await response.json();
             apiProducts = result.data || [];
             console.log(
-              '✅ Productos cargados desde API en ProductDetails:',
+              "✅ Productos cargados desde API en ProductDetails:",
               apiProducts.length
             );
 
@@ -52,20 +45,20 @@ function ProductDetails() {
               .map((p) => ({
                 ...p,
                 sellerId: p.sellerId || 0,
-                sellerName: p.sellerName || 'KBR',
+                sellerName: p.sellerName || "KBR",
                 approved: true,
               }));
           }
         } catch (error) {
           console.warn(
-            '❌ Error cargando productos de API en ProductDetails:',
+            "❌ Error cargando productos de API en ProductDetails:",
             error
           );
         }
 
         // Cargamos productos desde el localstorage
         const marketplaceProducts = JSON.parse(
-          localStorage.getItem('marketplaceProducts') || '[]'
+          localStorage.getItem("marketplaceProducts") || "[]"
         );
         const approvedMarketplace = marketplaceProducts.filter(
           (p) => p.approved
@@ -82,13 +75,13 @@ function ProductDetails() {
         ];
 
         console.log(
-          '📊 Total productos combinados en ProductDetails:',
+          "📊 Total productos combinados en ProductDetails:",
           combined.length
         );
 
         setCombinedProducts(combined); // Guardamos todos los productos juntos (backend, localStorage, JSON)
       } catch (error) {
-        console.error('Error loading products in ProductDetails:', error);
+        console.error("Error loading products in ProductDetails:", error);
         // Fallback: no static JSON products available
         setCombinedProducts([]);
       } finally {
@@ -103,27 +96,14 @@ function ProductDetails() {
   const product = combinedProducts.find((p) => Number(p.id) === Number(id));
 
   // Función para obtener las especificaciones técnicas según el tipo de producto
+  // Nota: eliminamos las dependencias a archivos JSON estáticos y usamos los objetos
+  // embebidos en el producto (`product.kayakType`, `product.supType`, ...)
   const getProductSpecs = () => {
     if (!product) return null;
-
-    // Si el producto existe devuelve las especificaciones según su tipo, ya que dependiendo del tipo de producto (kayak, sup, embarcacion, articulo) las especificaciones técnicas son diferentes
-    // y todos esos campos de especificaicones estan cargados en el backend
-    if (product.kayakType) {
-      return product.kayakType;
-    }
-
-    if (product.category === 'kayak' && product.kayakTypeId) {
-      return KayakTypes.find((k) => k.id === product.kayakTypeId);
-    }
-    if (product.category === 'sup' && product.supTypeId) {
-      return SUPTypes.find((s) => s.id === product.supTypeId);
-    }
-    if (product.category === 'embarcacion' && product.boatTypeId) {
-      return BoatTypes.find((b) => b.id === product.boatTypeId);
-    }
-    if (product.category === 'articulo' && product.articleTypeId) {
-      return ArticleTypes.find((a) => a.id === product.articleTypeId);
-    }
+    if (product.kayakType) return product.kayakType;
+    if (product.supType) return product.supType;
+    if (product.boatType) return product.boatType;
+    if (product.articleType) return product.articleType;
     return null;
   };
 
@@ -154,16 +134,16 @@ function ProductDetails() {
             return normalizeImagePath(i);
           })
           .filter(Boolean)
-          .filter((s) => typeof s === 'string' && s.length < MAX_LEN)
+          .filter((s) => typeof s === "string" && s.length < MAX_LEN)
           .slice(0, 4);
 
-        const chosen = safeStrings[0] || '/assets/placeholder.webp';
+        const chosen = safeStrings[0] || "/assets/placeholder.webp";
         setMainImage(chosen);
         setImages(safeStrings);
       } catch (error) {
-        console.error('Error loading products in ProductDetails:', error);
+        console.error("Error loading products in ProductDetails:", error);
         setImages([]);
-        setMainImage('/assets/placeholder.webp');
+        setMainImage("/assets/placeholder.webp");
       }
     }
   }, [product]);
@@ -179,16 +159,16 @@ function ProductDetails() {
     //caragar usuario actual y recordar que un usuario no logueado no puede hacer reseñas
     const loadCurrent = () => {
       try {
-        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
         setCurrentUser(cu);
         if (cu) {
           setReviewName(
             cu.email ||
               cu.username ||
               (
-                (cu.firstName || '') + (cu.lastName ? ` ${cu.lastName}` : '')
+                (cu.firstName || "") + (cu.lastName ? ` ${cu.lastName}` : "")
               ).trim() ||
-              'Usuario'
+              "Usuario"
           );
         }
       } catch {
@@ -196,11 +176,11 @@ function ProductDetails() {
       }
     };
     loadCurrent();
-    window.addEventListener('authChanged', loadCurrent);
-    window.addEventListener('storage', loadCurrent);
+    window.addEventListener("authChanged", loadCurrent);
+    window.addEventListener("storage", loadCurrent);
     return () => {
-      window.removeEventListener('authChanged', loadCurrent);
-      window.removeEventListener('storage', loadCurrent);
+      window.removeEventListener("authChanged", loadCurrent);
+      window.removeEventListener("storage", loadCurrent);
     };
   }, [product]);
 
@@ -212,12 +192,12 @@ function ProductDetails() {
       return;
     }
     if (!reviewText.trim()) {
-      toast.info('Completa nombre y reseña');
+      toast.info("Completa nombre y reseña");
       return;
     }
     const key = `reviews-${product.id}`;
     const authorName = // usar el mail del usuario logueado para la reseña y que no se pueda cambiar
-      (currentUser && (currentUser.email || currentUser.username)) || 'Usuario';
+      (currentUser && (currentUser.email || currentUser.username)) || "Usuario";
     const newReview = {
       id: Date.now(),
       name: authorName, //no se puede editar el nombre, va el email del usuario logueado
@@ -229,18 +209,20 @@ function ProductDetails() {
     const updated = [newReview, ...reviews];
     localStorage.setItem(key, JSON.stringify(updated));
     setReviews(updated);
-    setReviewText('');
+    setReviewText("");
     setReviewRating(5); //resetear puntaje, de 1 a 5 estrellas
-    toast.success('Reseña agregada');
+    toast.success("Reseña agregada");
   };
 
-  // Función para agregar el producto al carrito
+  // Función para agregar el producto al carrito (versión que valida stock)
   const addToCart = (product) => {
     try {
-      if (Number(product.stock) <= 0) {
+      const stock = Number(product?.stock || 0);
+      if (stock <= 0) {
         toast.error("No hay stock disponible para este producto");
         return;
       }
+
       const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setShowLoginModal(true);
@@ -253,14 +235,14 @@ function ProductDetails() {
         const updatedProduct = { ...product, quantity: 1 };
         const updatedCart = [...existing, updatedProduct];
         localStorage.setItem(key, JSON.stringify(updatedCart));
-        window.dispatchEvent(new Event('cartUpdated'));
+        window.dispatchEvent(new Event("cartUpdated"));
         toast.success(`${product.Productname} agregado al carrito`);
       } else {
         toast.info(`${product.Productname} ya está en el carrito`);
       }
     } catch (e) {
       console.error(e);
-      toast.error('Error al agregar al carrito');
+      toast.error("Error al agregar al carrito");
     }
   };
 
@@ -275,7 +257,7 @@ function ProductDetails() {
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
       localStorage.setItem(key, JSON.stringify(updated));
-      window.dispatchEvent(new Event('wishlistUpdated'));
+      window.dispatchEvent(new Event("wishlistUpdated"));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
@@ -315,13 +297,13 @@ function ProductDetails() {
         </li>
         <li className="position-relative active">
           <Link to="/articles" className="ps-5">
-            {product.category === 'kayak'
-              ? 'Kayaks'
-              : product.category === 'sup'
-              ? 'SUP'
-              : product.category === 'embarcacion'
-              ? 'Embarcaciones'
-              : 'Artículos'}
+            {product.category === "kayak"
+              ? "Kayaks"
+              : product.category === "sup"
+              ? "SUP"
+              : product.category === "embarcacion"
+              ? "Embarcaciones"
+              : "Artículos"}
           </Link>
         </li>
         <li className="position-relative active">
@@ -342,22 +324,22 @@ function ProductDetails() {
                       type="button"
                       onClick={() => setMainImage(img)}
                       className={`p-0 border-0 bg-transparent ${
-                        mainImage === img ? 'shadow' : ''
+                        mainImage === img ? "shadow" : ""
                       }`}
-                      style={{ lineHeight: 0, cursor: 'pointer' }}
+                      style={{ lineHeight: 0, cursor: "pointer" }}
                     >
                       <img
                         src={img}
                         alt={`Miniatura ${idx + 1}`}
                         loading="lazy"
                         className={`img-thumbnail ${
-                          mainImage === img ? 'border border-2 border-dark' : ''
+                          mainImage === img ? "border border-2 border-dark" : ""
                         }`}
                         style={{
                           width: 90,
                           height: 100,
-                          objectFit: 'cover',
-                          display: 'block',
+                          objectFit: "cover",
+                          display: "block",
                         }}
                       />
                     </button>
@@ -371,10 +353,10 @@ function ProductDetails() {
                 className="img-fluid"
                 alt="Imagen principal de la publicación"
                 style={{
-                  width: '100%',
+                  width: "100%",
                   maxWidth: 450,
                   height: 300,
-                  objectFit: 'cover',
+                  objectFit: "cover",
                 }}
               />
             </div>
@@ -385,23 +367,23 @@ function ProductDetails() {
               className="badge mb-2"
               style={{
                 backgroundColor:
-                  product.category === 'kayak'
-                    ? '#007bff'
-                    : product.category === 'sup'
-                    ? '#28a745'
-                    : product.category === 'embarcacion'
-                    ? '#dc3545'
-                    : '#ffc107',
-                color: '#fff',
+                  product.category === "kayak"
+                    ? "#007bff"
+                    : product.category === "sup"
+                    ? "#28a745"
+                    : product.category === "embarcacion"
+                    ? "#dc3545"
+                    : "#ffc107",
+                color: "#fff",
               }}
             >
-              {product.category === 'kayak'
-                ? 'Kayak'
-                : product.category === 'sup'
-                ? 'SUP'
-                : product.category === 'embarcacion'
-                ? 'Embarcación'
-                : 'Artículo'}
+              {product.category === "kayak"
+                ? "Kayak"
+                : product.category === "sup"
+                ? "SUP"
+                : product.category === "embarcacion"
+                ? "Embarcación"
+                : "Artículo"}
             </span>
             <h5 className="fw-bold">{product.price}</h5>
             <h2 className="mb-4 fw-semibold">{product.Productname}</h2>
@@ -410,7 +392,7 @@ function ProductDetails() {
             <div className="d-flex align-items-center gap-3 mb-4 quantity">
               <div
                 className="d-flex align-items-center Quantity-box"
-                style={{ maxWidth: '180px' }}
+                style={{ maxWidth: "180px" }}
               >
                 <button
                   className="btn-count border-0"
@@ -471,14 +453,14 @@ function ProductDetails() {
             )}
             <hr />
             <p>
-              <strong>Dueño:</strong> {product.owner || 'KBR'}
+              <strong>Dueño:</strong> {product.owner || "KBR"}
             </p>
             <p>
-              <strong>Descripción:</strong>{' '}
-              {product.description || 'Sin descripción'}
+              <strong>Descripción:</strong>{" "}
+              {product.description || "Sin descripción"}
             </p>
             <p>
-              <strong>Incluye:</strong> {product.includes || '—'}
+              <strong>Incluye:</strong> {product.includes || "—"}
             </p>
 
             {product.sellerId && product.sellerId !== 0 && (
@@ -488,7 +470,7 @@ function ProductDetails() {
                 <div className="d-flex align-items-center gap-3">
                   <div className="flex-grow-1">
                     <h6 className="mb-1">
-                      {product.sellerName || 'Vendedor KBR'}
+                      {product.sellerName || "Vendedor KBR"}
                     </h6>
                     <small className="text-muted">
                       <i className="bi bi-star-fill text-warning"></i>
@@ -504,7 +486,7 @@ function ProductDetails() {
                 <hr />
                 <h5 className="fw-bold mb-3">Especificaciones Técnicas</h5>
 
-                {product.category === 'kayak' && (
+                {product.category === "kayak" && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -547,7 +529,7 @@ function ProductDetails() {
                   </div>
                 )}
 
-                {product.category === 'sup' && (
+                {product.category === "sup" && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -592,13 +574,13 @@ function ProductDetails() {
                     <div className="col-6 mb-2">
                       <small className="text-muted">Quillas:</small>
                       <p className="mb-0 fw-semibold">
-                        {specs.finConfiguration || 'N/A'}
+                        {specs.finConfiguration || "N/A"}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {product.category === 'embarcacion' && (
+                {product.category === "embarcacion" && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -657,7 +639,7 @@ function ProductDetails() {
                   </div>
                 )}
 
-                {product.category === 'articulo' && (
+                {product.category === "articulo" && (
                   <div className="row">
                     <div className="col-12 mb-2">
                       <small className="text-muted">Tipo de artículo:</small>
@@ -714,7 +696,7 @@ function ProductDetails() {
             <div className="mb-4">
               <h5 className="mb-3">Dejar una reseña</h5>
               <form onSubmit={addReview}>
-                {' '}
+                {" "}
                 {/* Formulario para agregar reseña definido antes, se guarda en el localStorage */}
                 <div className="mb-2">
                   <input
@@ -744,7 +726,7 @@ function ProductDetails() {
                     {/* Opciones de puntaje, las estrellitas*/}
                     {[5, 4, 3, 2, 1].map((r) => (
                       <option key={r} value={r}>
-                        {r} {'⭐'.repeat(r)}
+                        {r} {"⭐".repeat(r)}
                       </option>
                     ))}
                   </select>
@@ -768,7 +750,7 @@ function ProductDetails() {
                         <small>{new Date(r.date).toLocaleString()}</small>
                       </div>
                       <div className="text-warning">
-                        {'⭐'.repeat(r.rating)}
+                        {"⭐".repeat(r.rating)}
                       </div>
                       <p className="mb-0">{r.text}</p>
                     </li>
@@ -791,15 +773,15 @@ function ProductDetails() {
         <div
           className="modal-backdrop"
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             zIndex: 1050,
           }}
           role="dialog"
@@ -807,7 +789,7 @@ function ProductDetails() {
         >
           <div
             className="card p-4"
-            style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+            style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
           >
             <h5 className="mb-3">Inicia sesión para continuar</h5>
             <p className="mb-3">Debes iniciar sesión para dejar una reseña.</p>
@@ -816,7 +798,7 @@ function ProductDetails() {
                 className="btn btn-primary"
                 onClick={() => {
                   setShowLoginModal(false);
-                  navigate('/login');
+                  navigate("/login");
                 }}
               >
                 Ir a iniciar sesión
