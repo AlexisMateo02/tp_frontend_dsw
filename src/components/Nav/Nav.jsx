@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react'; //Importa libreria React
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; //Importa Bootstrap JS para funcionalidades interactivas
 import { Link } from 'react-router-dom';
+import api from '../../services/api';
 
 // Definimos Componente Nav
 function Nav() {
@@ -132,12 +133,11 @@ function Nav() {
     };
   }, []);
 
-  // Función para cerrar sesión del usuario
+  // Función para cerrar sesión del usuario, para que cuando haga click en el boton de logout se ejecute esta funcion
   const logout = () => {
-    localStorage.removeItem('currentUser'); // Elimina el usuario actual del localStorage
-    setCurrentUser(null); // Actualiza el estado del usuario actual a null
-    window.dispatchEvent(new Event('authChanged')); // Notifica a otros componentes que la autenticación ha cambiado
-    window.location.href = '/'; // vuelve a la página de inicio
+    api.logout();
+    setCurrentUser(null);
+    window.location.href = '/';
   };
 
   // El diseño de los elementos de la barra de navegacion se realiza todo aca, y es lo que nos estaria mostrando en pantalla la funcion Nav

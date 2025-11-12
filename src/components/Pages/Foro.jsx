@@ -1,16 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import api from "../../services/api";
-import normalizeImagePath from "../../lib/utils/normalizeImagePath";
+//Componetnte donde se muestran las publicaciones del foro que hacen los usuarios
+//No se pueden efectuar compras desde aqui, solo ver las publicaciones y contactarse con el vendedor
 
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import api from '../../services/api';
+import normalizeImagePath from '../../lib/utils/normalizeImagePath';
+
+//Definimos el componente Foro
 export default function Foro() {
   const [posts, setPosts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedTerm, setDebouncedTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(''); //Quiero tener un estado para el termino de busqueda, que ahora este vacio
+  const [debouncedTerm, setDebouncedTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Función para cargar las publicaciones del foro
   const loadPosts = async () => {
     try {
       setLoading(true);
@@ -18,46 +23,47 @@ export default function Foro() {
       if (api.hasApi()) {
         // Intentar cargar desde el backend
         try {
-          const backendPosts = await api.getActiveForumPosts();
+          const backendPosts = await api.getActiveForumPosts(); // Obtener publicaciones activas del foro desde el backend
           setPosts(backendPosts || []);
           return;
         } catch (error) {
-          console.warn("Backend no disponible, usando localStorage:", error);
-          toast.info("Mostrando publicaciones locales");
+          console.warn('Backend no disponible, usando localStorage:', error);
+          toast.info('Mostrando publicaciones locales');
         }
       }
 
-      // Fallback a localStorage
-      const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      // Si no hay backend, cargar desde localStorage
+      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
       setPosts(localPosts);
     } catch (error) {
-      console.error("Error loading posts:", error);
-      toast.error("Error al cargar publicaciones");
+      console.error('Error loading posts:', error);
+      toast.error('Error al cargar publicaciones');
       setPosts([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Cargar publicaciones al montar el componente y cuando se actualicen
   useEffect(() => {
     loadPosts();
 
     const onPostsUpdated = () => loadPosts();
-    window.addEventListener("postsUpdated", onPostsUpdated);
+    window.addEventListener('postsUpdated', onPostsUpdated);
 
     return () => {
-      window.removeEventListener("postsUpdated", onPostsUpdated);
+      window.removeEventListener('postsUpdated', onPostsUpdated);
     };
   }, []);
 
-  // debounce the searchTerm
+  // Efecto para manejar en la busqueda el tiempo que tarda en escribir el usuario y el tiempo q tarda en filtrar y mostrar resultados
   useEffect(() => {
     const t = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 250);
     return () => clearTimeout(t);
   }, [searchTerm]);
 
   // Filtrar y ordenar posts
-  const q = (debouncedTerm || "").toLowerCase();
+  const q = (debouncedTerm || '').toLowerCase();
   let filteredPosts = posts.slice();
 
   if (q) {
@@ -100,6 +106,7 @@ export default function Foro() {
     );
   }
 
+  //Diseño de la vista del foro y llamadas a las funciones antes definidas
   return (
     <div className="container my-5">
       <ToastContainer position="top-right" autoClose={3000} />
@@ -124,7 +131,7 @@ export default function Foro() {
 
             <form
               className="d-flex align-items-center gap-2"
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={(e) => e.preventDefault()} //para eviatr que recargue la pagina al buscar, que es lo q normalmente hace un form, para eso esta el preventDefault
               role="search"
             >
               <div className="input-group">
@@ -142,7 +149,7 @@ export default function Foro() {
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={() => setSearchTerm("")}
+                    onClick={() => setSearchTerm('')}
                     title="Limpiar"
                   >
                     ✕
@@ -175,17 +182,17 @@ export default function Foro() {
 
                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
                   {filteredPosts.map((post) => {
-                    const title = post.title || "Sin título";
+                    const title = post.title || 'Sin título';
                     // Manejar tanto URLs del servidor como base64
                     const img =
                       normalizeImagePath(
-                        (post.images && post.images[0]) || "",
-                        "forum"
-                      ) || "/assets/placeholder.webp";
+                        (post.images && post.images[0]) || '',
+                        'forum'
+                      ) || '/assets/placeholder.webp';
                     const owner = post.author
                       ? `${post.author.firstName} ${post.author.lastName}`.trim()
-                      : post.owner || "Anónimo";
-                    const desc = post.content || post.description || "";
+                      : post.owner || 'Anónimo';
+                    const desc = post.content || post.description || '';
                     const price = post.price;
 
                     return (
@@ -194,8 +201,8 @@ export default function Foro() {
                           <div
                             style={{
                               height: 200,
-                              overflow: "hidden",
-                              backgroundColor: "#f8f9fa",
+                              overflow: 'hidden',
+                              backgroundColor: '#f8f9fa',
                             }}
                           >
                             <img
@@ -203,7 +210,7 @@ export default function Foro() {
                               alt={title}
                               className="img-fluid w-100 h-100 object-fit-cover"
                               onError={(e) => {
-                                e.target.src = "/assets/placeholder.webp";
+                                e.target.src = '/assets/placeholder.webp';
                               }}
                             />
                           </div>
@@ -215,8 +222,8 @@ export default function Foro() {
                             {price && (
                               <p className="text-success fw-bold mb-2">
                                 $
-                                {typeof price === "number"
-                                  ? price.toLocaleString("es-AR")
+                                {typeof price === 'number'
+                                  ? price.toLocaleString('es-AR') // Formatear número
                                   : price}
                               </p>
                             )}

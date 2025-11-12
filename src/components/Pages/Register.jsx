@@ -1,3 +1,4 @@
+// Componente en donde los usuarios pueden registrarse
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -5,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import api from '../../services/api';
 
 function Register() {
+  //Inicializar estados y hooks
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -15,27 +17,30 @@ function Register() {
   const [loading, setLoading] = useState(false);
 
   const validateEmail = (email) => {
+    // Función para validar formato de email, el arroba y esas cosas
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const handleSubmit = async (e) => {
+    // Manejar el envio del formulario
     e.preventDefault();
-    
+
+    //Validaciones de los campos
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password) {
       toast.error('Completa los campos requeridos');
       return;
     }
-    
+
     if (!validateEmail(email)) {
       toast.error('Email inválido');
       return;
     }
-    
+
     if (password.length < 6) {
       toast.error('La contraseña debe tener al menos 6 caracteres');
       return;
     }
-    
+
     if (password !== confirm) {
       toast.error('Las contraseñas no coinciden');
       return;
@@ -45,13 +50,16 @@ function Register() {
     if (phone && phone.trim() !== '') {
       const phoneRegex = /^\+?\d{8,}$/;
       if (!phoneRegex.test(phone.trim())) {
-        toast.error('El teléfono debe contener solo números (mínimo 8 dígitos)');
+        toast.error(
+          'El teléfono debe contener solo números (mínimo 8 dígitos)'
+        );
         return;
       }
     }
 
     setLoading(true);
-    
+
+    // Es el intento de registrar al usuario llamando al backend
     try {
       await api.register({
         firstName: firstName.trim(),
@@ -60,16 +68,17 @@ function Register() {
         password,
         phone: phone.trim() || undefined,
       });
-      
-      toast.success('Registro exitoso. Redirigiendo a login...');
+
+      toast.success('Registro exitoso. Redirigiendo a login...'); // Notificar éxito
       setTimeout(() => navigate('/login'), 1200);
     } catch (error) {
-      toast.error(error.message || 'Error al registrar usuario');
+      toast.error(error.message || 'Error al registrar usuario'); // El backend puede devolver un mensaje de error, porque por ejemplo el email ya existe
     } finally {
       setLoading(false);
     }
   };
 
+  //Diseñamos el formulario de registro
   return (
     <div className="container my-5" style={{ maxWidth: 680 }}>
       <ToastContainer position="top-right" autoClose={3000} />
@@ -116,7 +125,9 @@ function Register() {
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Ej: +541234567890"
           />
-          <small className="text-muted">Solo números. Mínimo 8 dígitos. Opcionalmente puede comenzar con +</small>
+          <small className="text-muted">
+            Solo números. Mínimo 8 dígitos. Opcionalmente puede comenzar con +
+          </small>
         </div>
         <div className="mb-3">
           <label className="form-label">Contraseña</label>

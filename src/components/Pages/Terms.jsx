@@ -1,5 +1,6 @@
 /*Pagina de Terminos y Condiciones*/
-import React from "react";
+/* Página informativa: sin checkbox ni botones de aceptación, SOLO TEXTO */
+import React from 'react';
 
 function Terms() {
   return (
@@ -9,9 +10,9 @@ function Terms() {
       <div
         className="border rounded p-4 mb-3"
         style={{
-          maxHeight: "420px",
-          overflowY: "auto",
-          whiteSpace: "pre-wrap",
+          maxHeight: '420px',
+          overflowY: 'auto',
+          whiteSpace: 'pre-wrap',
         }}
       >
         <h4>1. Objeto</h4>
@@ -73,8 +74,6 @@ function Terms() {
 
         <p>Fecha de última actualización: 14 de octubre de 2025</p>
       </div>
-
-      {/* Página informativa: sin checkbox ni botones de aceptación */}
     </div>
   );
 }

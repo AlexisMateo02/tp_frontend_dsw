@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
-import api from "../../services/api";
-import normalizeImagePath from "../../lib/utils/normalizeImagePath";
+// Componente en donde vamos a crear las publicaciones
+
+import React, { useEffect, useState, useRef } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import { Link, useNavigate } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
+import api from '../../services/api';
+import normalizeImagePath from '../../lib/utils/normalizeImagePath';
 
 export default function Publicaciones() {
   const [posts, setPosts] = useState([]);
@@ -15,11 +17,11 @@ export default function Publicaciones() {
   const fileRef = useRef(null);
   const navigate = useNavigate();
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
   const loadMyPosts = async () => {
     if (!currentUser) {
-      navigate("/login");
+      navigate('/login');
       return;
     }
 
@@ -38,17 +40,17 @@ export default function Publicaciones() {
           setPosts(myPosts);
           return;
         } catch (error) {
-          console.warn("Backend no disponible, usando localStorage:", error);
+          console.warn('Backend no disponible, usando localStorage:', error);
         }
       }
 
       // Fallback a localStorage
-      const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
       const myPosts = localPosts.filter((p) => isOwnedByUser(p, currentUser));
       setPosts(myPosts);
     } catch (error) {
-      console.error("Error loading posts:", error);
-      toast.error("Error al cargar publicaciones");
+      console.error('Error loading posts:', error);
+      toast.error('Error al cargar publicaciones');
     } finally {
       setLoading(false);
     }
@@ -58,13 +60,13 @@ export default function Publicaciones() {
     loadMyPosts();
 
     const onUpdated = () => loadMyPosts();
-    window.addEventListener("postsUpdated", onUpdated);
-    return () => window.removeEventListener("postsUpdated", onUpdated);
+    window.addEventListener('postsUpdated', onUpdated);
+    return () => window.removeEventListener('postsUpdated', onUpdated);
   }, []);
 
   const isOwnedByUser = (post, user) => {
     if (!user) return false;
-    const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
     return (
       (post.ownerEmail && user.email && post.ownerEmail === user.email) ||
       (post.contact && user.email && post.contact === user.email) ||
@@ -76,7 +78,7 @@ export default function Publicaciones() {
   const remove = async (id) => {
     if (
       !window.confirm(
-        "¿Eliminar publicación? Esta acción no se puede deshacer."
+        '¿Eliminar publicación? Esta acción no se puede deshacer.'
       )
     ) {
       return;
@@ -86,35 +88,35 @@ export default function Publicaciones() {
       if (api.hasApi()) {
         try {
           await api.deleteForumPost(id);
-          toast.success("Publicación eliminada");
-          window.dispatchEvent(new Event("postsUpdated"));
+          toast.success('Publicación eliminada');
+          window.dispatchEvent(new Event('postsUpdated'));
           loadMyPosts();
           return;
         } catch (error) {
-          console.warn("Error en backend, eliminando localmente:", error);
+          console.warn('Error en backend, eliminando localmente:', error);
         }
       }
 
       // Fallback a localStorage
-      const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
       const filtered = localPosts.filter((p) => String(p.id) !== String(id));
-      localStorage.setItem("userPosts", JSON.stringify(filtered));
-      window.dispatchEvent(new Event("postsUpdated"));
-      toast.success("Publicación eliminada localmente");
+      localStorage.setItem('userPosts', JSON.stringify(filtered));
+      window.dispatchEvent(new Event('postsUpdated'));
+      toast.success('Publicación eliminada localmente');
       loadMyPosts();
     } catch (error) {
-      console.error("Error deleting post:", error);
-      toast.error("No se pudo eliminar la publicación");
+      console.error('Error deleting post:', error);
+      toast.error('No se pudo eliminar la publicación');
     }
   };
 
   const startEdit = (post) => {
     setEditingId(post.id);
     setEditForm({
-      title: post.title || "",
-      price: post.price || "",
-      description: post.content || post.description || "",
-      contact: post.contactInfo || post.contact || "",
+      title: post.title || '',
+      price: post.price || '',
+      description: post.content || post.description || '',
+      contact: post.contactInfo || post.contact || '',
     });
     setEditImages(post.images || []);
   };
@@ -124,9 +126,9 @@ export default function Publicaciones() {
     setEditForm(null);
     setEditImages([]);
     try {
-      if (fileRef.current) fileRef.current.value = "";
+      if (fileRef.current) fileRef.current.value = '';
     } catch (e) {
-      console.warn("Could not reset edit file input", e);
+      console.warn('Could not reset edit file input', e);
     }
   };
 
@@ -140,20 +142,20 @@ export default function Publicaciones() {
             const scale = Math.min(1, maxWidth / img.width);
             const w = Math.round(img.width * scale);
             const h = Math.round(img.height * scale);
-            const canvas = document.createElement("canvas");
+            const canvas = document.createElement('canvas');
             canvas.width = w;
             canvas.height = h;
-            const ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
             canvas.toBlob(
               (blob) => {
-                if (!blob) return reject(new Error("Canvas is empty"));
+                if (!blob) return reject(new Error('Canvas is empty'));
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
               },
-              "image/jpeg",
+              'image/jpeg',
               quality
             );
           } catch (err) {
@@ -164,7 +166,7 @@ export default function Publicaciones() {
         };
         img.onerror = (e) => {
           URL.revokeObjectURL(url);
-          reject(e || new Error("Image load error"));
+          reject(e || new Error('Image load error'));
         };
         img.src = url;
       } catch (e) {
@@ -182,7 +184,7 @@ export default function Publicaciones() {
       setEditImages(dataUrls);
     } catch (err) {
       console.error(err);
-      toast.error("No se pudieron procesar las imágenes");
+      toast.error('No se pudieron procesar las imágenes');
     }
   };
 
@@ -192,11 +194,11 @@ export default function Publicaciones() {
       !editForm.description.trim() ||
       !editForm.contact.trim()
     ) {
-      toast.error("Completa los campos obligatorios");
+      toast.error('Completa los campos obligatorios');
       return;
     }
     if (!editImages || editImages.length === 0) {
-      toast.error("Debes incluir al menos 1 imagen");
+      toast.error('Debes incluir al menos 1 imagen');
       return;
     }
 
@@ -217,18 +219,18 @@ export default function Publicaciones() {
       if (api.hasApi()) {
         try {
           await api.updateForumPost(id, updateData);
-          toast.success("Publicación actualizada");
-          window.dispatchEvent(new Event("postsUpdated"));
+          toast.success('Publicación actualizada');
+          window.dispatchEvent(new Event('postsUpdated'));
           cancelEdit();
           loadMyPosts();
           return;
         } catch (error) {
-          console.warn("Error en backend, actualizando localmente:", error);
+          console.warn('Error en backend, actualizando localmente:', error);
         }
       }
 
       // Fallback a localStorage
-      const localPosts = JSON.parse(localStorage.getItem("userPosts") || "[]");
+      const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
       const updated = localPosts.map((p) => {
         if (String(p.id) === String(id)) {
           return {
@@ -245,14 +247,14 @@ export default function Publicaciones() {
         }
         return p;
       });
-      localStorage.setItem("userPosts", JSON.stringify(updated));
-      window.dispatchEvent(new Event("postsUpdated"));
-      toast.success("Publicación actualizada localmente");
+      localStorage.setItem('userPosts', JSON.stringify(updated));
+      window.dispatchEvent(new Event('postsUpdated'));
+      toast.success('Publicación actualizada localmente');
       cancelEdit();
       loadMyPosts();
     } catch (error) {
-      console.error("Error updating post:", error);
-      toast.error("No se pudo actualizar la publicación");
+      console.error('Error updating post:', error);
+      toast.error('No se pudo actualizar la publicación');
     } finally {
       setSaving(false);
     }
@@ -296,16 +298,16 @@ export default function Publicaciones() {
                 <div
                   style={{
                     height: 220,
-                    overflow: "hidden",
-                    backgroundColor: "#f8f9fa",
+                    overflow: 'hidden',
+                    backgroundColor: '#f8f9fa',
                   }}
                 >
                   <img
                     src={
                       normalizeImagePath(
-                        (post.images && post.images[0]) || "",
-                        "forum"
-                      ) || "/assets/placeholder.webp"
+                        (post.images && post.images[0]) || '',
+                        'forum'
+                      ) || '/assets/placeholder.webp'
                     }
                     alt={post.title}
                     className="img-fluid w-100 h-100 object-fit-cover"
@@ -393,7 +395,7 @@ export default function Publicaciones() {
                           onClick={() => saveEdit(post.id)}
                           disabled={saving}
                         >
-                          {saving ? "Guardando..." : "Guardar"}
+                          {saving ? 'Guardando...' : 'Guardar'}
                         </button>
                         <button
                           className="btn btn-sm btn-secondary"
@@ -410,8 +412,8 @@ export default function Publicaciones() {
                       {post.price && (
                         <p className="text-success fw-bold mb-1">
                           $
-                          {typeof post.price === "number"
-                            ? post.price.toLocaleString("es-AR")
+                          {typeof post.price === 'number'
+                            ? post.price.toLocaleString('es-AR')
                             : post.price}
                         </p>
                       )}
