@@ -12,12 +12,14 @@ cargada en el alta tienda*/
 /*Pero ahora aca lo usamos para alojar las tiendas dadas de alta*/
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+//fotos de las dos sucrsales precargadas
 import store1 from '../../assets/store-01.webp';
 import store2 from '../../assets/store-02.webp';
 
 function Stores() {
   const [stores, setStores] = useState([]);
 
+  // Cargar las tiendas desde localStorage al montar el componente, deberia ser del backend
   useEffect(() => {
     try {
       const s = JSON.parse(localStorage.getItem('stores') || '[]');
@@ -27,6 +29,7 @@ function Stores() {
     }
   }, []);
 
+  //Diseño del componente Stores
   return (
     <>
       <ol className="section-banner py-3 position-relative">
