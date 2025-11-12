@@ -1,23 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-// Product.json static file removed — products loaded from API/localStorage
-import KayakTypes from "../../data/KayakTypes.json";
-import SUPTypes from "../../data/SUPTypes.json";
-import BoatTypes from "../../data/BoatTypes.json";
-import ArticleTypes from "../../data/ArticleTypes.json";
+//Componente para ver los detalles de un producto individual
 
-import { ToastContainer, toast } from "react-toastify";
-import normalizeImagePath from "../../lib/utils/normalizeImagePath";
+//Importaciones
+import React, { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import KayakTypes from '../../data/KayakTypes.json';
+import SUPTypes from '../../data/SUPTypes.json';
+import BoatTypes from '../../data/BoatTypes.json';
+import ArticleTypes from '../../data/ArticleTypes.json';
+import { ToastContainer, toast } from 'react-toastify';
+import normalizeImagePath from '../../lib/utils/normalizeImagePath';
 
 function ProductDetails() {
   const { id } = useParams();
 
-  const [mainImage, setMainImage] = useState("/assets/placeholder.webp");
+  const [mainImage, setMainImage] = useState('/assets/placeholder.webp');
   const [images, setImages] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [reviews, setReviews] = useState([]);
-  const [reviewName, setReviewName] = useState("");
-  const [reviewText, setReviewText] = useState("");
+  const [reviewName, setReviewName] = useState('');
+  const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -26,67 +27,67 @@ function ProductDetails() {
 
   const navigate = useNavigate();
 
-  // CARGAR PRODUCTOS DESDE MÚLTIPLES FUENTES
+  // Vamos a cargar todos los productos desde las 3 fuentes: JSON, localStorage y API
   useEffect(() => {
     const loadAllProducts = async () => {
       try {
         setLoadingProducts(true);
 
-        // 1. Cargar productos de la API (base de datos)
+        // caragmos los productos desde las API, es decir desde el backend
         let apiProducts = [];
         try {
-          const response = await fetch("http://localhost:3000/api/products");
+          const response = await fetch('http://localhost:3000/api/products');
           if (response.ok) {
             const result = await response.json();
             apiProducts = result.data || [];
             console.log(
-              "✅ Productos cargados desde API en ProductDetails:",
+              '✅ Productos cargados desde API en ProductDetails:',
               apiProducts.length
             );
 
-            // Filtrar solo productos aprobados y agregar seller info por defecto
+            // Obvio solo vamos a cargar los productos aprobados por el admin
             apiProducts = apiProducts
               .filter((p) => p.approved)
               .map((p) => ({
                 ...p,
                 sellerId: p.sellerId || 0,
-                sellerName: p.sellerName || "KBR",
+                sellerName: p.sellerName || 'KBR',
                 approved: true,
               }));
           }
         } catch (error) {
           console.warn(
-            "❌ Error cargando productos de API en ProductDetails:",
+            '❌ Error cargando productos de API en ProductDetails:',
             error
           );
         }
 
-        // 2. Cargar productos del marketplace (localStorage)
+        // Cargamos productos desde el localstorage
         const marketplaceProducts = JSON.parse(
-          localStorage.getItem("marketplaceProducts") || "[]"
+          localStorage.getItem('marketplaceProducts') || '[]'
         );
         const approvedMarketplace = marketplaceProducts.filter(
           (p) => p.approved
         );
 
-        // 3. Productos del JSON estático (removido)
+        // 3. Productos del JSON estático, que igual lo sacamos
         const jsonProducts = [];
 
         // 4. COMBINAR TODAS LAS FUENTES
         const combined = [
-          ...jsonProducts,
+          ...jsonProducts, //eliminamos en realidad todos los json (era para pruebas del frontend)
           ...approvedMarketplace,
           ...apiProducts,
         ];
 
         console.log(
-          "📊 Total productos combinados en ProductDetails:",
+          '📊 Total productos combinados en ProductDetails:',
           combined.length
         );
 
-        setCombinedProducts(combined);
+        setCombinedProducts(combined); // Guardamos todos los productos juntos (backend, localStorage, JSON)
       } catch (error) {
-        console.error("Error loading products in ProductDetails:", error);
+        console.error('Error loading products in ProductDetails:', error);
         // Fallback: no static JSON products available
         setCombinedProducts([]);
       } finally {
@@ -97,26 +98,29 @@ function ProductDetails() {
     loadAllProducts();
   }, []);
 
+  // Buscar el producto actual por ID en el array combinado
   const product = combinedProducts.find((p) => Number(p.id) === Number(id));
 
+  // Función para obtener las especificaciones técnicas según el tipo de producto
   const getProductSpecs = () => {
     if (!product) return null;
 
-    // If the product carries its own kayakType (from marketplace/admin creation), prefer it
+    // Si el producto existe devuelve las especificaciones según su tipo, ya que dependiendo del tipo de producto (kayak, sup, embarcacion, articulo) las especificaciones técnicas son diferentes
+    // y todos esos campos de especificaicones estan cargados en el backend
     if (product.kayakType) {
       return product.kayakType;
     }
 
-    if (product.category === "kayak" && product.kayakTypeId) {
+    if (product.category === 'kayak' && product.kayakTypeId) {
       return KayakTypes.find((k) => k.id === product.kayakTypeId);
     }
-    if (product.category === "sup" && product.supTypeId) {
+    if (product.category === 'sup' && product.supTypeId) {
       return SUPTypes.find((s) => s.id === product.supTypeId);
     }
-    if (product.category === "embarcacion" && product.boatTypeId) {
+    if (product.category === 'embarcacion' && product.boatTypeId) {
       return BoatTypes.find((b) => b.id === product.boatTypeId);
     }
-    if (product.category === "articulo" && product.articleTypeId) {
+    if (product.category === 'articulo' && product.articleTypeId) {
       return ArticleTypes.find((a) => a.id === product.articleTypeId);
     }
     return null;
@@ -124,9 +128,9 @@ function ProductDetails() {
 
   const specs = getProductSpecs();
 
+  // Efecto para cargar las imágenes del producto cuando cambia el producto
   useEffect(() => {
     if (product) {
-      // sanitize images: accept fields which may be string, array or object
       try {
         const candidates = [];
         [
@@ -143,46 +147,47 @@ function ProductDetails() {
           candidates.push(field);
         });
 
-        const MAX_LEN = 2_000_000; // ~2MB base64 length threshold
+        const MAX_LEN = 2_000_000; //
         const safeStrings = candidates
           .map((i) => {
-            // if object, normalizeImagePath will extract URL
             return normalizeImagePath(i);
           })
           .filter(Boolean)
-          .filter((s) => typeof s === "string" && s.length < MAX_LEN)
+          .filter((s) => typeof s === 'string' && s.length < MAX_LEN)
           .slice(0, 4);
 
-        const chosen = safeStrings[0] || "/assets/placeholder.webp";
+        const chosen = safeStrings[0] || '/assets/placeholder.webp';
         setMainImage(chosen);
         setImages(safeStrings);
       } catch (error) {
-        console.error("Error loading products in ProductDetails:", error);
+        console.error('Error loading products in ProductDetails:', error);
         setImages([]);
-        setMainImage("/assets/placeholder.webp");
+        setMainImage('/assets/placeholder.webp');
       }
     }
   }, [product]);
 
+  // Efecto para cargar las reseñas del producto y el usuario actual, en esta nos basamos en el localStorage, ya que no hay backend para las reviews
+  // tenemos en la bdd review pero no lo usamos aun, no se cargan ahi, y lo vamos a dejar para la AD
   useEffect(() => {
     if (product) {
       const key = `reviews-${product.id}`;
       const existing = JSON.parse(localStorage.getItem(key)) || [];
       setReviews(existing);
     }
+    //caragar usuario actual y recordar que un usuario no logueado no puede hacer reseñas
     const loadCurrent = () => {
       try {
-        const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
+        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
         setCurrentUser(cu);
         if (cu) {
-          // use the login email as the reviewer identifier (unique)
           setReviewName(
             cu.email ||
               cu.username ||
               (
-                (cu.firstName || "") + (cu.lastName ? ` ${cu.lastName}` : "")
+                (cu.firstName || '') + (cu.lastName ? ` ${cu.lastName}` : '')
               ).trim() ||
-              "Usuario"
+              'Usuario'
           );
         }
       } catch {
@@ -190,32 +195,31 @@ function ProductDetails() {
       }
     };
     loadCurrent();
-    window.addEventListener("authChanged", loadCurrent);
-    window.addEventListener("storage", loadCurrent);
+    window.addEventListener('authChanged', loadCurrent);
+    window.addEventListener('storage', loadCurrent);
     return () => {
-      window.removeEventListener("authChanged", loadCurrent);
-      window.removeEventListener("storage", loadCurrent);
+      window.removeEventListener('authChanged', loadCurrent);
+      window.removeEventListener('storage', loadCurrent);
     };
   }, [product]);
 
+  // Función para agregar una reseña
   const addReview = (e) => {
     e.preventDefault();
     if (!currentUser) {
-      // show modal asking user to login instead of redirecting immediately
-      setShowLoginModal(true);
+      setShowLoginModal(true); // pedir login si no está logueado
       return;
     }
     if (!reviewText.trim()) {
-      toast.info("Completa nombre y reseña");
+      toast.info('Completa nombre y reseña');
       return;
     }
     const key = `reviews-${product.id}`;
-    // use currentUser email as the author (unique identifier)
-    const authorName =
-      (currentUser && (currentUser.email || currentUser.username)) || "Usuario";
+    const authorName = // usar el mail del usuario logueado para la reseña y que no se pueda cambiar
+      (currentUser && (currentUser.email || currentUser.username)) || 'Usuario';
     const newReview = {
       id: Date.now(),
-      name: authorName,
+      name: authorName, //no se puede editar el nombre, va el email del usuario logueado
       userId: currentUser.id || null,
       text: reviewText.trim(),
       rating: reviewRating,
@@ -224,15 +228,15 @@ function ProductDetails() {
     const updated = [newReview, ...reviews];
     localStorage.setItem(key, JSON.stringify(updated));
     setReviews(updated);
-    // keep reviewName as the user's email (non-editable)
-    setReviewText("");
-    setReviewRating(5);
-    toast.success("Reseña agregada");
+    setReviewText('');
+    setReviewRating(5); //resetear puntaje, de 1 a 5 estrellas va
+    toast.success('Reseña agregada');
   };
 
+  // Función para agregar el producto al carrito
   const addToCart = (product) => {
     try {
-      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
       if (!cu) {
         setShowLoginModal(true);
         return;
@@ -244,17 +248,18 @@ function ProductDetails() {
         const updatedProduct = { ...product, quantity: 1 };
         const updatedCart = [...existing, updatedProduct];
         localStorage.setItem(key, JSON.stringify(updatedCart));
-        window.dispatchEvent(new Event("cartUpdated"));
+        window.dispatchEvent(new Event('cartUpdated'));
         toast.success(`${product.Productname} agregado al carrito`);
       } else {
         toast.info(`${product.Productname} ya está en el carrito`);
       }
     } catch (e) {
       console.error(e);
-      toast.error("Error al agregar al carrito");
+      toast.error('Error al agregar al carrito');
     }
   };
 
+  // Función para agregar el producto a la wishlist
   const addToWishlist = (product) => {
     if (!currentUser) {
       setShowLoginModal(true);
@@ -265,7 +270,7 @@ function ProductDetails() {
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
       localStorage.setItem(key, JSON.stringify(updated));
-      window.dispatchEvent(new Event("wishlistUpdated"));
+      window.dispatchEvent(new Event('wishlistUpdated'));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
@@ -283,6 +288,7 @@ function ProductDetails() {
     );
   }
 
+  // esto puede llegar a pasar porejemplo si es el product.json que eliminamos pero el usuario tiene un link guardado o aparece un link a el
   if (!product) {
     return (
       <div className="container text-center py-5">
@@ -295,6 +301,7 @@ function ProductDetails() {
     );
   }
 
+  //Diseñamos la vista de detalles del producto
   return (
     <>
       <ol className="section-banner py-3 position-relative">
@@ -303,13 +310,13 @@ function ProductDetails() {
         </li>
         <li className="position-relative active">
           <Link to="/articles" className="ps-5">
-            {product.category === "kayak"
-              ? "Kayaks"
-              : product.category === "sup"
-              ? "SUP"
-              : product.category === "embarcacion"
-              ? "Embarcaciones"
-              : "Artículos"}
+            {product.category === 'kayak'
+              ? 'Kayaks'
+              : product.category === 'sup'
+              ? 'SUP'
+              : product.category === 'embarcacion'
+              ? 'Embarcaciones'
+              : 'Artículos'}
           </Link>
         </li>
         <li className="position-relative active">
@@ -321,7 +328,7 @@ function ProductDetails() {
         <div className="row">
           <div className="col-xl-6">
             <div className="d-flex flex-column-reverse flex-md-row mb-4">
-              {/* Miniaturas */}
+              {/* Miniaturas de las Imagenes*/}
               {images.length > 1 && (
                 <div className="d-flex flex-md-column me-md-3 gap-2 thumbnail-images">
                   {images.map((img, idx) => (
@@ -330,22 +337,22 @@ function ProductDetails() {
                       type="button"
                       onClick={() => setMainImage(img)}
                       className={`p-0 border-0 bg-transparent ${
-                        mainImage === img ? "shadow" : ""
+                        mainImage === img ? 'shadow' : ''
                       }`}
-                      style={{ lineHeight: 0, cursor: "pointer" }}
+                      style={{ lineHeight: 0, cursor: 'pointer' }}
                     >
                       <img
                         src={img}
                         alt={`Miniatura ${idx + 1}`}
                         loading="lazy"
                         className={`img-thumbnail ${
-                          mainImage === img ? "border border-2 border-dark" : ""
+                          mainImage === img ? 'border border-2 border-dark' : ''
                         }`}
                         style={{
                           width: 90,
                           height: 100,
-                          objectFit: "cover",
-                          display: "block",
+                          objectFit: 'cover',
+                          display: 'block',
                         }}
                       />
                     </button>
@@ -359,10 +366,10 @@ function ProductDetails() {
                 className="img-fluid"
                 alt="Imagen principal de la publicación"
                 style={{
-                  width: "100%",
+                  width: '100%',
                   maxWidth: 450,
                   height: 300,
-                  objectFit: "cover",
+                  objectFit: 'cover',
                 }}
               />
             </div>
@@ -373,23 +380,23 @@ function ProductDetails() {
               className="badge mb-2"
               style={{
                 backgroundColor:
-                  product.category === "kayak"
-                    ? "#007bff"
-                    : product.category === "sup"
-                    ? "#28a745"
-                    : product.category === "embarcacion"
-                    ? "#dc3545"
-                    : "#ffc107",
-                color: "#fff",
+                  product.category === 'kayak'
+                    ? '#007bff'
+                    : product.category === 'sup'
+                    ? '#28a745'
+                    : product.category === 'embarcacion'
+                    ? '#dc3545'
+                    : '#ffc107',
+                color: '#fff',
               }}
             >
-              {product.category === "kayak"
-                ? "Kayak"
-                : product.category === "sup"
-                ? "SUP"
-                : product.category === "embarcacion"
-                ? "Embarcación"
-                : "Artículo"}
+              {product.category === 'kayak'
+                ? 'Kayak'
+                : product.category === 'sup'
+                ? 'SUP'
+                : product.category === 'embarcacion'
+                ? 'Embarcación'
+                : 'Artículo'}
             </span>
             <h5 className="fw-bold">{product.price}</h5>
             <h2 className="mb-4 fw-semibold">{product.Productname}</h2>
@@ -398,7 +405,7 @@ function ProductDetails() {
             <div className="d-flex align-items-center gap-3 mb-4 quantity">
               <div
                 className="d-flex align-items-center Quantity-box"
-                style={{ maxWidth: "180px" }}
+                style={{ maxWidth: '180px' }}
               >
                 <button
                   className="btn-count border-0"
@@ -437,21 +444,21 @@ function ProductDetails() {
               className="btn-custome2 w-100 border-0"
               onClick={() => {
                 addToCart(product);
-                navigate("/cart");
+                navigate('/cart');
               }}
             >
               Comprar ahora
             </button>
             <hr />
             <p>
-              <strong>Dueño:</strong> {product.owner || "KBR"}
+              <strong>Dueño:</strong> {product.owner || 'KBR'}
             </p>
             <p>
-              <strong>Descripción:</strong>{" "}
-              {product.description || "Sin descripción"}
+              <strong>Descripción:</strong>{' '}
+              {product.description || 'Sin descripción'}
             </p>
             <p>
-              <strong>Incluye:</strong> {product.includes || "—"}
+              <strong>Incluye:</strong> {product.includes || '—'}
             </p>
 
             {product.sellerId && product.sellerId !== 0 && (
@@ -461,7 +468,7 @@ function ProductDetails() {
                 <div className="d-flex align-items-center gap-3">
                   <div className="flex-grow-1">
                     <h6 className="mb-1">
-                      {product.sellerName || "Vendedor KBR"}
+                      {product.sellerName || 'Vendedor KBR'}
                     </h6>
                     <small className="text-muted">
                       <i className="bi bi-star-fill text-warning"></i>
@@ -477,7 +484,7 @@ function ProductDetails() {
                 <hr />
                 <h5 className="fw-bold mb-3">Especificaciones Técnicas</h5>
 
-                {product.category === "kayak" && (
+                {product.category === 'kayak' && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -520,7 +527,7 @@ function ProductDetails() {
                   </div>
                 )}
 
-                {product.category === "sup" && (
+                {product.category === 'sup' && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -565,13 +572,13 @@ function ProductDetails() {
                     <div className="col-6 mb-2">
                       <small className="text-muted">Quillas:</small>
                       <p className="mb-0 fw-semibold">
-                        {specs.finConfiguration || "N/A"}
+                        {specs.finConfiguration || 'N/A'}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {product.category === "embarcacion" && (
+                {product.category === 'embarcacion' && (
                   <div className="row">
                     <div className="col-6 mb-2">
                       <small className="text-muted">Marca:</small>
@@ -630,7 +637,7 @@ function ProductDetails() {
                   </div>
                 )}
 
-                {product.category === "articulo" && (
+                {product.category === 'articulo' && (
                   <div className="row">
                     <div className="col-12 mb-2">
                       <small className="text-muted">Tipo de artículo:</small>
@@ -687,13 +694,15 @@ function ProductDetails() {
             <div className="mb-4">
               <h5 className="mb-3">Dejar una reseña</h5>
               <form onSubmit={addReview}>
+                {' '}
+                {/* Formulario para agregar reseña definido antes, se guarda en el localStorage */}
                 <div className="mb-2">
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Tu email"
                     value={currentUser ? currentUser.email : reviewName}
-                    disabled={!!currentUser}
+                    disabled={!!currentUser} // el usuario logueado no puede cambiar el nombre
                   />
                 </div>
                 <div className="mb-2">
@@ -712,9 +721,10 @@ function ProductDetails() {
                     onChange={(e) => setReviewRating(Number(e.target.value))}
                     className="form-select w-auto"
                   >
+                    {/* Opciones de puntaje, las estrellitas*/}
                     {[5, 4, 3, 2, 1].map((r) => (
                       <option key={r} value={r}>
-                        {r} {"⭐".repeat(r)}
+                        {r} {'⭐'.repeat(r)}
                       </option>
                     ))}
                   </select>
@@ -738,7 +748,7 @@ function ProductDetails() {
                         <small>{new Date(r.date).toLocaleString()}</small>
                       </div>
                       <div className="text-warning">
-                        {"⭐".repeat(r.rating)}
+                        {'⭐'.repeat(r.rating)}
                       </div>
                       <p className="mb-0">{r.text}</p>
                     </li>
@@ -761,15 +771,15 @@ function ProductDetails() {
         <div
           className="modal-backdrop"
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 1050,
           }}
           role="dialog"
@@ -777,7 +787,7 @@ function ProductDetails() {
         >
           <div
             className="card p-4"
-            style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
+            style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
           >
             <h5 className="mb-3">Inicia sesión para continuar</h5>
             <p className="mb-3">Debes iniciar sesión para dejar una reseña.</p>
@@ -786,7 +796,7 @@ function ProductDetails() {
                 className="btn btn-primary"
                 onClick={() => {
                   setShowLoginModal(false);
-                  navigate("/login");
+                  navigate('/login');
                 }}
               >
                 Ir a iniciar sesión

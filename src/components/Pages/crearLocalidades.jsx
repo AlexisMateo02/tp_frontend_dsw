@@ -1,8 +1,12 @@
+//Componente en donde se pueden crear y gestionar localidades, desde obvio el panel de administrador
+//esta componente se va a invocar en Admin.jsx ya que son solo ellos los que lo pueden hacer
+//Importaciones
 import React, { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 
 const API_BASE = 'http://localhost:3000/api';
 
+//Definimos el componente CrearLocalidades
 function CrearLocalidades() {
   const [localties, setLocalties] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -10,16 +14,16 @@ function CrearLocalidades() {
   const [form, setForm] = useState({
     name: '',
     zipcode: '',
-    provinceId: ''
+    provinceId: '',
   });
 
-  // Cargar datos
+  // Llama al backend para obtener las localidades y guarda el resultado en el estado
   const fetchLocalties = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE}/localties`);
       if (response.ok) {
         const result = await response.json();
-        setLocalties(result.data || []);
+        setLocalties(result.data || []); //aca es donde guardamos en localities el resultado que nos da el backend por cuando definimos const [localties, setLocalties] = useState([]); ya que localties es el estado que contiene las localidades y setLocalties es la funcion que actualiza ese estado
       }
     } catch (error) {
       console.error('Error fetching localties:', error);
@@ -27,6 +31,7 @@ function CrearLocalidades() {
     }
   }, []);
 
+  // Llama al backend para obtener las provincias y guarda el resultado en el estado
   const fetchProvinces = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE}/provinces`);
@@ -49,13 +54,13 @@ function CrearLocalidades() {
     setForm({
       name: '',
       zipcode: '',
-      provinceId: ''
+      provinceId: '',
     });
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
+    //Validaciones basicas al crear localidad
     if (!form.name || !form.zipcode || !form.provinceId) {
       toast.error('Nombre, código postal y provincia son obligatorios');
       return;
@@ -91,8 +96,11 @@ function CrearLocalidades() {
     }
   };
 
+  //Podemos eliminar una localidad
   const removeLocalty = async (id) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta localidad?')) {
+    if (
+      !window.confirm('¿Estás seguro de que quieres eliminar esta localidad?')
+    ) {
       return;
     }
 
@@ -114,10 +122,11 @@ function CrearLocalidades() {
     }
   };
 
+  //Diseñamos la vista del componente de la parte del panle que crea localidades
   return (
     <div>
       <h5 className="mb-3">Gestión de Localidades</h5>
-      
+
       {/* Formulario de creación */}
       <div className="card p-4 mb-4">
         <h6 className="mb-3">Crear Nueva Localidad</h6>
@@ -129,18 +138,22 @@ function CrearLocalidades() {
                 className="form-control"
                 placeholder="Nombre de la localidad"
                 value={form.name}
-                onChange={(e) => setForm(s => ({ ...s, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, name: e.target.value }))
+                }
                 required
               />
             </div>
-            
+
             <div className="col-md-4">
               <label className="form-label">Código Postal *</label>
               <input
                 className="form-control"
                 placeholder="Código postal"
                 value={form.zipcode}
-                onChange={(e) => setForm(s => ({ ...s, zipcode: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, zipcode: e.target.value }))
+                }
                 required
               />
             </div>
@@ -150,7 +163,9 @@ function CrearLocalidades() {
               <select
                 className="form-select"
                 value={form.provinceId}
-                onChange={(e) => setForm(s => ({ ...s, provinceId: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, provinceId: e.target.value }))
+                }
                 required
               >
                 <option value="">Seleccionar provincia</option>
@@ -166,8 +181,8 @@ function CrearLocalidades() {
               <button className="btn btn-primary" disabled={loading}>
                 {loading ? 'Creando...' : 'Crear Localidad'}
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-outline-secondary ms-2"
                 onClick={resetForm}
               >
@@ -178,7 +193,8 @@ function CrearLocalidades() {
         </form>
       </div>
 
-      {/* Lista de localidades existentes */}
+      {/* Lista/Muestra de localidades existentes, localites (estado) contiene las localidades
+      que fuimos cargando en el backend */}
       <div className="card p-4">
         <h6 className="mb-3">Localidades Existentes</h6>
         {localties.length === 0 ? (
@@ -193,7 +209,8 @@ function CrearLocalidades() {
                 <div>
                   <strong>{localty.name}</strong>
                   <div className="text-muted small">
-                    Código Postal: {localty.zipcode} | Provincia: {localty.province?.name}
+                    Código Postal: {localty.zipcode} | Provincia:{' '}
+                    {localty.province?.name}
                   </div>
                 </div>
                 <div>

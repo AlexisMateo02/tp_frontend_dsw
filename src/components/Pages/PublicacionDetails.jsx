@@ -13,17 +13,19 @@ export default function PublicacionDetails() {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Cargar detalles de la publicación al montar el componente o cuando cambie el ID
   useEffect(() => {
     const loadPost = async () => {
       try {
         setLoading(true);
 
+        // Intentar cargar desde el backend
         if (api.hasApi()) {
           try {
             const postData = await api.getForumPost(id);
             setPost(postData);
 
-            // Normalize images: handle arrays, single string, or objects with url/path
+            // Procesar imágenes, ya que pueden venir en varios formatos, las normalizamos
             const rawImgs = postData.images || postData.image || [];
             const imgList = (Array.isArray(rawImgs) ? rawImgs : [rawImgs])
               .map((it) => {
@@ -51,12 +53,13 @@ export default function PublicacionDetails() {
           }
         }
 
-        // Fallback a localStorage
+        // Si no hay backend, cargar desde localStorage
         const localPosts = JSON.parse(
           localStorage.getItem('userPosts') || '[]'
         );
         const foundPost = localPosts.find((p) => String(p.id) === String(id));
 
+        // Procesar imágenes si se encontró la publicación
         if (foundPost) {
           setPost(foundPost);
           const rawImgs = foundPost.images || foundPost.image || [];
@@ -92,6 +95,7 @@ export default function PublicacionDetails() {
     loadPost();
   }, [id]);
 
+  // Función para generar el enlace de contacto adecuado, via mail y con el mesnaje predefinido
   const contactHref = (c, postData) => {
     if (!c) return '#';
     if (/@/.test(c)) {
@@ -133,6 +137,7 @@ export default function PublicacionDetails() {
     );
   }
 
+  // si no se encuentra la publicacion
   if (!post) {
     return (
       <div className="container text-center py-5">
@@ -145,10 +150,12 @@ export default function PublicacionDetails() {
     );
   }
 
+  // Obtener nombre del propietario de la publicación
   const ownerName = post.author
     ? `${post.author.firstName} ${post.author.lastName}`.trim()
     : post.owner || 'Anónimo';
 
+  // Obtener información de contacto
   const contactInfo = post.contactInfo || post.contact || '—';
   const description = post.content || post.description || 'Sin descripción';
 

@@ -1,5 +1,6 @@
-// Componente en donde vamos a crear las publicaciones
+//Componente para mostrar y gestionar las publicaciones del usuario actual, Mis Publicaciones
 
+//Importamos librerias y servicios necesarios
 import React, { useEffect, useState, useRef } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,7 +8,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import api from '../../services/api';
 import normalizeImagePath from '../../lib/utils/normalizeImagePath';
 
+//Componente para mostrar y gestionar las publicaciones del usuario actual, Mis Publicaciones
 export default function Publicaciones() {
+  //Inicializar estados y hooks
   const [posts, setPosts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(null);
@@ -17,8 +20,10 @@ export default function Publicaciones() {
   const fileRef = useRef(null);
   const navigate = useNavigate();
 
+  // Obtener el usuario actual desde localStorage
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
+  // Función para cargar las publicaciones del usuario actual
   const loadMyPosts = async () => {
     if (!currentUser) {
       navigate('/login');
@@ -29,6 +34,7 @@ export default function Publicaciones() {
       setLoading(true);
 
       if (api.hasApi()) {
+        // Intentar cargar desde el backend
         try {
           // Cargar todas las publicaciones y filtrar las del usuario
           const allPosts = await api.getForumPosts();
@@ -44,7 +50,7 @@ export default function Publicaciones() {
         }
       }
 
-      // Fallback a localStorage
+      // Si no hay backend, cargar desde localStorage
       const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
       const myPosts = localPosts.filter((p) => isOwnedByUser(p, currentUser));
       setPosts(myPosts);
@@ -56,6 +62,7 @@ export default function Publicaciones() {
     }
   };
 
+  // Cargar publicaciones al montar el componente y cuando se actualicen
   useEffect(() => {
     loadMyPosts();
 
@@ -64,6 +71,7 @@ export default function Publicaciones() {
     return () => window.removeEventListener('postsUpdated', onUpdated);
   }, []);
 
+  // Función para verificar si una publicación pertenece al usuario actual, porque si no es así no puede editarla ni eliminarla
   const isOwnedByUser = (post, user) => {
     if (!user) return false;
     const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
@@ -75,6 +83,7 @@ export default function Publicaciones() {
     );
   };
 
+  // Función para eliminar una publicación
   const remove = async (id) => {
     if (
       !window.confirm(
@@ -84,6 +93,7 @@ export default function Publicaciones() {
       return;
     }
 
+    // Intentar eliminar la publicación en el backend
     try {
       if (api.hasApi()) {
         try {
@@ -97,7 +107,7 @@ export default function Publicaciones() {
         }
       }
 
-      // Fallback a localStorage
+      // Si no hay backend, eliminar desde localStorage
       const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
       const filtered = localPosts.filter((p) => String(p.id) !== String(id));
       localStorage.setItem('userPosts', JSON.stringify(filtered));
@@ -110,6 +120,7 @@ export default function Publicaciones() {
     }
   };
 
+  // Funciones para editar una publicación
   const startEdit = (post) => {
     setEditingId(post.id);
     setEditForm({
@@ -121,6 +132,7 @@ export default function Publicaciones() {
     setEditImages(post.images || []);
   };
 
+  // Función para cancelar la edición
   const cancelEdit = () => {
     setEditingId(null);
     setEditForm(null);
@@ -132,6 +144,7 @@ export default function Publicaciones() {
     }
   };
 
+  // Función para comprimir imágenes antes de subirlas
   const compressImage = (file, maxWidth = 1200, quality = 0.75) =>
     new Promise((resolve, reject) => {
       try {
@@ -174,6 +187,7 @@ export default function Publicaciones() {
       }
     });
 
+  // Función para manejar la selección de archivos en la edición
   const handleEditFiles = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, 5);
     if (files.length === 0) return;
@@ -188,6 +202,7 @@ export default function Publicaciones() {
     }
   };
 
+  // Función para guardar la edición de una publicación
   const saveEdit = async (id) => {
     if (
       !editForm.title.trim() ||
@@ -204,6 +219,7 @@ export default function Publicaciones() {
 
     setSaving(true);
 
+    // Intentar guardar la edición en el backend
     try {
       const updateData = {
         title: editForm.title.trim(),
@@ -229,7 +245,7 @@ export default function Publicaciones() {
         }
       }
 
-      // Fallback a localStorage
+      // Si no hay backend, actualizar desde localStorage
       const localPosts = JSON.parse(localStorage.getItem('userPosts') || '[]');
       const updated = localPosts.map((p) => {
         if (String(p.id) === String(id)) {
@@ -277,6 +293,7 @@ export default function Publicaciones() {
     );
   }
 
+  // Diseñamos el componente de Mis Publicaciones y sus funcionalidades
   return (
     <div className="container my-5">
       <ToastContainer position="top-right" autoClose={3000} />
