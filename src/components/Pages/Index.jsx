@@ -145,6 +145,10 @@ function Index() {
 
   const addToCart = (product) => {
     try {
+      if (Number(product.stock) <= 0) {
+        toast.error("No hay stock disponible para este producto");
+        return;
+      }
       const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setShowLoginModal(true);
@@ -298,20 +302,35 @@ function Index() {
                         >
                           <i className="bi bi-heart fs-5"></i>
                         </div>
-                        <div
-                          className="product-icon"
-                          title="Agregar al carrito"
-                          onClick={() => addToCart(product)}
-                        >
-                          <i className="bi bi-cart3 fs-5"></i>
-                        </div>
+                        {Number(product.stock) > 0 ? (
+                          <div
+                            className="product-icon"
+                            title="Agregar al carrito"
+                            onClick={() => addToCart(product)}
+                          >
+                            <i className="bi bi-cart3 fs-5"></i>
+                          </div>
+                        ) : (
+                          <div
+                            className="product-icon disabled"
+                            title="Sin stock"
+                          >
+                            <i className="bi bi-slash-circle fs-5" />
+                          </div>
+                        )}
                       </div>
                       <span
                         className={`tag badge text-white ${
-                          product.tag === "Nuevo" ? "bg-danger" : "bg-success"
+                          Number(product.stock) <= 0
+                            ? "bg-danger"
+                            : product.tag === "Nuevo"
+                            ? "bg-danger"
+                            : "bg-success"
                         }`}
                       >
-                        {product.tag}
+                        {Number(product.stock) <= 0
+                          ? "Sin Stock"
+                          : product.tag || ""}
                       </span>
                     </div>
                     <Link
@@ -433,22 +452,35 @@ function Index() {
                               >
                                 <i className="bi bi-heart fs-5"></i>
                               </div>
-                              <div
-                                className="product-icon"
-                                title="Agregar al carrito"
-                                onClick={() => addToCart(product)}
-                              >
-                                <i className="bi bi-cart3 fs-5"></i>
-                              </div>
+                              {Number(product.stock) > 0 ? (
+                                <div
+                                  className="product-icon"
+                                  title="Agregar al carrito"
+                                  onClick={() => addToCart(product)}
+                                >
+                                  <i className="bi bi-cart3 fs-5"></i>
+                                </div>
+                              ) : (
+                                <div
+                                  className="product-icon disabled"
+                                  title="Sin stock"
+                                >
+                                  <i className="bi bi-slash-circle fs-5" />
+                                </div>
+                              )}
                             </div>
                             <span
                               className={`tag badge text-white ${
-                                product.tag === "Nuevo"
+                                Number(product.stock) <= 0
+                                  ? "bg-danger"
+                                  : product.tag === "Nuevo"
                                   ? "bg-danger"
                                   : "bg-success"
                               }`}
                             >
-                              {product.tag}
+                              {Number(product.stock) <= 0
+                                ? "Sin Stock"
+                                : product.tag || ""}
                             </span>
                           </div>
                           <Link

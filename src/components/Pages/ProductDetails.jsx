@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-// Product.json static file removed — products loaded from API/localStorage
-import KayakTypes from "../../data/KayakTypes.json";
-import SUPTypes from "../../data/SUPTypes.json";
-import BoatTypes from "../../data/BoatTypes.json";
-import ArticleTypes from "../../data/ArticleTypes.json";
 
 import { ToastContainer, toast } from "react-toastify";
 import normalizeImagePath from "../../lib/utils/normalizeImagePath";
@@ -232,6 +227,10 @@ function ProductDetails() {
 
   const addToCart = (product) => {
     try {
+      if (Number(product.stock) <= 0) {
+        toast.error("No hay stock disponible para este producto");
+        return;
+      }
       const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setShowLoginModal(true);
@@ -419,12 +418,21 @@ function ProductDetails() {
                   +
                 </button>
               </div>
-              <button
-                className="btn-custome bi bi-cart w-50"
-                onClick={() => addToCart(product)}
-              >
-                Agregar al carrito
-              </button>
+              {Number(product.stock) > 0 ? (
+                <button
+                  className="btn-custome bi bi-cart w-50"
+                  onClick={() => addToCart(product)}
+                >
+                  Agregar al carrito
+                </button>
+              ) : (
+                <button
+                  className="btn-custome bi bi-cart w-50 disabled"
+                  disabled
+                >
+                  Sin Stock
+                </button>
+              )}
               <button
                 className="btn-custome bi bi-heart w-50"
                 onClick={() => addToWishlist(product)}
@@ -433,15 +441,21 @@ function ProductDetails() {
               </button>
             </div>
 
-            <button
-              className="btn-custome2 w-100 border-0"
-              onClick={() => {
-                addToCart(product);
-                navigate("/cart");
-              }}
-            >
-              Comprar ahora
-            </button>
+            {Number(product.stock) > 0 ? (
+              <button
+                className="btn-custome2 w-100 border-0"
+                onClick={() => {
+                  addToCart(product);
+                  navigate("/cart");
+                }}
+              >
+                Comprar ahora
+              </button>
+            ) : (
+              <button className="btn-custome2 w-100 border-0 disabled" disabled>
+                Sin Stock
+              </button>
+            )}
             <hr />
             <p>
               <strong>Dueño:</strong> {product.owner || "KBR"}

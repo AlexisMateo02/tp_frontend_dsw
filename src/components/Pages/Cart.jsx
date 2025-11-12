@@ -1,9 +1,9 @@
 /* Componente de carrito en donde se gestionan los productos agregados por el usuario */
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import normalizeImagePath from '../../lib/utils/normalizeImagePath';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 
 function Cart() {
   //Inicializar estados y hooks
@@ -13,18 +13,18 @@ function Cart() {
   // Cargar items del carrito desde localStorage al montar el componente
   useEffect(() => {
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setCartItems([]);
         setShowLoginModal(true);
       } else {
         const key = `cart-${cu.id || cu.email}`;
-        const savedCart = JSON.parse(localStorage.getItem(key) || '[]');
+        const savedCart = JSON.parse(localStorage.getItem(key) || "[]");
 
         // Actualizar precios del carrito (por id)
         if (Array.isArray(savedCart) && savedCart.length > 0) {
           const marketplaceProducts = JSON.parse(
-            localStorage.getItem('marketplaceProducts') || '[]'
+            localStorage.getItem("marketplaceProducts") || "[]"
           );
 
           const combined = [...marketplaceProducts.filter((p) => p.approved)];
@@ -52,17 +52,17 @@ function Cart() {
     // sincronizar cuando otro componente actualiza el carrito del usuario, por ejemplo Wishlist que puede agregar al carrito desde ahi
     const onCartUpdated = () => {
       try {
-        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
         if (!cu) return setCartItems([]);
         const key = `cart-${cu.id || cu.email}`;
-        const next = JSON.parse(localStorage.getItem(key) || '[]');
+        const next = JSON.parse(localStorage.getItem(key) || "[]");
         setCartItems(next);
       } catch {
         setCartItems([]);
       }
     };
-    window.addEventListener('cartUpdated', onCartUpdated);
-    return () => window.removeEventListener('cartUpdated', onCartUpdated);
+    window.addEventListener("cartUpdated", onCartUpdated);
+    return () => window.removeEventListener("cartUpdated", onCartUpdated);
   }, []);
 
   // Función para actualizar la cantidad de un item en el carrito, cuando se hace click en + o -
@@ -70,15 +70,22 @@ function Cart() {
     const updated = cartItems.map((item) => {
       if (item.id === id) {
         const q = Number(item.quantity ?? 1);
-        if (type === 'increase') return { ...item, quantity: q + 1 };
-        if (type === 'decrease' && q > 1) return { ...item, quantity: q - 1 };
+        const stock = Number(item.stock ?? Infinity);
+        if (type === "increase") {
+          if (q >= stock) {
+            toast.info("No hay más stock disponible para este producto");
+            return item;
+          }
+          return { ...item, quantity: q + 1 };
+        }
+        if (type === "decrease" && q > 1) return { ...item, quantity: q - 1 };
       }
       return item;
     });
 
     setCartItems(updated); // Actualizamos el estado del carrito
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (cu) {
         const key = `cart-${cu.id || cu.email}`;
         localStorage.setItem(key, JSON.stringify(updated));
@@ -86,7 +93,7 @@ function Cart() {
     } catch {
       // Si ocurre un error, solo mantenemos el estado en memoria.
     }
-    window.dispatchEvent(new Event('cartUpdated'));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   // Función para remover un item del carrito
@@ -94,7 +101,7 @@ function Cart() {
     const updated = cartItems.filter((item) => item.id !== id);
     setCartItems(updated);
     try {
-      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (cu) {
         const key = `cart-${cu.id || cu.email}`;
         localStorage.setItem(key, JSON.stringify(updated));
@@ -102,16 +109,19 @@ function Cart() {
     } catch {
       // Si ocurre un error, solo mantenemos el estado en memoria.
     }
-    window.dispatchEvent(new Event('cartUpdated'));
-    toast.error('Item removido del carrito!');
+    window.dispatchEvent(new Event("cartUpdated"));
+    toast.error("Item removido del carrito!");
   };
+
+  // Check whether cart contains any out-of-stock item
+  const hasOutOfStock = cartItems.some((it) => Number(it.stock) <= 0);
 
   // Funcion para que entienda "$52.000" o "$1.556,00", igualemente cambiamos todos los precios a $1 para usar una api
   const parsePrice = (p) => {
     const clean = String(p)
-      .replace(/[^\d,.-]/g, '') // saca "$" y texto
-      .replace(/\.(?=\d{3}(?:\D|$))/g, '') // quita puntos de miles
-      .replace(',', '.'); // coma a punto
+      .replace(/[^\d,.-]/g, "") // saca "$" y texto
+      .replace(/\.(?=\d{3}(?:\D|$))/g, "") // quita puntos de miles
+      .replace(",", "."); // coma a punto
     const num = Number(clean);
     return Number.isFinite(num) ? num : 0;
   };
@@ -159,14 +169,21 @@ function Cart() {
                     <div className="col-3">
                       <img
                         src={normalizeImagePath(item.image)}
-                        alt={item.Productname || item.name || ''}
+                        alt={item.Productname || item.name || ""}
                         className="img-fluid rounded-3"
                       />
                     </div>
 
                     <div className="col-9 d-flex flex-column flex-md-row justify-content-between align-items-center">
                       <div className="text-start w-100">
-                        <h5 className="mb-2">{item.Productname}</h5>
+                        <h5 className="mb-2">
+                          {item.Productname}
+                          {Number(item.stock) <= 0 && (
+                            <span className="badge bg-danger ms-2">
+                              Sin Stock
+                            </span>
+                          )}
+                        </h5>
                         <p className="text-muted mb-1">Precio {item.price}</p>
                         <p className="text-muted mb-0">
                           Total $
@@ -179,14 +196,14 @@ function Cart() {
                       <div className="d-flex align-items-center gap-3 mt-3 mt-md-0">
                         <button
                           className="btn btn-sm"
-                          onClick={() => updateQuantity(item.id, 'decrease')}
+                          onClick={() => updateQuantity(item.id, "decrease")}
                         >
                           -
                         </button>
                         <span>{item.quantity ?? 1}</span>
                         <button
                           className="btn btn-sm"
-                          onClick={() => updateQuantity(item.id, 'increase')}
+                          onClick={() => updateQuantity(item.id, "increase")}
                         >
                           +
                         </button>
@@ -215,9 +232,19 @@ function Cart() {
                   <span>Precio Total</span>
                   <span className="fw-bold">${totalPrice.toFixed(2)}</span>
                 </div>
-                <Link to="/checkout" className="btn w-100">
-                  Seguir con la compra
-                </Link>
+                {hasOutOfStock ? (
+                  <button
+                    className="btn w-100 disabled"
+                    disabled
+                    title="El carrito contiene productos sin stock"
+                  >
+                    No se puede continuar - Hay productos sin stock
+                  </button>
+                ) : (
+                  <Link to="/checkout" className="btn w-100">
+                    Seguir con la compra
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -239,15 +266,15 @@ function Cart() {
           <div
             className="modal-backdrop"
             style={{
-              position: 'fixed',
+              position: "fixed",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "rgba(0,0,0,0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               zIndex: 1050,
             }}
             role="dialog"
@@ -255,7 +282,7 @@ function Cart() {
           >
             <div
               className="card p-4"
-              style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
+              style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
             >
               <h5 className="mb-3">Inicia sesión para continuar</h5>
               <p className="mb-3">

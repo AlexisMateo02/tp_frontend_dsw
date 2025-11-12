@@ -268,6 +268,10 @@ export default function Articles() {
 
   const addToCart = (product, qty = 1) => {
     try {
+      if (Number(product.stock) <= 0) {
+        toast.error("No hay stock disponible para este producto");
+        return;
+      }
       const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
       if (!cu) {
         setShowLoginModal(true);
@@ -579,21 +583,42 @@ export default function Articles() {
                     >
                       <i className="bi bi-heart fs-5"></i>
                     </div>
-                    <div
-                      className="product-icon"
-                      title="Agregar al carrito"
-                      onClick={() => addToCart(product)}
-                    >
-                      <i className="bi bi-cart3 fs-5"></i>
-                    </div>
+                    {Number(product.stock) > 0 ? (
+                      <div
+                        className="product-icon"
+                        title="Agregar al carrito"
+                        onClick={() => addToCart(product)}
+                      >
+                        <i className="bi bi-cart3 fs-5"></i>
+                      </div>
+                    ) : (
+                      <div className="product-icon disabled" title="Sin stock">
+                        <i className="bi bi-slash-circle fs-5" />
+                      </div>
+                    )}
                   </div>
                   <span
                     className={`tag badge text-white ${
-                      product.tag === "Nuevo" ? "bg-danger" : "bg-success"
+                      Number(product.stock) <= 0
+                        ? "bg-danger"
+                        : product.tag === "Nuevo"
+                        ? "bg-danger"
+                        : "bg-success"
                     }`}
                   >
-                    {product.tag}
+                    {Number(product.stock) <= 0
+                      ? "Sin Stock"
+                      : product.tag || ""}
                   </span>
+
+                  {Number(product.stock) <= 0 && (
+                    <span
+                      className="position-absolute top-0 end-0 m-2 badge bg-danger text-white"
+                      style={{ zIndex: 5 }}
+                    >
+                      Sin Stock
+                    </span>
+                  )}
 
                   {/* Badge de categoría */}
                   <span
