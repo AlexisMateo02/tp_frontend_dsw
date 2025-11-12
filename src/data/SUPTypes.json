@@ -37,7 +37,7 @@
     "constructionType": "rígido",
     "length": 3.81,
     "width": 0.71,
-    "thickness": 0.140,
+    "thickness": 0.14,
     "boardType": "race",
     "finConfiguration": "single"
   },
@@ -51,7 +51,7 @@
     "constructionType": "rígido",
     "length": 2.9,
     "width": 0.79,
-    "thickness": 0.120,
+    "thickness": 0.12,
     "boardType": "surf",
     "finConfiguration": "thruster"
   }

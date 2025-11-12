@@ -229,7 +229,7 @@ function ProductDetails() {
     localStorage.setItem(key, JSON.stringify(updated));
     setReviews(updated);
     setReviewText('');
-    setReviewRating(5); //resetear puntaje, de 1 a 5 estrellas va
+    setReviewRating(5); //resetear puntaje, de 1 a 5 estrellas
     toast.success('Reseña agregada');
   };
 

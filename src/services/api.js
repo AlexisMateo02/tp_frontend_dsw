@@ -1,3 +1,6 @@
+// Servicio que maneja todas las interacciones con la API backend
+
+
 // src/services/api.js
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -57,7 +60,7 @@ class ApiService {
     }
   }
 
-  // AUTH
+  // Autenticacion de usuarios
   async login(email, password) {
     const data = await this.request('/auth/login', {
       method: 'POST',
@@ -72,6 +75,7 @@ class ApiService {
     return data;
   }
 
+  // Registro de usuarios
   async register(userData) {
     return await this.request('/users/register', {
       method: 'POST',
@@ -79,17 +83,19 @@ class ApiService {
     });
   }
 
+  // Obtener perfil del usuario autenticado
   async getProfile() {
     return await this.request('/auth/profile');
   }
 
+  // Cerrar sesión
   logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     window.dispatchEvent(new Event('authChanged'));
   }
 
-  // USERS
+  // Actualizar datos del usuario
   async updateUser(userId, userData) {
     return await this.request(`/users/${userId}`, {
       method: 'PUT',
@@ -97,6 +103,7 @@ class ApiService {
     });
   }
 
+  // Cambiar contraseña
   async changePassword(userId, passwordData) {
     return await this.request(`/users/${userId}/password`, {
       method: 'PATCH',
@@ -104,6 +111,8 @@ class ApiService {
     });
   }
 
+  // Subir avatar de usuario (nos falta y no es algo escencial podes subir una foto
+  // lo podemos dejar para el ad y que mas que subir fotos sea una eleccion de avatar predefinida por nosotros o ambas) 
   async uploadAvatar(userId, dataUrl) {
     // Convertir data URL a blob
     const blob = await fetch(dataUrl).then(r => r.blob());
@@ -135,15 +144,19 @@ class ApiService {
   }
 
   // PRODUCTS
+
+  // Obtener productos con filtros opcionales
   async getProducts(filters = {}) {
     const params = new URLSearchParams(filters).toString();
     return await this.request(`/products${params ? `?${params}` : ''}`);
   }
 
+  // Obtener un producto por ID
   async getProduct(id) {
     return await this.request(`/products/${id}`);
   }
 
+  // crear producto
   async createProduct(productData) {
     return await this.request('/products', {
       method: 'POST',
@@ -151,6 +164,7 @@ class ApiService {
     });
   }
 
+  // Actualizar producto
   async updateProduct(id, productData) {
     return await this.request(`/products/${id}`, {
       method: 'PUT',
@@ -158,17 +172,21 @@ class ApiService {
     });
   }
 
+  // Eliminar producto
   async deleteProduct(id) {
     return await this.request(`/products/${id}`, {
       method: 'DELETE',
     });
   }
 
-  // ORDERS
+  // ORDENES/ORDERS
+
+  // Obtener órdenes del usuario autenticado
   async getOrders() {
     return await this.request('/orders');
   }
 
+  // Crear una nueva orden
   async createOrder(orderData) {
     return await this.request('/orders', {
       method: 'POST',
@@ -176,7 +194,10 @@ class ApiService {
     });
   }
 
-  // REVIEWS
+  // REVIEWS (vamos a profundizar en AD ya que las review por ahora solo se guardan en el localstorage)
+
+
+  //crear una review
   async createReview(reviewData) {
     return await this.request('/reviews', {
       method: 'POST',
@@ -184,20 +205,25 @@ class ApiService {
     });
   }
 
-  // FORUM
+  // FORO
+
+  // Obtener publicaciones del foro, con filtro opcional por estado
   async getForumPosts(status = null) {
     const endpoint = status ? `/forum-publishments/status/${status}` : '/forum-publishments';
     return await this.request(endpoint);
   }
 
+  // Obtener publicaciones activas del foro
   async getActiveForumPosts() {
     return await this.request('/forum-publishments/active');
   }
 
+  // Obtener una publicación del foro por ID
   async getForumPost(id) {
     return await this.request(`/forum-publishments/${id}`);
   }
 
+  // Crear una nueva publicación del foro
   async createForumPost(postData) {
     return await this.request('/forum-publishments', {
       method: 'POST',
@@ -205,6 +231,7 @@ class ApiService {
     });
   }
 
+  // Actualizar una publicación del foro
   async updateForumPost(id, postData) {
     return await this.request(`/forum-publishments/${id}`, {
       method: 'PUT',
@@ -212,12 +239,14 @@ class ApiService {
     });
   }
 
+  // Eliminar una publicación del foro
   async deleteForumPost(id) {
     return await this.request(`/forum-publishments/${id}`, {
       method: 'DELETE',
     });
   }
 
+  // Subir imagen para una publicación del foro y su respectivo manejo
   async uploadForumImage(imageDataUrl) {
     // Convertir data URL a blob
     const blob = await fetch(imageDataUrl).then(r => r.blob());
