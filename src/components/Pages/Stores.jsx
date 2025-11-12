@@ -18,6 +18,7 @@ import normalizeImagePath from "../../lib/utils/normalizeImagePath";
 function Stores() {
   const [stores, setStores] = useState([]);
 
+  // Cargar las tiendas desde localStorage al montar el componente, deberia ser del backend
   useEffect(() => {
     const loadStores = async () => {
       // Solo usar la API (BDD). Si no hay respuesta o está vacía, mostrar "Próximamente".
@@ -48,6 +49,7 @@ function Stores() {
     loadStores();
   }, []);
 
+  //Diseño del componente Stores
   return (
     <>
       <ol className="section-banner py-3 position-relative">

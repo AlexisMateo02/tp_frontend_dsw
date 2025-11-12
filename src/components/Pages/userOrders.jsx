@@ -1,3 +1,5 @@
+//Componente para que el usuario vea sus ordenes de compra
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -9,9 +11,10 @@ function UserOrders() {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
+    //Obtener el usuario actual desde localStorage para luego buscar sus ordenes y ver si esta logueado
     const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
     setCurrentUser(user);
-    
+
     if (user && user.id) {
       fetchUserOrders(user.id);
     } else {
@@ -20,19 +23,22 @@ function UserOrders() {
     }
   }, []);
 
+  // Función para obtener las órdenes del usuario desde el backend
   const fetchUserOrders = async (userId) => {
     try {
       console.log('🔄 Buscando órdenes para usuario ID:', userId);
-      
-      const response = await fetch(`http://localhost:3000/api/orders/user/${userId}`);
-      
+
+      const response = await fetch(
+        `http://localhost:3000/api/orders/user/${userId}`
+      );
+
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       console.log('✅ Órdenes recibidas:', result);
-      
+
       if (result.data) {
         setOrders(result.data);
       } else {
@@ -63,30 +69,30 @@ function UserOrders() {
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
   // Función para traducir estados
   const getStatusText = (status) => {
     const statusMap = {
-      'pending': 'Pendiente',
-      'confirmed': 'Confirmada',
-      'shipped': 'Enviada',
-      'delivered': 'Entregada',
-      'cancelled': 'Cancelada'
+      pending: 'Pendiente',
+      confirmed: 'Confirmada',
+      shipped: 'Enviada',
+      delivered: 'Entregada',
+      cancelled: 'Cancelada',
     };
     return statusMap[status] || status;
   };
 
-  // Función para obtener clase CSS del estado
+  // Función para obtener clase CSS del estado, por los distintos colores
   const getStatusClass = (status) => {
     const statusClassMap = {
-      'pending': 'bg-warning text-dark',
-      'confirmed': 'bg-info',
-      'shipped': 'bg-primary',
-      'delivered': 'bg-success',
-      'cancelled': 'bg-danger'
+      pending: 'bg-warning text-dark',
+      confirmed: 'bg-info',
+      shipped: 'bg-primary',
+      delivered: 'bg-success',
+      cancelled: 'bg-danger',
     };
     return statusClassMap[status] || 'bg-secondary';
   };
@@ -104,18 +110,24 @@ function UserOrders() {
     );
   }
 
+  //si no hay usuario logueado, mostramos mensaje de acceso requerido
+  //igual lo podriamos sacar porque no hay manera de entrar a esta pagina sin estar logueado
+  //ya que primero vamos a mi perfil q ahi directamente te dice que te loguees si no lo estas
   if (!currentUser) {
     return (
       <div className="container py-5">
         <div className="alert alert-warning text-center">
           <h4>Acceso requerido</h4>
           <p>Debes iniciar sesión para ver tus órdenes.</p>
-          <Link to="/login" className="btn btn-primary">Iniciar Sesión</Link>
+          <Link to="/login" className="btn btn-primary">
+            Iniciar Sesión
+          </Link>
         </div>
       </div>
     );
   }
 
+  //Diseño de la vista de las ordenes del usuario e invocamos a las funciones antes definidas
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -143,13 +155,17 @@ function UserOrders() {
                 <div className="card-header bg-light d-flex justify-content-between align-items-center">
                   <div>
                     <strong>Orden: {order.orderNumber}</strong>
-                    <span className={`badge ${getStatusClass(order.status)} ms-2`}>
+                    <span
+                      className={`badge ${getStatusClass(order.status)} ms-2`}
+                    >
                       {getStatusText(order.status)}
                     </span>
                   </div>
-                  <small className="text-muted">{formatDate(order.orderDate)}</small>
+                  <small className="text-muted">
+                    {formatDate(order.orderDate)}
+                  </small>
                 </div>
-                
+
                 <div className="card-body">
                   <div className="row">
                     <div className="col-md-6">
@@ -164,15 +180,18 @@ function UserOrders() {
                       )}
                       {order.pickUpPoint && (
                         <p className="mb-1">
-                          <strong>Retiro en:</strong> {order.pickUpPoint.storeName} - {order.pickUpPoint.address}
+                          <strong>Retiro en:</strong>{' '}
+                          {order.pickUpPoint.storeName} -{' '}
+                          {order.pickUpPoint.address}
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="col-md-6">
                       <h6 className="fw-bold">Resumen</h6>
                       <p className="mb-1">
-                        <strong>Total:</strong> {formatCurrency(order.totalAmount)}
+                        <strong>Total:</strong>{' '}
+                        {formatCurrency(order.totalAmount)}
                       </p>
                       <p className="mb-1">
                         <strong>Productos:</strong> {order.items?.length || 0}
@@ -205,19 +224,29 @@ function UserOrders() {
                                 <td>
                                   <div className="d-flex align-items-center">
                                     {item.productImage && (
-                                      <img 
-                                        src={item.productImage} 
+                                      <img
+                                        src={item.productImage}
                                         alt={item.productName}
                                         className="rounded me-2"
-                                        style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                                        style={{
+                                          width: '40px',
+                                          height: '40px',
+                                          objectFit: 'cover',
+                                        }}
                                       />
                                     )}
                                     <span>{item.productName}</span>
                                   </div>
                                 </td>
                                 <td className="text-center">{item.quantity}</td>
-                                <td className="text-end">{formatCurrency(parseFloat(item.priceAtPurchase))}</td>
-                                <td className="text-end fw-bold">{formatCurrency(item.subtotal)}</td>
+                                <td className="text-end">
+                                  {formatCurrency(
+                                    parseFloat(item.priceAtPurchase)
+                                  )}
+                                </td>
+                                <td className="text-end fw-bold">
+                                  {formatCurrency(item.subtotal)}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -227,8 +256,8 @@ function UserOrders() {
                   )}
 
                   <div className="text-end mt-3">
-                    <Link 
-                      to={`/order-confirmation/${order.id}`} 
+                    <Link
+                      to={`/order-confirmation/${order.id}`}
                       className="btn btn-outline-primary btn-sm"
                     >
                       <i className="bi bi-eye me-1"></i>

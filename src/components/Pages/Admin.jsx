@@ -1,3 +1,8 @@
+/*Componente que contiene el panel de administrador
+donde podemos gestionar diferentes entidades, tipos de porductos, productos,
+lcoalidades, provincias, tiendas y ordenes*/
+
+//Importaciones
 import React, { useEffect, useState, useCallback } from 'react';
 import CrearTiendas from './crearTiendas.jsx';
 import CrearLocalidades from './crearLocalidades.jsx';
@@ -6,13 +11,15 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'http://localhost:3000/api'; //base URL del backend
 
 function Admin() {
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState('kayakType');
+  const [selectedTab, setSelectedTab] = useState('kayakType'); //Pestaña seleccionada, por defecto kayakType cuando apenas ingresas al panel de admin
   const [entities, setEntities] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  //GESTION DE ORDENES
 
   // Estados para órdenes
   const [orders, setOrders] = useState([]);
@@ -22,6 +29,8 @@ function Admin() {
   const [buyerFilter, setBuyerFilter] = useState('');
   // Filtro por número de orden
   const [orderNumberFilter, setOrderNumberFilter] = useState('');
+
+  //CREACION DE TIPO DE KAYAK, TIPO DE ARTICULO, TIPO DE SUP, TIPO DE EMBARCACION Y PRODUCTOS
 
   // Estados para KayakType
   const [kt_model, setKt_model] = useState('');
@@ -50,7 +59,7 @@ function Admin() {
   const [st_boardType, setSt_boardType] = useState('');
   const [st_finConfiguration, setSt_finConfiguration] = useState('');
 
-  // Estados para BoatType
+  // Estados para BoatType = Embarcacion
   const [bt_model, setBt_model] = useState('');
   const [bt_brand, setBt_brand] = useState('');
   const [bt_boatCategory, setBt_boatCategory] = useState('');
@@ -62,6 +71,8 @@ function Admin() {
   const [bt_hullType, setBt_hullType] = useState('');
   const [bt_motorType, setBt_motorType] = useState('');
   const [bt_maxHorsePower, setBt_maxHorsePower] = useState('');
+
+  //CREACION DE PRODUCTOS
 
   // Estados para Product
   const [p_Productname, setP_Productname] = useState('');
@@ -88,7 +99,7 @@ function Admin() {
   const [boatTypes, setBoatTypes] = useState([]);
   const [articleTypes, setArticleTypes] = useState([]);
 
-  // Función para leer archivos como DataURL
+  // Función para leer archivos como DataURL, lo de las fotos
   const readFileAsDataURL = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -145,7 +156,8 @@ function Admin() {
     });
   };
 
-  // Función para cargar órdenes (fetch all y filtrar en cliente para robustez)
+  //Definimos fetchOrders que declaramos/incializamos nates como useState([])
+  // Cargamos las ordenes desde el backend y aplicamos filtros
   const fetchOrders = useCallback(
     async (filter = 'all', buyerName = '', orderNumber = '') => {
       setLoadingOrders(true);
@@ -220,7 +232,8 @@ function Admin() {
     []
   );
 
-  // Función para actualizar estado de orden
+  /*Función para actualizar estado de orden (la podriamos sacar, porque cuando filtramos 
+  se actualiza automaticamente*/
   const updateOrderStatus = async (orderId, newStatus) => {
     setLoadingOrders(true);
     try {
@@ -277,6 +290,7 @@ function Admin() {
     return statusClassMap[status] || 'bg-secondary';
   };
 
+  // Manejar cambio de archivo para imágenes
   const handleFileChange = async (e, imageNumber) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -345,6 +359,7 @@ function Admin() {
   };
 
   // Cargar tipos disponibles para productos
+  //fetchTypes busca los tipos de kayak, sup, embarcacion y articulo, y los guarda en sus respectivos estados
   const fetchTypes = useCallback(async () => {
     try {
       const [kayakRes, supRes, boatRes, articleRes] = await Promise.all([
@@ -410,9 +425,7 @@ function Admin() {
         },
       });
 
-      console.log(
-        `Response status: ${response.status} ${response.statusText}`
-      );
+      console.log(`Response status: ${response.status} ${response.statusText}`);
 
       if (response.ok) {
         const result = await response.json();
@@ -443,7 +456,11 @@ function Admin() {
 
     if (selectedTab === 'orders') {
       fetchOrders(orderFilter, buyerFilter, orderNumberFilter);
-    } else if (selectedTab !== 'localty' && selectedTab !== 'province' && selectedTab !== 'store') {
+    } else if (
+      selectedTab !== 'localty' &&
+      selectedTab !== 'province' &&
+      selectedTab !== 'store'
+    ) {
       fetchEntities();
     }
 
@@ -461,7 +478,7 @@ function Admin() {
   ]);
 
   const resetForm = () => {
-    // Reset KayakType
+    // Reset KayakType porque tenemos que limpiar el formulario
     setKt_model('');
     setKt_brand('');
     setKt_material('');
@@ -521,6 +538,12 @@ function Admin() {
     setP_approved(false);
   };
 
+  //VALIDACIONES DE FORMULARIOS ANTES DE ENVIAR
+
+  //validaciones para kayakType
+  /*Validaciones de formularios antes de enviar del Kayak ya que hay ciertas condiciones 
+  de sus especificaciones que debe cumplir, por ejemplo no tendria sentido que en kayak 
+  soporte 3000 kg*/
   const validateKayakType = () => {
     if (!kt_brand || !kt_model || !kt_material) return false;
     const paddlers = Number(kt_paddlersQuantity);
@@ -531,10 +554,12 @@ function Admin() {
     return true;
   };
 
+  //Validaciones para ArticleType
   const validateArticleType = () => {
     return at_name && at_mainUse;
   };
 
+  //Validaciones para SUPType
   const validateSUPType = () => {
     if (!st_brand || !st_model || !st_material) return false;
     if (!st_boardType || !st_constructionType) return false;
@@ -549,6 +574,7 @@ function Admin() {
     return true;
   };
 
+  //Validaciones para BoatType = Embrcaciones
   const validateBoatType = () => {
     if (!bt_brand || !bt_model || !bt_material) return false;
     const capPersons = Number(bt_passengerCapacity);
@@ -559,6 +585,7 @@ function Admin() {
     return true;
   };
 
+  //Validaciones para Productos, en la parte donde creamos un producto tmb tenemos que validar cosas
   const validateProduct = () => {
     if (!p_Productname || p_Productname.length < 2) return false;
     if (!p_price || !/^\$?\d+(\.\d{1,2})?$/.test(p_price.replace(',', '.')))
@@ -568,6 +595,8 @@ function Admin() {
     if (p_stock < 0 || p_stock > 10000) return false;
 
     // Validaciones específicas por categoría
+    /*Si alguna no se cumple dependienddo el tiempo que retrone falso, el backend se encargara
+    de avisar cual fue el error y el frontend lo mostrar en pantalla*/
     if (p_category === 'kayak' && !p_kayakTypeId) return false;
     if (p_category === 'sup' && !p_supTypeId) return false;
     if (p_category === 'embarcacion' && !p_boatTypeId) return false;
@@ -583,6 +612,8 @@ function Admin() {
     let newEntity = {};
     let endpoint = '';
 
+    //Si hay un error de validaciones se muestra estos mesnajes del frontend
+    //Se podria sacar ya que el backend tambien hace las validaciones y avisa cual fue el error especificamente
     switch (selectedTab) {
       case 'kayakType':
         isValid = validateKayakType();
@@ -697,6 +728,7 @@ function Admin() {
         return;
     }
 
+    //si todo esta bien validado seguimos
     if (!isValid) return;
 
     console.log('Datos que se enviarán:', {
@@ -714,7 +746,7 @@ function Admin() {
     setLoading(true);
     try {
       const url = `${API_BASE}${endpoint}`;
-      console.log(`Creating entity at: ${url}`, newEntity);
+      console.log(`Creating entity at: ${url}`, newEntity); //crea entidad en el backend
 
       const response = await fetch(url, {
         method: 'POST',
@@ -779,7 +811,7 @@ function Admin() {
                   ? `Error ${response.status}: Revisar consola para más detalles`
                   : s;
             } catch {
-              /* noop */
+              /*  */
             }
           }
         }
@@ -794,6 +826,7 @@ function Admin() {
     }
   };
 
+  // Función para eliminar una entidad desde el frontend y que se actualize en el backend
   const removeEntity = async (id) => {
     if (
       !window.confirm('¿Estás seguro de que quieres eliminar este elemento?')
@@ -828,6 +861,7 @@ function Admin() {
       console.log(`Deleting entity at: ${url}`);
 
       const response = await fetch(url, {
+        //se elmina la entidad en el backend
         method: 'DELETE',
       });
 
@@ -854,6 +888,7 @@ function Admin() {
     }
   };
 
+  // Función para aprobar un producto
   const approveProduct = async (id) => {
     setLoading(true);
     try {
@@ -861,7 +896,8 @@ function Admin() {
       console.log(`Approving product at: ${url}`);
 
       const response = await fetch(url, {
-        method: 'PATCH',
+        //aprueba el producto en el backend
+        method: 'PATCH', //metodo patch porque solo actualiza una parte del recurso
       });
 
       console.log(
@@ -869,6 +905,7 @@ function Admin() {
       );
 
       if (response.ok) {
+        //si todo salio bien, se aprueba el producto y se actualiza
         const result = await response.json();
         console.log('Approve response:', result);
 
@@ -893,7 +930,7 @@ function Admin() {
     navigate('/');
   };
 
-  // Función para renderizar la lista de órdenes
+  // Función que devuelve lo que se va a mostrar en pantalla para la lista de órdenes.
   const renderOrdersList = () => {
     if (loadingOrders) {
       return (
@@ -1096,8 +1133,11 @@ function Admin() {
     );
   };
 
+  /* Funcion de que mmuestra el formulario de los distintos tipos que va invocando todas sus validaciones 
+  que hicimos antes, y cada cambio queda en los estados invocados corresponiendtes */
   const renderForm = () => {
     switch (selectedTab) {
+      //TIPO = KAYAK
       case 'kayakType':
         return (
           <>
@@ -1184,6 +1224,7 @@ function Admin() {
           </>
         );
 
+      //TIPO = ARTICULO
       case 'articleType':
         return (
           <>
@@ -1208,6 +1249,7 @@ function Admin() {
           </>
         );
 
+      //TIPO = SUP
       case 'supType':
         return (
           <>
@@ -1311,6 +1353,7 @@ function Admin() {
           </>
         );
 
+      //TIPO = BOAT = EMBARCACION
       case 'boatType':
         return (
           <>
@@ -1424,6 +1467,7 @@ function Admin() {
           </>
         );
 
+      //PRODUCTO, es la parte de la intefaz donde creamos un producto nuevo e invocaos todas sus validaciones como hicimos con los tipos de kayaks, etc
       case 'product':
         return (
           <>
@@ -1768,6 +1812,7 @@ function Admin() {
       );
     }
 
+    //Una vez creado el producto, mostramos la lista de productos creados y damos la opcion de eliminar o aprobar
     return (
       <div className="list-group">
         {entities.map((entity) => (
@@ -1819,6 +1864,10 @@ function Admin() {
     );
   };
 
+  /*Diseño general del panel del administrados 
+  donde aca aparecen los botones que vemos al principio tipo kayak, productos, tiendas, etc
+  el que eligamos nos va a llevar a otro panel que diseñamos tambien con el return antes
+ */
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -1916,7 +1965,10 @@ function Admin() {
         </button>
       </div>
 
-      {/* Gestión de Órdenes */}
+      {/* Gestión de Órdenes la parte de la bandeja, lo que aparecio antes 
+      era la fincion renderOrdersList que esa nos muestra la orden en especifico
+      aca nos estaria mostrando lo de arriba de la orden, que esta todo lo del filtrado y el 
+      actualizar */}
       {selectedTab === 'orders' && (
         <div className="card p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">

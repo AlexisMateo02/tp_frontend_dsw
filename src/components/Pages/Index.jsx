@@ -1,32 +1,27 @@
 /* representa la "Home" o la vista inicial cuando se navega a esa ruta específica. */
-import React, { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade, Navigation } from "swiper/modules";
-import { useNavigate, Link } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import normalizeImagePath from "../../lib/utils/normalizeImagePath";
-
-import "react-toastify/dist/ReactToastify.css";
-import "swiper/css";
-import "swiper/css/effect-fade";
-// Product.json removed — static products are no longer imported
-import subBanner1 from "./../../assets/banner-1.webp";
-import subBanner2 from "./../../assets/banner-2.webp";
-import femalebanner from "./../../assets/banner-female.webp";
-import discover1 from "./../../assets/discover-1.webp";
-import discover2 from "./../../assets/discover-2.webp";
-import socialImage1 from "./../../assets/link-1.webp";
-import socialImage2 from "./../../assets/link-2.webp";
-import socialImage3 from "./../../assets/link-3.webp";
-import socialImage4 from "./../../assets/link-4.webp";
-import socialImage5 from "./../../assets/link-5.webp";
-import socialImage6 from "./../../assets/link-6.webp";
+import React, { useState, useEffect } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, EffectFade, Navigation } from 'swiper/modules';
+import { useNavigate, Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import normalizeImagePath from '../../lib/utils/normalizeImagePath';
+import 'react-toastify/dist/ReactToastify.css';
+import 'swiper/css';
+import 'swiper/css/effect-fade';
+//Importamos imagenes
+import subBanner1 from './../../assets/banner-1.webp';
+import subBanner2 from './../../assets/banner-2.webp';
+import femalebanner from './../../assets/banner-female.webp';
+import discover1 from './../../assets/discover-1.webp';
+import discover2 from './../../assets/discover-2.webp';
+import socialImage1 from './../../assets/link-1.webp';
+import socialImage2 from './../../assets/link-2.webp';
+import socialImage3 from './../../assets/link-3.webp';
+import socialImage4 from './../../assets/link-4.webp';
+import socialImage5 from './../../assets/link-5.webp';
+import socialImage6 from './../../assets/link-6.webp';
 
 function Index() {
-  // Componente Index
-  // Este componente representa la página de inicio de la aplicación.
-  // Aquí se pueden incluir elementos como banners, promociones o información destacada.
-  // const [filterSortOption, setFilterSortOption] = useState('all');
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -35,42 +30,44 @@ function Index() {
 
   React.useEffect(() => {
     try {
-      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
       setCurrentUser(cu);
     } catch {
       setCurrentUser(null);
     }
     const onAuth = () => {
       try {
-        const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
+        const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
         setCurrentUser(cu);
       } catch {
         setCurrentUser(null);
       }
     };
-    window.addEventListener("authChanged", onAuth);
-    window.addEventListener("storage", onAuth);
+    window.addEventListener('authChanged', onAuth);
+    window.addEventListener('storage', onAuth);
     return () => {
-      window.removeEventListener("authChanged", onAuth);
-      window.removeEventListener("storage", onAuth);
+      window.removeEventListener('authChanged', onAuth);
+      window.removeEventListener('storage', onAuth);
     };
   }, []);
 
   // CARGAR PRODUCTOS DESDE MÚLTIPLES FUENTES
   useEffect(() => {
+    // Función para cargar todos los productos
     const loadAllProducts = async () => {
       try {
         setLoadingProducts(true);
 
-        // 1. Cargar productos de la API (base de datos)
+        // Cargar productos de la API bdd
         let apiProducts = [];
+        // Intentar cargar desde el backend los productos aprobados y subidos en "Nuestros Productos"
         try {
-          const response = await fetch("http://localhost:3000/api/products");
+          const response = await fetch('http://localhost:3000/api/products');
           if (response.ok) {
             const result = await response.json();
             apiProducts = result.data || [];
             console.log(
-              "✅ Productos cargados desde API en Index:",
+              '✅ Productos cargados desde API en Index:',
               apiProducts.length
             );
 
@@ -80,43 +77,44 @@ function Index() {
               .map((p) => ({
                 ...p,
                 sellerId: p.sellerId || 0,
-                sellerName: p.sellerName || "KBR",
+                sellerName: p.sellerName || 'KBR',
                 approved: true,
               }));
           }
         } catch (error) {
-          console.warn("❌ Error cargando productos de API en Index:", error);
+          console.warn('❌ Error cargando productos de API en Index:', error);
         }
 
-        // 2. Cargar productos del marketplace (localStorage)
+        //Cargar productos del localStorage
         const marketplaceProducts = JSON.parse(
-          localStorage.getItem("marketplaceProducts") || "[]"
+          localStorage.getItem('marketplaceProducts') || '[]'
         );
         const approvedMarketplace = marketplaceProducts.filter(
           (p) => p.approved
         );
 
-        // 3. Productos del JSON estático (removido)
+        //Productos del JSON estático (removido)
         const jsonProducts = [];
 
-        // 4. COMBINAR TODAS LAS FUENTES
+        //array que contiene todos los productos juntos que antes definimos (esaticos, backend y localstorage)
         const combined = [
           ...jsonProducts,
           ...approvedMarketplace,
           ...apiProducts,
         ];
 
-        console.log("📊 Total productos combinados en Index:", combined.length);
-        console.log("🗂️  Fuentes en Index:", {
+        console.log('📊 Total productos combinados en Index:', combined.length);
+        console.log('🗂️  Fuentes en Index:', {
           json: jsonProducts.length,
           marketplace: approvedMarketplace.length,
           api: apiProducts.length,
         });
 
+        //guardamos el array combined en el estado CombinedProducts
         setCombinedProducts(combined);
       } catch (error) {
-        console.error("Error loading products in Index:", error);
-        // Fallback: no static JSON products available
+        console.error('Error loading products in Index:', error);
+
         setCombinedProducts([]);
       } finally {
         setLoadingProducts(false);
@@ -126,6 +124,7 @@ function Index() {
     loadAllProducts();
   }, []);
 
+  // Función para agregar un producto a la wishlist
   const addToWishlist = (product) => {
     if (!currentUser) {
       setShowLoginModal(true);
@@ -136,13 +135,14 @@ function Index() {
     if (!existing.some((p) => p.id === product.id)) {
       const updated = [...existing, product];
       localStorage.setItem(key, JSON.stringify(updated));
-      window.dispatchEvent(new Event("wishlistUpdated"));
+      window.dispatchEvent(new Event('wishlistUpdated'));
       toast.success(`${product.Productname} agregado a la lista de deseos`);
     } else {
       toast.info(`${product.Productname} ya está en la lista de deseos`);
     }
   };
 
+  // Función para agregar un producto al carrito
   const addToCart = (product) => {
     try {
       if (Number(product.stock) <= 0) {
@@ -162,14 +162,14 @@ function Index() {
         const updatedProduct = { ...product, quantity: 1 };
         const updatedCart = [...existing, updatedProduct];
         localStorage.setItem(key, JSON.stringify(updatedCart));
-        window.dispatchEvent(new Event("cartUpdated"));
+        window.dispatchEvent(new Event('cartUpdated'));
         toast.success(`${product.Productname} agregado al carrito`);
       } else {
         toast.info(`${product.Productname} ya está en el carrito`);
       }
     } catch (e) {
       console.error(e);
-      toast.error("Error al agregar al carrito");
+      toast.error('Error al agregar al carrito');
     }
   };
 
@@ -186,9 +186,10 @@ function Index() {
     );
   }
 
+  //Diseñamos el componente Index y sus funcionalidades
   return (
     <>
-      {/*Hero*/}
+      {/*Primera parte con los swipers*/}
       <div className="hero">
         <Swiper
           slidesPerView={1}
@@ -250,7 +251,7 @@ function Index() {
         </Swiper>
       </div>
 
-      {/*Productos*/}
+      {/*Productos, que aparcen nuestros prodctos subidos por el administrador*/}
       <div className="product-container py-5 my-5">
         <div className="container position-relative">
           <div className="row">
@@ -266,8 +267,8 @@ function Index() {
             spaceBetween={20}
             modules={[Navigation]}
             navigation={{
-              nextEl: ".product-swiper-next",
-              prevEl: ".product-swiper-prev",
+              nextEl: '.product-swiper-next',
+              prevEl: '.product-swiper-prev',
             }}
             breakpoints={{
               1399: { slidesPerView: 4 },
@@ -278,8 +279,8 @@ function Index() {
             }}
             className="mt-4 swiper position-relative"
           >
-            {combinedProducts
-              .filter((product) => product.id >= 1 && product.id <= 7)
+            {combinedProducts // El combinedProducts contiene los productos de todas las fuentes, es decir del backend, del localStorage y del json estático
+              .filter((product) => product.id >= 1 && product.id <= 7) //para que no muestre todos los productos, sino solo los primeros 7 productos, ya que no entran si no
               .map((product) => (
                 <SwiperSlide key={product.id}>
                   <div className="product-item text-center position-relative">
@@ -375,7 +376,7 @@ function Index() {
                 <h1>
                   <button
                     className="btn btn-primary mt-3"
-                    onClick={() => navigate("/foro/crear")}
+                    onClick={() => navigate('/foro/crear')}
                   >
                     Publicar
                   </button>
@@ -406,7 +407,7 @@ function Index() {
             <div className="section-title mb-5 favourite-beauty-title text-center ">
               <h3 className="fw-semibold fs-1"> EXPLORA</h3>
               <h6 className="fw-semibold fs-1">
-                Nuestros productos más populares y esenciales{" "}
+                Nuestros productos más populares y esenciales{' '}
               </h6>
             </div>
           </div>
@@ -538,7 +539,7 @@ function Index() {
           <br />
           <button className="btn btn-default mt-2 w-80 h-80 position-center">
             <a
-              style={{ textDecoration: "none", color: "inherit" }}
+              style={{ textDecoration: 'none', color: 'inherit' }}
               href="https://www.instagram.com/kayakbrokers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
               target="_blank"
               rel="noopener noreferrer"
@@ -633,15 +634,15 @@ function Index() {
         <div
           className="modal-backdrop"
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 1050,
           }}
           role="dialog"
@@ -649,7 +650,7 @@ function Index() {
         >
           <div
             className="card p-4"
-            style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
+            style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
           >
             <h5 className="mb-3">Inicia sesión para continuar</h5>
             <p className="mb-3">
@@ -660,7 +661,7 @@ function Index() {
                 className="btn btn-primary"
                 onClick={() => {
                   setShowLoginModal(false);
-                  navigate("/login");
+                  navigate('/login');
                 }}
               >
                 Ir a iniciar sesión

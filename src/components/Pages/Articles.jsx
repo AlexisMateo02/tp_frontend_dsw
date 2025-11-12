@@ -1,69 +1,72 @@
-import React, { useMemo, useState, useEffect } from "react";
-import normalizeImagePath from "../../lib/utils/normalizeImagePath";
-import { Link, useNavigate } from "react-router-dom";
-// Products and Type lists are loaded from the API now; static JSON imports removed.
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// Componentes donde nos muestran nuestros productos
 
+//Importaciones
+import React, { useMemo, useState, useEffect } from 'react';
+import normalizeImagePath from '../../lib/utils/normalizeImagePath';
+import { Link, useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Definimos los botones de categorias con sus imagenes y categorias asociadas
 const buttons = [
-  { label: "Kayaks", img: "src/assets/Kayaks.webp", category: "kayak" },
+  { label: 'Kayaks', img: 'src/assets/Kayaks.webp', category: 'kayak' },
   {
-    label: "Embarcaciones",
-    img: "src/assets/Embarcaciones.png",
-    category: "embarcacion",
+    label: 'Embarcaciones',
+    img: 'src/assets/Embarcaciones.png',
+    category: 'embarcacion',
   },
-  { label: "SUP", img: "src/assets/SUP.webp", category: "sup" },
+  { label: 'SUP', img: 'src/assets/SUP.webp', category: 'sup' },
   {
-    label: "Artículos",
-    img: "src/assets/Articulos.webp",
-    category: "articulo",
+    label: 'Artículos',
+    img: 'src/assets/Articulos.webp',
+    category: 'articulo',
   },
 ];
 
+// Función para parsear el precio y convertirlo en número para ordenar
 function parsePrice(s) {
   if (!s) return 0;
-  const digits = String(s).replace(/[^\d]/g, "");
+  const digits = String(s).replace(/[^\d]/g, '');
   return Number(digits) || 0;
 }
 
-// normalizeImagePath imported from shared util
-
 export default function Articles() {
   const [activeCategory, setActiveCategory] = useState(null);
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [filterSortOption, setFilterSortOption] = useState("all");
-  const [sortOption, setSortOption] = useState("none");
-  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [filterSortOption, setFilterSortOption] = useState('all');
+  const [sortOption, setSortOption] = useState('none');
+  const [search, setSearch] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
 
   // Nuevos filtros específicos
-  const [brandFilter, setBrandFilter] = useState("all");
-  const [materialFilter, setMaterialFilter] = useState("all");
-  const [paddlersFilter, setPaddlersFilter] = useState("all");
+  const [brandFilter, setBrandFilter] = useState('all');
+  const [materialFilter, setMaterialFilter] = useState('all');
+  const [paddlersFilter, setPaddlersFilter] = useState('all');
   const [allProducts, setAllProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
 
+  // Escuchar cambios de autenticación para actualizar la vista si es necesario
   useEffect(() => {
     const onAuth = () => {};
-    window.addEventListener("authChanged", onAuth);
-    return () => window.removeEventListener("authChanged", onAuth);
+    window.addEventListener('authChanged', onAuth);
+    return () => window.removeEventListener('authChanged', onAuth);
   }, []);
 
-  // CARGAR PRODUCTOS DESDE MÚLTIPLES FUENTES
+  // CARGAR PRODUCTOS DESDE MÚLTIPLES FUENTES, backend API, localStorage, JSON
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoadingProducts(true);
 
-        // 1. Cargar productos de la API (base de datos)
+        // cargar productos desde API backend
         let apiProducts = [];
         try {
-          const response = await fetch("http://localhost:3000/api/products");
+          const response = await fetch('http://localhost:3000/api/products');
           if (response.ok) {
             const result = await response.json();
             apiProducts = result.data || [];
-            console.log("✅ Productos cargados desde API:", apiProducts.length);
+            console.log('✅ Productos cargados desde API:', apiProducts.length);
 
             // Filtrar solo productos aprobados y agregar seller info por defecto
             apiProducts = apiProducts
@@ -71,26 +74,26 @@ export default function Articles() {
               .map((p) => ({
                 ...p,
                 sellerId: p.sellerId || 0,
-                sellerName: p.sellerName || "KBR",
+                sellerName: p.sellerName || 'KBR',
                 approved: true,
               }));
           }
         } catch (error) {
-          console.warn("❌ Error cargando productos de API:", error);
+          console.warn('❌ Error cargando productos de API:', error);
         }
 
-        // 4. COMBINAR TODAS LAS FUENTES
+        // combina todo los productos, en este caso solo los del backend, ya que los que caragan el localStorage y JSON estan deshabilitados, y eso esta bien
         const combined = [...apiProducts];
 
-        console.log("📊 Total productos combinados:", combined.length);
-        console.log("🗂️  Fuentes:", {
+        console.log('📊 Total productos combinados:', combined.length);
+        console.log('🗂️  Fuentes:', {
           api: apiProducts.length,
         });
 
         setAllProducts(combined);
       } catch (error) {
-        console.error("Error loading products:", error);
-        toast.error("Error al cargar productos");
+        console.error('Error loading products:', error);
+        toast.error('Error al cargar productos');
       } finally {
         setLoadingProducts(false);
       }
@@ -99,19 +102,20 @@ export default function Articles() {
     loadProducts();
   }, []);
 
+  // Función para alternar la categoría activa al hacer clic en un botón
   const toggleCategory = (label, category) => {
     const newActive = activeCategory === label ? null : label;
     setActiveCategory(newActive);
-    setCategoryFilter(newActive ? category : "all");
+    setCategoryFilter(newActive ? category : 'all');
 
     // Resetear filtros específicos al cambiar categoría
-    setBrandFilter("all");
-    setMaterialFilter("all");
-    setPaddlersFilter("all");
+    setBrandFilter('all');
+    setMaterialFilter('all');
+    setPaddlersFilter('all');
 
     setTimeout(() => {
-      const el = document.querySelector(".products-grid");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      const el = document.querySelector('.products-grid');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   };
 
@@ -126,22 +130,22 @@ export default function Articles() {
     // Recorremos los productos cargados y extraemos información de su tipo asociado
     allProducts.forEach((p) => {
       if (!p || !p.category) return;
-      if (categoryFilter === "all" || categoryFilter === p.category) {
-        if (p.category === "kayak" && p.kayakType) {
+      if (categoryFilter === 'all' || categoryFilter === p.category) {
+        if (p.category === 'kayak' && p.kayakType) {
           const kt = p.kayakType;
           if (kt.brand) brands.add(kt.brand);
           if (kt.material) materials.add(kt.material);
           if (kt.paddlersQuantity != null)
             paddlers.add(Number(kt.paddlersQuantity));
         }
-        if (p.category === "sup" && p.supType) {
+        if (p.category === 'sup' && p.supType) {
           const st = p.supType;
           if (st.brand) brands.add(st.brand);
           if (st.material) materials.add(st.material);
           if (st.paddlersQuantity != null)
             paddlers.add(Number(st.paddlersQuantity));
         }
-        if (p.category === "embarcacion" && p.boatType) {
+        if (p.category === 'embarcacion' && p.boatType) {
           const bt = p.boatType;
           if (bt.brand) brands.add(bt.brand);
           if (bt.material) materials.add(bt.material);
@@ -151,6 +155,7 @@ export default function Articles() {
       }
     });
 
+    //devuelve los sets convertidos en arrays y ordenados, por ejemplo para mostrarlos en un select
     return {
       brands: Array.from(brands).sort(),
       materials: Array.from(materials).sort(),
@@ -163,98 +168,102 @@ export default function Articles() {
 
     let items = allProducts.filter((p) => {
       // Filtro por categoría
-      if (categoryFilter !== "all" && p.category !== categoryFilter)
+      if (categoryFilter !== 'all' && p.category !== categoryFilter)
         return false;
 
-      // Filtro por tag (nuevo/oferta)
-      if (filterSortOption === "new") {
+      // Filtro por tag/estado (nuevo/oferta)
+      if (filterSortOption === 'new') {
         if (!p.tag) return false;
         const t = String(p.tag).toLowerCase();
-        if (t !== "nuevo" && t !== "new") return false;
+        if (t !== 'nuevo' && t !== 'new') return false;
       }
-      if (filterSortOption === "sale") {
+      if (filterSortOption === 'sale') {
         if (!p.tag) return false;
         const t = String(p.tag).toLowerCase();
-        if (t !== "oferta" && t !== "sale") return false;
+        if (t !== 'oferta' && t !== 'sale') return false;
       }
 
       // Filtros específicos por tipo de producto
       // Filtrado basado en el objeto Type asociado dentro del propio producto (si existe)
-      if (categoryFilter === "kayak" && p.kayakType) {
+
+      //fltrado de de kayak
+      if (categoryFilter === 'kayak' && p.kayakType) {
         const kayakType = p.kayakType;
         if (
-          brandFilter !== "all" &&
+          brandFilter !== 'all' &&
           String(kayakType.brand) !== String(brandFilter)
         )
           return false;
         if (
-          materialFilter !== "all" &&
+          materialFilter !== 'all' &&
           String(kayakType.material) !== String(materialFilter)
         )
           return false;
         if (
-          paddlersFilter !== "all" &&
+          paddlersFilter !== 'all' &&
           Number(kayakType.paddlersQuantity) !== Number(paddlersFilter)
         )
           return false;
       }
 
-      if (categoryFilter === "sup" && p.supType) {
+      //filtrado de sup
+      if (categoryFilter === 'sup' && p.supType) {
         const supType = p.supType;
         if (
-          brandFilter !== "all" &&
+          brandFilter !== 'all' &&
           String(supType.brand) !== String(brandFilter)
         )
           return false;
         if (
-          materialFilter !== "all" &&
+          materialFilter !== 'all' &&
           String(supType.material) !== String(materialFilter)
         )
           return false;
         if (
-          paddlersFilter !== "all" &&
+          paddlersFilter !== 'all' &&
           Number(supType.paddlersQuantity) !== Number(paddlersFilter)
         )
           return false;
       }
 
-      if (categoryFilter === "embarcacion" && p.boatType) {
+      //filtrado de embarcacion
+      if (categoryFilter === 'embarcacion' && p.boatType) {
         const boatType = p.boatType;
         if (
-          brandFilter !== "all" &&
+          brandFilter !== 'all' &&
           String(boatType.brand) !== String(brandFilter)
         )
           return false;
         if (
-          materialFilter !== "all" &&
+          materialFilter !== 'all' &&
           String(boatType.material) !== String(materialFilter)
         )
           return false;
         if (
-          paddlersFilter !== "all" &&
+          paddlersFilter !== 'all' &&
           Number(boatType.passengerCapacity) !== Number(paddlersFilter)
         )
           return false;
       }
 
-      // Búsqueda por texto
+      // Búsqueda/Filtrado por texto
       if (q) {
-        const name = p.Productname ? p.Productname.toLowerCase() : "";
-        const tag = p.tag ? p.tag.toLowerCase() : "";
-        const desc = p.description ? p.description.toLowerCase() : "";
+        const name = p.Productname ? p.Productname.toLowerCase() : '';
+        const tag = p.tag ? p.tag.toLowerCase() : '';
+        const desc = p.description ? p.description.toLowerCase() : '';
         return name.includes(q) || tag.includes(q) || desc.includes(q);
       }
 
       return true;
     });
 
-    // Ordenamiento
-    if (sortOption === "price-asc")
+    // Ordenamiento por precio de productos
+    if (sortOption === 'price-asc')
       items.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-    if (sortOption === "price-desc")
+    if (sortOption === 'price-desc')
       items.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
 
-    return items;
+    return items; //nos devuelve los productos filtrados y ordenados
   }, [
     allProducts,
     categoryFilter,
@@ -266,6 +275,7 @@ export default function Articles() {
     paddlersFilter,
   ]);
 
+  // Función para agregar un producto al carrito
   const addToCart = (product, qty = 1) => {
     try {
       if (Number(product.stock) <= 0) {
@@ -288,16 +298,17 @@ export default function Articles() {
         toast.success(`${product.Productname} agregado al carrito`);
       }
       localStorage.setItem(key, JSON.stringify(cart));
-      window.dispatchEvent(new Event("cartUpdated"));
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (e) {
       console.error(e);
-      toast.error("Error al agregar al carrito");
+      toast.error('Error al agregar al carrito');
     }
   };
 
+  // Función para agregar un producto a la wishlist/favoritos
   const addToWishlist = (product) => {
     try {
-      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
       if (!cu) {
         // show login prompt modal
         setShowLoginModal(true);
@@ -308,31 +319,31 @@ export default function Articles() {
       if (!w.find((p) => p.id === product.id)) {
         w.push(product);
         localStorage.setItem(key, JSON.stringify(w));
-        window.dispatchEvent(new Event("wishlistUpdated"));
+        window.dispatchEvent(new Event('wishlistUpdated'));
         toast.success(`${product.Productname} agregado a favoritos`);
       } else {
         toast.info(`${product.Productname} ya está en favoritos`);
       }
     } catch (e) {
       console.error(e);
-      toast.error("Error al agregar a favoritos");
+      toast.error('Error al agregar a favoritos');
     }
   };
 
-  // Modal for login prompt when trying to add to wishlist
+  // Componente modal/aviso en pantalla para invitar a iniciar sesión cuado el usuario no está logueado y quiere agregar a favoritos o al carrito
   const LoginPromptModal = () => (
     <div
       className="modal-backdrop"
       style={{
-        position: "fixed",
+        position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         zIndex: 1050,
       }}
       role="dialog"
@@ -340,7 +351,7 @@ export default function Articles() {
     >
       <div
         className="card p-4"
-        style={{ maxWidth: 420, width: "90%", textAlign: "center" }}
+        style={{ maxWidth: 420, width: '90%', textAlign: 'center' }}
       >
         <h5 className="mb-3">Inicia sesión para continuar</h5>
         <p className="mb-3">
@@ -351,7 +362,7 @@ export default function Articles() {
             className="btn btn-primary"
             onClick={() => {
               setShowLoginModal(false);
-              navigate("/login");
+              navigate('/login');
             }}
           >
             Ir a iniciar sesión
@@ -383,7 +394,6 @@ export default function Articles() {
   return (
     <div className="container py-5">
       <h2 className="text-center mb-4">Categorías</h2>
-
       {/* Botones de categorías con imágenes */}
       <div className="row justify-content-center mb-4">
         {buttons.map((btn) => (
@@ -397,25 +407,25 @@ export default function Articles() {
               style={{
                 height: 220,
                 backgroundImage: `url(${btn.img})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 border:
                   activeCategory === btn.label
-                    ? "3px solid #0d6efd"
-                    : "2px solid #0d6efd",
-                overflow: "hidden",
+                    ? '3px solid #0d6efd'
+                    : '2px solid #0d6efd',
+                overflow: 'hidden',
               }}
             >
               <span
                 style={{
-                  background: "rgba(0,0,0,0.5)",
-                  width: "100%",
-                  padding: "10px 0",
-                  position: "absolute",
+                  background: 'rgba(0,0,0,0.5)',
+                  width: '100%',
+                  padding: '10px 0',
+                  position: 'absolute',
                   bottom: 0,
                   left: 0,
                   fontWeight: 700,
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 {btn.label}
@@ -424,7 +434,6 @@ export default function Articles() {
           </div>
         ))}
       </div>
-
       {/* Filtros principales */}
       <div className="row mb-3 align-items-center g-2">
         <div className="col-md-3">
@@ -443,9 +452,9 @@ export default function Articles() {
             value={categoryFilter}
             onChange={(e) => {
               setCategoryFilter(e.target.value);
-              setBrandFilter("all");
-              setMaterialFilter("all");
-              setPaddlersFilter("all");
+              setBrandFilter('all');
+              setMaterialFilter('all');
+              setPaddlersFilter('all');
             }}
           >
             <option value="all">Todas las categorías</option>
@@ -480,9 +489,8 @@ export default function Articles() {
           </select>
         </div>
       </div>
-
       {/* Filtros específicos según categoría */}
-      {categoryFilter !== "all" && categoryFilter !== "articulo" && (
+      {categoryFilter !== 'all' && categoryFilter !== 'articulo' && (
         <div className="row mb-3 align-items-center g-2">
           <div className="col-md-4">
             <select
@@ -521,32 +529,30 @@ export default function Articles() {
               onChange={(e) => setPaddlersFilter(e.target.value)}
             >
               <option value="all">
-                {categoryFilter === "embarcacion"
-                  ? "Todas las capacidades"
-                  : "Todos los remadores"}
+                {categoryFilter === 'embarcacion'
+                  ? 'Todas las capacidades'
+                  : 'Todos los remadores'}
               </option>
               {filterOptions.paddlers.map((num) => (
                 <option key={num} value={num}>
-                  {num}{" "}
-                  {categoryFilter === "embarcacion"
-                    ? "personas"
-                    : "remador(es)"}
+                  {num}{' '}
+                  {categoryFilter === 'embarcacion'
+                    ? 'personas'
+                    : 'remador(es)'}
                 </option>
               ))}
             </select>
           </div>
         </div>
       )}
-
       {/* Contador de resultados */}
       <div className="mb-3">
         <small className="text-muted">
           {filteredProducts.length} producto
-          {filteredProducts.length !== 1 ? "s" : ""} encontrado
-          {filteredProducts.length !== 1 ? "s" : ""}
+          {filteredProducts.length !== 1 ? 's' : ''} encontrado
+          {filteredProducts.length !== 1 ? 's' : ''}
         </small>
       </div>
-
       {/* Grid de productos */}
       <div className="row products-grid">
         {filteredProducts.length === 0 ? (
@@ -625,23 +631,23 @@ export default function Articles() {
                     className="position-absolute top-0 start-0 m-2 badge"
                     style={{
                       backgroundColor:
-                        product.category === "kayak"
-                          ? "#007bff"
-                          : product.category === "sup"
-                          ? "#28a745"
-                          : product.category === "embarcacion"
-                          ? "#dc3545"
-                          : "#ffc107",
-                      color: "#fff",
+                        product.category === 'kayak'
+                          ? '#007bff'
+                          : product.category === 'sup'
+                          ? '#28a745'
+                          : product.category === 'embarcacion'
+                          ? '#dc3545'
+                          : '#ffc107',
+                      color: '#fff',
                     }}
                   >
-                    {product.category === "kayak"
-                      ? "Kayak"
-                      : product.category === "sup"
-                      ? "SUP"
-                      : product.category === "embarcacion"
-                      ? "Embarcación"
-                      : "Artículo"}
+                    {product.category === 'kayak'
+                      ? 'Kayak'
+                      : product.category === 'sup'
+                      ? 'SUP'
+                      : product.category === 'embarcacion'
+                      ? 'Embarcación'
+                      : 'Artículo'}
                   </span>
                 </div>
 
@@ -666,7 +672,7 @@ export default function Articles() {
                     <div className="mt-2 text-muted small">
                       <i className="bi bi-shop"></i>
                       <span className="text-muted ms-1">
-                        {product.sellerName || "KBR"}
+                        {product.sellerName || 'KBR'}
                       </span>
                     </div>
                   </div>
@@ -676,7 +682,6 @@ export default function Articles() {
           ))
         )}
       </div>
-
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -687,7 +692,8 @@ export default function Articles() {
         draggable
         pauseOnHover
       />
-      {showLoginModal && <LoginPromptModal />}
+      {showLoginModal && <LoginPromptModal />}{' '}
+      {/* Mostrar modal si es necesario */}
     </div>
   );
 }

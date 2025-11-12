@@ -37,6 +37,7 @@ export default function CrearTiendas() {
     }
   };
 
+  // Cargar localidades para asignar a las tiendas
   const fetchLocalties = async () => {
     try {
       const response = await fetch(`${API_BASE}/localties`);
@@ -54,6 +55,7 @@ export default function CrearTiendas() {
     }
   };
 
+  // Función para comprimir imagen antes de subir
   const compressImageFile = (file, maxWidth = 1200, quality = 0.8) =>
     new Promise((resolve, reject) => {
       try {
@@ -87,6 +89,7 @@ export default function CrearTiendas() {
       }
     });
 
+  //para comenzar a crear una tienda o editar una existente
   const startCreate = () => {
     setEditingId(null);
     setForm({
@@ -100,6 +103,7 @@ export default function CrearTiendas() {
     });
   };
 
+  // Iniciar edición de una tienda existente
   const startEdit = (store) => {
     setEditingId(store.id);
     setForm({
@@ -179,6 +183,7 @@ export default function CrearTiendas() {
 
       console.log("📊 Response status:", response.status);
 
+      // cuando editamos tienda que se actualice en el backend
       if (response.ok) {
         const result = await response.json();
         console.log("✅ Success response:", result);
@@ -222,6 +227,7 @@ export default function CrearTiendas() {
     }
   };
 
+  //eliminamos tienda, que se elimine en el backend
   const remove = async (id) => {
     if (!window.confirm("¿Eliminar tienda? Esta acción no se puede deshacer."))
       return;
@@ -244,6 +250,7 @@ export default function CrearTiendas() {
     }
   };
 
+  // Vista del componente
   return (
     <div className="card p-4 mt-4">
       <h5 className="mb-3">Gestión de Tiendas</h5>
@@ -316,7 +323,7 @@ export default function CrearTiendas() {
             />
           </div>
 
-          {/* Selección de Localidad - CORREGIDO */}
+          {/* Selección de Localidad */}
           <div className="col-12 mt-2">
             <label className="form-label">Localidad *</label>
             <select

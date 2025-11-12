@@ -1,3 +1,6 @@
+// Componente para crear y gestionar provincias desde el panel de administrador
+// funcionalidad similar a crearLocalidades.jsx pero para provincias
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 
@@ -8,7 +11,7 @@ function CrearProvincias() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: '',
-    country: 'Argentina'
+    country: 'Argentina',
   });
 
   // Cargar provincias
@@ -20,8 +23,8 @@ function CrearProvincias() {
         setProvinces(result.data || []);
       }
     } catch (error) {
-        console.error('Error fetching provinces', error);
-        toast.error('Error al cargar provincias');
+      console.error('Error fetching provinces', error);
+      toast.error('Error al cargar provincias');
     }
   }, []);
 
@@ -32,13 +35,13 @@ function CrearProvincias() {
   const resetForm = () => {
     setForm({
       name: '',
-      country: 'Argentina'
+      country: 'Argentina',
     });
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
+
     if (!form.name || !form.country) {
       toast.error('El nombre y el país de la provincia son requeridos');
       return;
@@ -74,7 +77,9 @@ function CrearProvincias() {
   };
 
   const removeProvince = async (id) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta provincia?')) {
+    if (
+      !window.confirm('¿Estás seguro de que quieres eliminar esta provincia?')
+    ) {
       return;
     }
 
@@ -96,10 +101,11 @@ function CrearProvincias() {
     }
   };
 
+  // Vista del componente
   return (
     <div>
       <h5 className="mb-3">Gestión de Provincias</h5>
-      
+
       {/* Formulario de creación */}
       <div className="card p-4 mb-4">
         <h6 className="mb-3">Crear Nueva Provincia</h6>
@@ -111,7 +117,9 @@ function CrearProvincias() {
                 className="form-control"
                 placeholder="Nombre de la provincia"
                 value={form.name}
-                onChange={(e) => setForm(s => ({ ...s, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, name: e.target.value }))
+                }
                 required
                 disabled={loading}
               />
@@ -122,7 +130,9 @@ function CrearProvincias() {
               <select
                 className="form-select"
                 value={form.country}
-                onChange={(e) => setForm(s => ({ ...s, country: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, country: e.target.value }))
+                }
                 required
                 disabled={loading}
               >
@@ -139,8 +149,8 @@ function CrearProvincias() {
               <button className="btn btn-primary" disabled={loading}>
                 {loading ? 'Creando...' : 'Crear Provincia'}
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-outline-secondary ms-2"
                 onClick={resetForm}
                 disabled={loading}

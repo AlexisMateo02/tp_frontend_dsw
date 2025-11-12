@@ -17,6 +17,7 @@ function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  //Tiendas precargadas en Stores, deberian aparecer las creadas por el admin
   const branches = {
     branch1: {
       name: "Sucursal 1 - Zona Norte",
@@ -128,7 +129,7 @@ function Checkout() {
     return () => window.removeEventListener("storesUpdated", onStoresUpdated);
   }, [selectedPickup]);
 
-  // Utilidades: funciones de validación
+  // validar mail
   const isEmail = (s) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s).trim());
   };
@@ -253,6 +254,9 @@ function Checkout() {
     }
   };
 
+  /* Validar datos del formulario antes de enviar, cosas que pueden faltan completar y 
+  ese estilo, lo de stock no porque el error de stock nos lo tira el backend que 
+  lo hicimos en el paso anterior con todos los if y else. */
   const validateOrder = () => {
     const errors = [];
 
