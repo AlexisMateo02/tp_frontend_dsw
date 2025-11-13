@@ -870,11 +870,22 @@ function Admin() {
       );
 
       if (response.ok) {
-        const result = await response.json();
-        console.log("Delete response:", result);
-
-        toast.info(`${selectedTab.replace("Type", " Type")} eliminado`);
-        fetchEntities();
+        // El backend responde 204 No Content cuando la eliminación fue exitosa.
+        // Intentar leer JSON en un 204 provoca un error, por eso lo manejamos.
+        if (response.status === 204) {
+          toast.info(`${selectedTab.replace("Type", " Type")} eliminado`);
+          fetchEntities();
+        } else {
+          try {
+            const result = await response.json();
+            console.log("Delete response:", result);
+          } catch (e) {
+            // Si no hay body JSON, lo ignoramos (la eliminación igual fue exitosa)
+            console.warn("Delete succeeded but no JSON body returned", e);
+          }
+          toast.info(`${selectedTab.replace("Type", " Type")} eliminado`);
+          fetchEntities();
+        }
       } else {
         const errorText = await response.text();
         console.error("Error response:", errorText);
