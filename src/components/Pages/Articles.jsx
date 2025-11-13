@@ -279,10 +279,10 @@ export default function Articles() {
   const addToCart = (product, qty = 1) => {
     try {
       if (Number(product.stock) <= 0) {
-        toast.error("No hay stock disponible para este producto");
+        toast.error('No hay stock disponible para este producto');
         return;
       }
-      const cu = JSON.parse(localStorage.getItem("currentUser") || "null");
+      const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
       if (!cu) {
         setShowLoginModal(true);
         return;
@@ -606,15 +606,15 @@ export default function Articles() {
                   <span
                     className={`tag badge text-white ${
                       Number(product.stock) <= 0
-                        ? "bg-danger"
-                        : product.tag === "Nuevo"
-                        ? "bg-danger"
-                        : "bg-success"
+                        ? 'bg-danger'
+                        : product.tag === 'Nuevo'
+                        ? 'bg-danger'
+                        : 'bg-success'
                     }`}
                   >
                     {Number(product.stock) <= 0
-                      ? "Sin Stock"
-                      : product.tag || ""}
+                      ? 'Sin Stock'
+                      : product.tag || ''}
                   </span>
 
                   {Number(product.stock) <= 0 && (
