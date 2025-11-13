@@ -3,19 +3,19 @@ donde podemos gestionar diferentes entidades, tipos de porductos, productos,
 lcoalidades, provincias, tiendas y ordenes*/
 
 //Importaciones
-import React, { useEffect, useState, useCallback } from 'react';
-import CrearTiendas from './crearTiendas.jsx';
-import CrearLocalidades from './crearLocalidades.jsx';
-import CrearProvincias from './crearProvincias.jsx';
-import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState, useCallback } from "react";
+import CrearTiendas from "./crearTiendas.jsx";
+import CrearLocalidades from "./crearLocalidades.jsx";
+import CrearProvincias from "./crearProvincias.jsx";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const API_BASE = 'http://localhost:3000/api'; //base URL del backend
+const API_BASE = "http://localhost:3000/api"; //base URL del backend
 
 function Admin() {
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState('kayakType'); //Pestaña seleccionada, por defecto kayakType cuando apenas ingresas al panel de admin
+  const [selectedTab, setSelectedTab] = useState("kayakType"); //Pestaña seleccionada, por defecto kayakType cuando apenas ingresas al panel de admin
   const [entities, setEntities] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -24,73 +24,73 @@ function Admin() {
   // Estados para órdenes
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [orderFilter, setOrderFilter] = useState('pending');
+  const [orderFilter, setOrderFilter] = useState("pending");
   // Filtro por nombre de comprador
-  const [buyerFilter, setBuyerFilter] = useState('');
+  const [buyerFilter, setBuyerFilter] = useState("");
   // Filtro por número de orden
-  const [orderNumberFilter, setOrderNumberFilter] = useState('');
+  const [orderNumberFilter, setOrderNumberFilter] = useState("");
 
   //CREACION DE TIPO DE KAYAK, TIPO DE ARTICULO, TIPO DE SUP, TIPO DE EMBARCACION Y PRODUCTOS
 
   // Estados para KayakType
-  const [kt_model, setKt_model] = useState('');
-  const [kt_brand, setKt_brand] = useState('');
-  const [kt_material, setKt_material] = useState('');
-  const [kt_paddlersQuantity, setKt_paddlersQuantity] = useState('');
-  const [kt_maxWeightCapacity, setKt_maxWeightCapacity] = useState('');
-  const [kt_length, setKt_length] = useState('');
-  const [kt_beam, setKt_beam] = useState('');
-  const [kt_constructionType, setKt_constructionType] = useState('');
+  const [kt_model, setKt_model] = useState("");
+  const [kt_brand, setKt_brand] = useState("");
+  const [kt_material, setKt_material] = useState("");
+  const [kt_paddlersQuantity, setKt_paddlersQuantity] = useState("");
+  const [kt_maxWeightCapacity, setKt_maxWeightCapacity] = useState("");
+  const [kt_length, setKt_length] = useState("");
+  const [kt_beam, setKt_beam] = useState("");
+  const [kt_constructionType, setKt_constructionType] = useState("");
 
   // Estados para ArticleType
-  const [at_name, setAt_name] = useState('');
-  const [at_mainUse, setAt_mainUse] = useState('');
+  const [at_name, setAt_name] = useState("");
+  const [at_mainUse, setAt_mainUse] = useState("");
 
   // Estados para SUPType
-  const [st_model, setSt_model] = useState('');
-  const [st_brand, setSt_brand] = useState('');
-  const [st_material, setSt_material] = useState('');
-  const [st_paddlersQuantity, setSt_paddlersQuantity] = useState('');
-  const [st_maxWeightCapacity, setSt_maxWeightCapacity] = useState('');
-  const [st_constructionType, setSt_constructionType] = useState('');
-  const [st_length, setSt_length] = useState('');
-  const [st_width, setSt_width] = useState('');
-  const [st_thickness, setSt_thickness] = useState('');
-  const [st_boardType, setSt_boardType] = useState('');
-  const [st_finConfiguration, setSt_finConfiguration] = useState('');
+  const [st_model, setSt_model] = useState("");
+  const [st_brand, setSt_brand] = useState("");
+  const [st_material, setSt_material] = useState("");
+  const [st_paddlersQuantity, setSt_paddlersQuantity] = useState("");
+  const [st_maxWeightCapacity, setSt_maxWeightCapacity] = useState("");
+  const [st_constructionType, setSt_constructionType] = useState("");
+  const [st_length, setSt_length] = useState("");
+  const [st_width, setSt_width] = useState("");
+  const [st_thickness, setSt_thickness] = useState("");
+  const [st_boardType, setSt_boardType] = useState("");
+  const [st_finConfiguration, setSt_finConfiguration] = useState("");
 
   // Estados para BoatType = Embarcacion
-  const [bt_model, setBt_model] = useState('');
-  const [bt_brand, setBt_brand] = useState('');
-  const [bt_boatCategory, setBt_boatCategory] = useState('');
-  const [bt_material, setBt_material] = useState('');
-  const [bt_passengerCapacity, setBt_passengerCapacity] = useState('');
-  const [bt_maxWeightCapacity, setBt_maxWeightCapacity] = useState('');
-  const [bt_length, setBt_length] = useState('');
-  const [bt_beam, setBt_beam] = useState('');
-  const [bt_hullType, setBt_hullType] = useState('');
-  const [bt_motorType, setBt_motorType] = useState('');
-  const [bt_maxHorsePower, setBt_maxHorsePower] = useState('');
+  const [bt_model, setBt_model] = useState("");
+  const [bt_brand, setBt_brand] = useState("");
+  const [bt_boatCategory, setBt_boatCategory] = useState("");
+  const [bt_material, setBt_material] = useState("");
+  const [bt_passengerCapacity, setBt_passengerCapacity] = useState("");
+  const [bt_maxWeightCapacity, setBt_maxWeightCapacity] = useState("");
+  const [bt_length, setBt_length] = useState("");
+  const [bt_beam, setBt_beam] = useState("");
+  const [bt_hullType, setBt_hullType] = useState("");
+  const [bt_motorType, setBt_motorType] = useState("");
+  const [bt_maxHorsePower, setBt_maxHorsePower] = useState("");
 
   //CREACION DE PRODUCTOS
 
   // Estados para Product
-  const [p_Productname, setP_Productname] = useState('');
-  const [p_price, setP_price] = useState('');
-  const [p_oldPrice, setP_oldPrice] = useState('');
-  const [p_tag, setP_tag] = useState('');
-  const [p_category, setP_category] = useState('');
+  const [p_Productname, setP_Productname] = useState("");
+  const [p_price, setP_price] = useState("");
+  const [p_oldPrice, setP_oldPrice] = useState("");
+  const [p_tag, setP_tag] = useState("");
+  const [p_category, setP_category] = useState("");
   const [p_stock, setP_stock] = useState(1);
-  const [p_image, setP_image] = useState('');
-  const [p_secondImage, setP_secondImage] = useState('');
-  const [p_thirdImage, setP_thirdImage] = useState('');
-  const [p_fourthImage, setP_fourthImage] = useState('');
-  const [p_description, setP_description] = useState('');
-  const [p_includes, setP_includes] = useState('');
-  const [p_kayakTypeId, setP_kayakTypeId] = useState('');
-  const [p_supTypeId, setP_supTypeId] = useState('');
-  const [p_boatTypeId, setP_boatTypeId] = useState('');
-  const [p_articleTypeId, setP_articleTypeId] = useState('');
+  const [p_image, setP_image] = useState("");
+  const [p_secondImage, setP_secondImage] = useState("");
+  const [p_thirdImage, setP_thirdImage] = useState("");
+  const [p_fourthImage, setP_fourthImage] = useState("");
+  const [p_description, setP_description] = useState("");
+  const [p_includes, setP_includes] = useState("");
+  const [p_kayakTypeId, setP_kayakTypeId] = useState("");
+  const [p_supTypeId, setP_supTypeId] = useState("");
+  const [p_boatTypeId, setP_boatTypeId] = useState("");
+  const [p_articleTypeId, setP_articleTypeId] = useState("");
   const [p_approved, setP_approved] = useState(false);
 
   // Estados para tipos disponibles
@@ -110,8 +110,8 @@ function Admin() {
 
   const compressImage = (file) => {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
       const img = new Image();
 
       img.onload = () => {
@@ -134,19 +134,19 @@ function Admin() {
         canvas.width = width;
         canvas.height = height;
 
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = "white";
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
         canvas.toBlob(
           (blob) => {
             const compressedFile = new File([blob], file.name, {
-              type: 'image/jpeg',
+              type: "image/jpeg",
               lastModified: Date.now(),
             });
             resolve(compressedFile);
           },
-          'image/jpeg',
+          "image/jpeg",
           0.7
         );
       };
@@ -156,10 +156,10 @@ function Admin() {
     });
   };
 
-  //Definimos fetchOrders que declaramos/incializamos nates como useState([])
+  //Definimos fetchOrders que declaramos/incializamos antes como useState([])
   // Cargamos las ordenes desde el backend y aplicamos filtros
   const fetchOrders = useCallback(
-    async (filter = 'all', buyerName = '', orderNumber = '') => {
+    async (filter = "all", buyerName = "", orderNumber = "") => {
       setLoadingOrders(true);
       try {
         const url = `${API_BASE}/orders`;
@@ -169,7 +169,7 @@ function Admin() {
 
         const response = await fetch(url, {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
 
@@ -180,7 +180,7 @@ function Admin() {
 
           // Primero filtrar por estado si se solicitó
           let filtered = allOrders;
-          if (filter && filter !== 'all') {
+          if (filter && filter !== "all") {
             filtered = filtered.filter(
               (o) => String(o.status) === String(filter)
             );
@@ -190,13 +190,13 @@ function Admin() {
           }
 
           // Luego filtrar por nombre del comprador (si se pasó)
-          if (buyerName && buyerName.trim() !== '') {
+          if (buyerName && buyerName.trim() !== "") {
             const q = buyerName.trim().toLowerCase();
             filtered = filtered.filter((o) => {
-              const fullName = `${o.user?.firstName || ''} ${
-                o.user?.lastName || ''
+              const fullName = `${o.user?.firstName || ""} ${
+                o.user?.lastName || ""
               }`.trim();
-              const contact = String(o.buyerContact || '').toLowerCase();
+              const contact = String(o.buyerContact || "").toLowerCase();
               return fullName.toLowerCase().includes(q) || contact.includes(q);
             });
             console.log(
@@ -205,7 +205,7 @@ function Admin() {
           }
 
           // Filtrar por número de orden (si se pasó)
-          if (orderNumber && String(orderNumber).trim() !== '') {
+          if (orderNumber && String(orderNumber).trim() !== "") {
             const qn = String(orderNumber).trim().toLowerCase();
             filtered = filtered.filter((o) =>
               String(o.orderNumber).toLowerCase().includes(qn)
@@ -217,13 +217,13 @@ function Admin() {
 
           setOrders(filtered);
         } else {
-          console.error('Error loading orders:', response.status);
-          toast.error('Error al cargar las órdenes');
+          console.error("Error loading orders:", response.status);
+          toast.error("Error al cargar las órdenes");
           setOrders([]);
         }
       } catch (error) {
-        console.error('Error fetching orders:', error);
-        toast.error('Error de conexión al cargar órdenes');
+        console.error("Error fetching orders:", error);
+        toast.error("Error de conexión al cargar órdenes");
         setOrders([]);
       } finally {
         setLoadingOrders(false);
@@ -241,26 +241,26 @@ function Admin() {
       console.log(`Updating order status: ${url}`, { status: newStatus });
 
       const response = await fetch(url, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Order status updated:', result);
+        console.log("Order status updated:", result);
         toast.success(`Orden ${getStatusText(newStatus)} correctamente`);
         fetchOrders(orderFilter, buyerFilter, orderNumberFilter); // Recargar órdenes con el filtro actual
       } else {
         const errorText = await response.text();
-        console.error('Error updating order:', errorText);
-        toast.error('Error al actualizar la orden');
+        console.error("Error updating order:", errorText);
+        toast.error("Error al actualizar la orden");
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
-      toast.error('Error de conexión al actualizar orden');
+      console.error("Error updating order status:", error);
+      toast.error("Error de conexión al actualizar orden");
     } finally {
       setLoadingOrders(false);
     }
@@ -269,11 +269,11 @@ function Admin() {
   // Función para traducir estados
   const getStatusText = (status) => {
     const statusMap = {
-      pending: 'Pendiente',
-      confirmed: 'Confirmada',
-      shipped: 'Enviada',
-      delivered: 'Entregada',
-      cancelled: 'Cancelada',
+      pending: "Pendiente",
+      confirmed: "Confirmada",
+      shipped: "Enviada",
+      delivered: "Entregada",
+      cancelled: "Cancelada",
     };
     return statusMap[status] || status;
   };
@@ -281,13 +281,13 @@ function Admin() {
   // Función para obtener clase CSS del estado
   const getStatusClass = (status) => {
     const statusClassMap = {
-      pending: 'bg-warning text-dark',
-      confirmed: 'bg-info',
-      shipped: 'bg-primary',
-      delivered: 'bg-success',
-      cancelled: 'bg-danger',
+      pending: "bg-warning text-dark",
+      confirmed: "bg-info",
+      shipped: "bg-primary",
+      delivered: "bg-success",
+      cancelled: "bg-danger",
     };
-    return statusClassMap[status] || 'bg-secondary';
+    return statusClassMap[status] || "bg-secondary";
   };
 
   // Manejar cambio de archivo para imágenes
@@ -295,13 +295,13 @@ function Admin() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Por favor selecciona un archivo de imagen válido');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor selecciona un archivo de imagen válido");
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      toast.error('La imagen no debe superar los 2MB');
+      toast.error("La imagen no debe superar los 2MB");
       return;
     }
 
@@ -330,10 +330,10 @@ function Admin() {
           break;
       }
 
-      toast.success('Imagen comprimida y cargada correctamente');
+      toast.success("Imagen comprimida y cargada correctamente");
     } catch (error) {
-      console.error('Error comprimiendo imagen:', error);
-      toast.error('Error al procesar la imagen');
+      console.error("Error comprimiendo imagen:", error);
+      toast.error("Error al procesar la imagen");
     }
   };
 
@@ -341,21 +341,21 @@ function Admin() {
   const removeImage = (imageNumber) => {
     switch (imageNumber) {
       case 1:
-        setP_image('');
+        setP_image("");
         break;
       case 2:
-        setP_secondImage('');
+        setP_secondImage("");
         break;
       case 3:
-        setP_thirdImage('');
+        setP_thirdImage("");
         break;
       case 4:
-        setP_fourthImage('');
+        setP_fourthImage("");
         break;
       default:
         break;
     }
-    toast.info('Imagen eliminada');
+    toast.info("Imagen eliminada");
   };
 
   // Cargar tipos disponibles para productos
@@ -386,7 +386,7 @@ function Admin() {
         setArticleTypes(data.data || []);
       }
     } catch (error) {
-      console.error('Error loading types:', error);
+      console.error("Error loading types:", error);
     }
   }, []);
 
@@ -394,23 +394,23 @@ function Admin() {
   const fetchEntities = useCallback(async () => {
     setLoading(true);
     try {
-      let endpoint = '';
+      let endpoint = "";
 
       switch (selectedTab) {
-        case 'kayakType':
-          endpoint = '/kayakTypes';
+        case "kayakType":
+          endpoint = "/kayakTypes";
           break;
-        case 'articleType':
-          endpoint = '/articleTypes';
+        case "articleType":
+          endpoint = "/articleTypes";
           break;
-        case 'supType':
-          endpoint = '/supTypes';
+        case "supType":
+          endpoint = "/supTypes";
           break;
-        case 'boatType':
-          endpoint = '/boatTypes';
+        case "boatType":
+          endpoint = "/boatTypes";
           break;
-        case 'product':
-          endpoint = '/products';
+        case "product":
+          endpoint = "/products";
           break;
         default:
           return;
@@ -421,7 +421,7 @@ function Admin() {
 
       const response = await fetch(url, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -443,8 +443,8 @@ function Admin() {
         toast.error(`Error ${response.status} al cargar los datos`);
       }
     } catch (error) {
-      console.error('Error fetching entities:', error);
-      toast.error('Error de conexión con el servidor');
+      console.error("Error fetching entities:", error);
+      toast.error("Error de conexión con el servidor");
     } finally {
       setLoading(false);
     }
@@ -454,17 +454,17 @@ function Admin() {
   useEffect(() => {
     console.log(`Selected tab changed to: ${selectedTab}`);
 
-    if (selectedTab === 'orders') {
+    if (selectedTab === "orders") {
       fetchOrders(orderFilter, buyerFilter, orderNumberFilter);
     } else if (
-      selectedTab !== 'localty' &&
-      selectedTab !== 'province' &&
-      selectedTab !== 'store'
+      selectedTab !== "localty" &&
+      selectedTab !== "province" &&
+      selectedTab !== "store"
     ) {
       fetchEntities();
     }
 
-    if (selectedTab === 'product') {
+    if (selectedTab === "product") {
       fetchTypes();
     }
   }, [
@@ -479,62 +479,62 @@ function Admin() {
 
   const resetForm = () => {
     // Reset KayakType porque tenemos que limpiar el formulario
-    setKt_model('');
-    setKt_brand('');
-    setKt_material('');
-    setKt_paddlersQuantity('');
-    setKt_maxWeightCapacity('');
-    setKt_length('');
-    setKt_beam('');
-    setKt_constructionType('');
+    setKt_model("");
+    setKt_brand("");
+    setKt_material("");
+    setKt_paddlersQuantity("");
+    setKt_maxWeightCapacity("");
+    setKt_length("");
+    setKt_beam("");
+    setKt_constructionType("");
 
     // Reset ArticleType
-    setAt_name('');
-    setAt_mainUse('');
+    setAt_name("");
+    setAt_mainUse("");
 
     // Reset SUPType
-    setSt_model('');
-    setSt_brand('');
-    setSt_material('');
-    setSt_paddlersQuantity('');
-    setSt_maxWeightCapacity('');
-    setSt_constructionType('');
-    setSt_length('');
-    setSt_width('');
-    setSt_thickness('');
-    setSt_boardType('');
-    setSt_finConfiguration('');
+    setSt_model("");
+    setSt_brand("");
+    setSt_material("");
+    setSt_paddlersQuantity("");
+    setSt_maxWeightCapacity("");
+    setSt_constructionType("");
+    setSt_length("");
+    setSt_width("");
+    setSt_thickness("");
+    setSt_boardType("");
+    setSt_finConfiguration("");
 
     // Reset BoatType
-    setBt_model('');
-    setBt_brand('');
-    setBt_boatCategory('');
-    setBt_material('');
-    setBt_passengerCapacity('');
-    setBt_maxWeightCapacity('');
-    setBt_length('');
-    setBt_beam('');
-    setBt_hullType('');
-    setBt_motorType('');
-    setBt_maxHorsePower('');
+    setBt_model("");
+    setBt_brand("");
+    setBt_boatCategory("");
+    setBt_material("");
+    setBt_passengerCapacity("");
+    setBt_maxWeightCapacity("");
+    setBt_length("");
+    setBt_beam("");
+    setBt_hullType("");
+    setBt_motorType("");
+    setBt_maxHorsePower("");
 
     // Reset Product
-    setP_Productname('');
-    setP_price('');
-    setP_oldPrice('');
-    setP_tag('');
-    setP_category('');
+    setP_Productname("");
+    setP_price("");
+    setP_oldPrice("");
+    setP_tag("");
+    setP_category("");
     setP_stock(1);
-    setP_image('');
-    setP_secondImage('');
-    setP_thirdImage('');
-    setP_fourthImage('');
-    setP_description('');
-    setP_includes('');
-    setP_kayakTypeId('');
-    setP_supTypeId('');
-    setP_boatTypeId('');
-    setP_articleTypeId('');
+    setP_image("");
+    setP_secondImage("");
+    setP_thirdImage("");
+    setP_fourthImage("");
+    setP_description("");
+    setP_includes("");
+    setP_kayakTypeId("");
+    setP_supTypeId("");
+    setP_boatTypeId("");
+    setP_articleTypeId("");
     setP_approved(false);
   };
 
@@ -588,7 +588,7 @@ function Admin() {
   //Validaciones para Productos, en la parte donde creamos un producto tmb tenemos que validar cosas
   const validateProduct = () => {
     if (!p_Productname || p_Productname.length < 2) return false;
-    if (!p_price || !/^\$?\d+(\.\d{1,2})?$/.test(p_price.replace(',', '.')))
+    if (!p_price || !/^\$?\d+(\.\d{1,2})?$/.test(p_price.replace(",", ".")))
       return false;
     if (!p_category) return false;
     if (!p_image) return false;
@@ -597,10 +597,10 @@ function Admin() {
     // Validaciones específicas por categoría
     /*Si alguna no se cumple dependienddo el tiempo que retrone falso, el backend se encargara
     de avisar cual fue el error y el frontend lo mostrar en pantalla*/
-    if (p_category === 'kayak' && !p_kayakTypeId) return false;
-    if (p_category === 'sup' && !p_supTypeId) return false;
-    if (p_category === 'embarcacion' && !p_boatTypeId) return false;
-    if (p_category === 'articulo' && !p_articleTypeId) return false;
+    if (p_category === "kayak" && !p_kayakTypeId) return false;
+    if (p_category === "sup" && !p_supTypeId) return false;
+    if (p_category === "embarcacion" && !p_boatTypeId) return false;
+    if (p_category === "articulo" && !p_articleTypeId) return false;
 
     return true;
   };
@@ -610,14 +610,14 @@ function Admin() {
 
     let isValid = false;
     let newEntity = {};
-    let endpoint = '';
+    let endpoint = "";
 
     //Si hay un error de validaciones se muestra estos mesnajes del frontend
     //Se podria sacar ya que el backend tambien hace las validaciones y avisa cual fue el error especificamente
     switch (selectedTab) {
-      case 'kayakType':
+      case "kayakType":
         isValid = validateKayakType();
-        endpoint = '/kayakTypes';
+        endpoint = "/kayakTypes";
         if (isValid) {
           newEntity = {
             model: kt_model,
@@ -630,26 +630,26 @@ function Admin() {
             beam: Number(kt_beam) || 0,
           };
         } else {
-          toast.error('Completa las especificaciones de Kayak correctamente');
+          toast.error("Completa las especificaciones de Kayak correctamente");
         }
         break;
 
-      case 'articleType':
+      case "articleType":
         isValid = validateArticleType();
-        endpoint = '/articleTypes';
+        endpoint = "/articleTypes";
         if (isValid) {
           newEntity = {
             name: at_name,
             mainUse: at_mainUse,
           };
         } else {
-          toast.error('Completa nombre y uso principal');
+          toast.error("Completa nombre y uso principal");
         }
         break;
 
-      case 'supType':
+      case "supType":
         isValid = validateSUPType();
-        endpoint = '/supTypes';
+        endpoint = "/supTypes";
         if (isValid) {
           newEntity = {
             model: st_model,
@@ -665,13 +665,13 @@ function Admin() {
             finConfiguration: st_finConfiguration,
           };
         } else {
-          toast.error('Completa las especificaciones de SUP correctamente');
+          toast.error("Completa las especificaciones de SUP correctamente");
         }
         break;
 
-      case 'boatType':
+      case "boatType":
         isValid = validateBoatType();
-        endpoint = '/boatTypes';
+        endpoint = "/boatTypes";
         if (isValid) {
           newEntity = {
             model: bt_model,
@@ -688,14 +688,14 @@ function Admin() {
           };
         } else {
           toast.error(
-            'Completa las especificaciones de Embarcación correctamente'
+            "Completa las especificaciones de Embarcación correctamente"
           );
         }
         break;
 
-      case 'product':
+      case "product":
         isValid = validateProduct();
-        endpoint = '/products';
+        endpoint = "/products";
         if (isValid) {
           newEntity = {
             Productname: p_Productname,
@@ -719,7 +719,7 @@ function Admin() {
           };
         } else {
           toast.error(
-            'Completa los campos requeridos del producto correctamente'
+            "Completa los campos requeridos del producto correctamente"
           );
         }
         break;
@@ -731,7 +731,7 @@ function Admin() {
     //si todo esta bien validado seguimos
     if (!isValid) return;
 
-    console.log('Datos que se enviarán:', {
+    console.log("Datos que se enviarán:", {
       ...newEntity,
       imageLength: newEntity.image ? newEntity.image.length : 0,
       secondImageLength: newEntity.secondImage
@@ -749,9 +749,9 @@ function Admin() {
       console.log(`Creating entity at: ${url}`, newEntity); //crea entidad en el backend
 
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(newEntity),
       });
@@ -762,10 +762,10 @@ function Admin() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Create response:', result);
+        console.log("Create response:", result);
 
         toast.success(
-          `${selectedTab.replace('Type', ' Type')} creado exitosamente`
+          `${selectedTab.replace("Type", " Type")} creado exitosamente`
         );
         resetForm();
         fetchEntities();
@@ -781,11 +781,11 @@ function Admin() {
           }
         }
 
-        console.error('Error response:', errorBody);
+        console.error("Error response:", errorBody);
 
         let friendlyMessage = `Error ${response.status}: No se pudo crear`;
         if (errorBody) {
-          if (typeof errorBody === 'string') {
+          if (typeof errorBody === "string") {
             friendlyMessage = errorBody;
           } else if (errorBody.message) {
             friendlyMessage = errorBody.message;
@@ -794,11 +794,11 @@ function Admin() {
               if (Array.isArray(errorBody.errors)) {
                 friendlyMessage = errorBody.errors
                   .map((e) => e.msg || e.message || JSON.stringify(e))
-                  .join('; ');
+                  .join("; ");
               } else {
                 friendlyMessage = Object.entries(errorBody.errors)
                   .map(([k, v]) => `${k}: ${v}`)
-                  .join('; ');
+                  .join("; ");
               }
             } catch {
               friendlyMessage = JSON.stringify(errorBody.errors);
@@ -819,8 +819,8 @@ function Admin() {
         toast.error(friendlyMessage);
       }
     } catch (error) {
-      console.error('Error creating entity:', error);
-      toast.error('Error de conexión con el servidor');
+      console.error("Error creating entity:", error);
+      toast.error("Error de conexión con el servidor");
     } finally {
       setLoading(false);
     }
@@ -829,29 +829,29 @@ function Admin() {
   // Función para eliminar una entidad desde el frontend y que se actualize en el backend
   const removeEntity = async (id) => {
     if (
-      !window.confirm('¿Estás seguro de que quieres eliminar este elemento?')
+      !window.confirm("¿Estás seguro de que quieres eliminar este elemento?")
     ) {
       return;
     }
 
     setLoading(true);
     try {
-      let endpoint = '';
+      let endpoint = "";
       switch (selectedTab) {
-        case 'kayakType':
-          endpoint = '/kayakTypes';
+        case "kayakType":
+          endpoint = "/kayakTypes";
           break;
-        case 'articleType':
-          endpoint = '/articleTypes';
+        case "articleType":
+          endpoint = "/articleTypes";
           break;
-        case 'supType':
-          endpoint = '/supTypes';
+        case "supType":
+          endpoint = "/supTypes";
           break;
-        case 'boatType':
-          endpoint = '/boatTypes';
+        case "boatType":
+          endpoint = "/boatTypes";
           break;
-        case 'product':
-          endpoint = '/products';
+        case "product":
+          endpoint = "/products";
           break;
         default:
           return;
@@ -862,7 +862,7 @@ function Admin() {
 
       const response = await fetch(url, {
         //se elmina la entidad en el backend
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       console.log(
@@ -871,18 +871,18 @@ function Admin() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Delete response:', result);
+        console.log("Delete response:", result);
 
-        toast.info(`${selectedTab.replace('Type', ' Type')} eliminado`);
+        toast.info(`${selectedTab.replace("Type", " Type")} eliminado`);
         fetchEntities();
       } else {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
+        console.error("Error response:", errorText);
         toast.error(`Error ${response.status}: No se pudo eliminar`);
       }
     } catch (error) {
-      console.error('Error deleting entity:', error);
-      toast.error('Error de conexión');
+      console.error("Error deleting entity:", error);
+      toast.error("Error de conexión");
     } finally {
       setLoading(false);
     }
@@ -897,7 +897,7 @@ function Admin() {
 
       const response = await fetch(url, {
         //aprueba el producto en el backend
-        method: 'PATCH', //metodo patch porque solo actualiza una parte del recurso
+        method: "PATCH", //metodo patch porque solo actualiza una parte del recurso
       });
 
       console.log(
@@ -907,27 +907,27 @@ function Admin() {
       if (response.ok) {
         //si todo salio bien, se aprueba el producto y se actualiza
         const result = await response.json();
-        console.log('Approve response:', result);
+        console.log("Approve response:", result);
 
-        toast.success('Producto aprobado exitosamente');
+        toast.success("Producto aprobado exitosamente");
         fetchEntities();
       } else {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
+        console.error("Error response:", errorText);
         toast.error(`Error ${response.status}: No se pudo aprobar el producto`);
       }
     } catch (error) {
-      console.error('Error approving product:', error);
-      toast.error('Error de conexión');
+      console.error("Error approving product:", error);
+      toast.error("Error de conexión");
     } finally {
       setLoading(false);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('currentUser');
-    window.dispatchEvent(new Event('authChanged'));
-    navigate('/');
+    localStorage.removeItem("currentUser");
+    window.dispatchEvent(new Event("authChanged"));
+    navigate("/");
   };
 
   // Función que devuelve lo que se va a mostrar en pantalla para la lista de órdenes.
@@ -949,9 +949,9 @@ function Admin() {
           <i className="bi bi-inbox display-1 text-muted"></i>
           <h5 className="mt-3">No hay órdenes</h5>
           <p className="text-muted">
-            {orderFilter !== 'all'
+            {orderFilter !== "all"
               ? `No hay órdenes con estado "${getStatusText(orderFilter)}"`
-              : 'No hay órdenes en el sistema'}
+              : "No hay órdenes en el sistema"}
           </p>
         </div>
       );
@@ -972,7 +972,7 @@ function Admin() {
                   </span>
                 </div>
                 <small className="text-muted">
-                  {new Date(order.orderDate).toLocaleDateString('es-AR')}
+                  {new Date(order.orderDate).toLocaleDateString("es-AR")}
                 </small>
               </div>
 
@@ -985,7 +985,7 @@ function Admin() {
                     </p>
                     {order.user && (
                       <p className="mb-1">
-                        <strong>Usuario:</strong> {order.user.firstName}{' '}
+                        <strong>Usuario:</strong> {order.user.firstName}{" "}
                         {order.user.lastName}
                       </p>
                     )}
@@ -996,7 +996,7 @@ function Admin() {
                     )}
                     {order.pickUpPoint && (
                       <p className="mb-1">
-                        <strong>🏪 Retiro en:</strong>{' '}
+                        <strong>🏪 Retiro en:</strong>{" "}
                         {order.pickUpPoint.storeName}
                       </p>
                     )}
@@ -1043,9 +1043,9 @@ function Admin() {
                                       alt={item.productName}
                                       className="rounded me-2"
                                       style={{
-                                        width: '40px',
-                                        height: '40px',
-                                        objectFit: 'cover',
+                                        width: "40px",
+                                        height: "40px",
+                                        objectFit: "cover",
                                       }}
                                     />
                                   )}
@@ -1071,12 +1071,12 @@ function Admin() {
                 <div className="mt-3">
                   <h6 className="fw-bold">Acciones</h6>
                   <div className="d-flex gap-2 flex-wrap">
-                    {order.status === 'pending' && (
+                    {order.status === "pending" && (
                       <>
                         <button
                           className="btn btn-success btn-sm"
                           onClick={() =>
-                            updateOrderStatus(order.id, 'confirmed')
+                            updateOrderStatus(order.id, "confirmed")
                           }
                           disabled={loadingOrders}
                         >
@@ -1085,7 +1085,7 @@ function Admin() {
                         <button
                           className="btn btn-danger btn-sm"
                           onClick={() =>
-                            updateOrderStatus(order.id, 'cancelled')
+                            updateOrderStatus(order.id, "cancelled")
                           }
                           disabled={loadingOrders}
                         >
@@ -1094,33 +1094,33 @@ function Admin() {
                       </>
                     )}
 
-                    {order.status === 'confirmed' && (
+                    {order.status === "confirmed" && (
                       <button
                         className="btn btn-primary btn-sm"
-                        onClick={() => updateOrderStatus(order.id, 'shipped')}
+                        onClick={() => updateOrderStatus(order.id, "shipped")}
                         disabled={loadingOrders}
                       >
                         🚚 Marcar como Enviada
                       </button>
                     )}
 
-                    {order.status === 'shipped' && (
+                    {order.status === "shipped" && (
                       <button
                         className="btn btn-success btn-sm"
-                        onClick={() => updateOrderStatus(order.id, 'delivered')}
+                        onClick={() => updateOrderStatus(order.id, "delivered")}
                         disabled={loadingOrders}
                       >
                         📦 Marcar como Entregada
                       </button>
                     )}
 
-                    {(order.status === 'delivered' ||
-                      order.status === 'cancelled') && (
+                    {(order.status === "delivered" ||
+                      order.status === "cancelled") && (
                       <span className="text-muted small">
-                        Esta orden está{' '}
-                        {order.status === 'delivered'
-                          ? 'completada'
-                          : 'cancelada'}
+                        Esta orden está{" "}
+                        {order.status === "delivered"
+                          ? "completada"
+                          : "cancelada"}
                       </span>
                     )}
                   </div>
@@ -1138,7 +1138,7 @@ function Admin() {
   const renderForm = () => {
     switch (selectedTab) {
       //TIPO = KAYAK
-      case 'kayakType':
+      case "kayakType":
         return (
           <>
             <div className="col-md-6">
@@ -1225,7 +1225,7 @@ function Admin() {
         );
 
       //TIPO = ARTICULO
-      case 'articleType':
+      case "articleType":
         return (
           <>
             <div className="col-md-6">
@@ -1250,7 +1250,7 @@ function Admin() {
         );
 
       //TIPO = SUP
-      case 'supType':
+      case "supType":
         return (
           <>
             <div className="col-md-6">
@@ -1354,7 +1354,7 @@ function Admin() {
         );
 
       //TIPO = BOAT = EMBARCACION
-      case 'boatType':
+      case "boatType":
         return (
           <>
             <div className="col-md-6">
@@ -1468,7 +1468,7 @@ function Admin() {
         );
 
       //PRODUCTO, es la parte de la intefaz donde creamos un producto nuevo e invocaos todas sus validaciones como hicimos con los tipos de kayaks, etc
-      case 'product':
+      case "product":
         return (
           <>
             <div className="col-md-8">
@@ -1535,7 +1535,7 @@ function Admin() {
             </div>
 
             {/* Selectores de tipos según categoría */}
-            {p_category === 'kayak' && (
+            {p_category === "kayak" && (
               <div className="col-md-8 mt-2">
                 <select
                   className="form-control"
@@ -1553,7 +1553,7 @@ function Admin() {
               </div>
             )}
 
-            {p_category === 'sup' && (
+            {p_category === "sup" && (
               <div className="col-md-8 mt-2">
                 <select
                   className="form-control"
@@ -1571,7 +1571,7 @@ function Admin() {
               </div>
             )}
 
-            {p_category === 'embarcacion' && (
+            {p_category === "embarcacion" && (
               <div className="col-md-8 mt-2">
                 <select
                   className="form-control"
@@ -1589,7 +1589,7 @@ function Admin() {
               </div>
             )}
 
-            {p_category === 'articulo' && (
+            {p_category === "articulo" && (
               <div className="col-md-8 mt-2">
                 <select
                   className="form-control"
@@ -1628,11 +1628,11 @@ function Admin() {
                         src={p_image}
                         alt="Previsualización"
                         style={{
-                          width: '100px',
-                          height: '100px',
-                          objectFit: 'cover',
-                          border: '2px solid #ddd',
-                          borderRadius: '8px',
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          border: "2px solid #ddd",
+                          borderRadius: "8px",
                         }}
                       />
                       <button
@@ -1662,11 +1662,11 @@ function Admin() {
                         src={p_secondImage}
                         alt="Previsualización 2"
                         style={{
-                          width: '100px',
-                          height: '100px',
-                          objectFit: 'cover',
-                          border: '2px solid #ddd',
-                          borderRadius: '8px',
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          border: "2px solid #ddd",
+                          borderRadius: "8px",
                         }}
                       />
                       <button
@@ -1696,11 +1696,11 @@ function Admin() {
                         src={p_thirdImage}
                         alt="Previsualización 3"
                         style={{
-                          width: '100px',
-                          height: '100px',
-                          objectFit: 'cover',
-                          border: '2px solid #ddd',
-                          borderRadius: '8px',
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          border: "2px solid #ddd",
+                          borderRadius: "8px",
                         }}
                       />
                       <button
@@ -1728,11 +1728,11 @@ function Admin() {
                         src={p_fourthImage}
                         alt="Previsualización 4"
                         style={{
-                          width: '100px',
-                          height: '100px',
-                          objectFit: 'cover',
-                          border: '2px solid #ddd',
-                          borderRadius: '8px',
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          border: "2px solid #ddd",
+                          borderRadius: "8px",
                         }}
                       />
                       <button
@@ -1784,7 +1784,7 @@ function Admin() {
           </>
         );
 
-      case 'orders':
+      case "orders":
         return null;
 
       default:
@@ -1807,7 +1807,7 @@ function Admin() {
     if (entities.length === 0) {
       return (
         <p className="text-muted">
-          No hay {selectedTab.replace('Type', ' Types')} creados.
+          No hay {selectedTab.replace("Type", " Types")} creados.
         </p>
       );
     }
@@ -1832,16 +1832,16 @@ function Admin() {
                 {entity.approved !== undefined && (
                   <span
                     className={`badge ${
-                      entity.approved ? 'bg-success' : 'bg-warning'
+                      entity.approved ? "bg-success" : "bg-warning"
                     } ms-2`}
                   >
-                    {entity.approved ? 'Aprobado' : 'Pendiente'}
+                    {entity.approved ? "Aprobado" : "Pendiente"}
                   </span>
                 )}
               </div>
             </div>
             <div>
-              {selectedTab === 'product' && !entity.approved && (
+              {selectedTab === "product" && !entity.approved && (
                 <button
                   className="btn btn-sm btn-success me-2"
                   onClick={() => approveProduct(entity.id)}
@@ -1883,83 +1883,83 @@ function Admin() {
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'kayakType' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "kayakType" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('kayakType')}
+          onClick={() => setSelectedTab("kayakType")}
         >
           Tipo Kayak
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'articleType'
-              ? 'btn-primary'
-              : 'btn-outline-primary'
+            selectedTab === "articleType"
+              ? "btn-primary"
+              : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('articleType')}
+          onClick={() => setSelectedTab("articleType")}
         >
           Tipo Artículo
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'supType' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "supType" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('supType')}
+          onClick={() => setSelectedTab("supType")}
         >
           Tipo SUP
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'boatType' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "boatType" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('boatType')}
+          onClick={() => setSelectedTab("boatType")}
         >
           Tipo Embarcación
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'product' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "product" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('product')}
+          onClick={() => setSelectedTab("product")}
         >
           Productos
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'orders' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "orders" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('orders')}
+          onClick={() => setSelectedTab("orders")}
         >
           Gestión de Órdenes
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'localty' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "localty" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('localty')}
+          onClick={() => setSelectedTab("localty")}
         >
           Localidades
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'province' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "province" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('province')}
+          onClick={() => setSelectedTab("province")}
         >
           Provincias
         </button>
         <button
           type="button"
           className={`btn ${
-            selectedTab === 'store' ? 'btn-primary' : 'btn-outline-primary'
+            selectedTab === "store" ? "btn-primary" : "btn-outline-primary"
           }`}
-          onClick={() => setSelectedTab('store')}
+          onClick={() => setSelectedTab("store")}
         >
           Tiendas
         </button>
@@ -1969,7 +1969,7 @@ function Admin() {
       era la fincion renderOrdersList que esa nos muestra la orden en especifico
       aca nos estaria mostrando lo de arriba de la orden, que esta todo lo del filtrado y el 
       actualizar */}
-      {selectedTab === 'orders' && (
+      {selectedTab === "orders" && (
         <div className="card p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h5 className="mb-0">Gestión de Órdenes</h5>
@@ -1977,7 +1977,7 @@ function Admin() {
               <span className="text-muted small">Filtrar por estado:</span>
               <select
                 className="form-select form-select-sm"
-                style={{ width: 'auto' }}
+                style={{ width: "auto" }}
                 value={orderFilter}
                 onChange={(e) => {
                   setOrderFilter(e.target.value);
@@ -1994,7 +1994,7 @@ function Admin() {
               <input
                 type="search"
                 className="form-control form-control-sm"
-                style={{ width: '220px' }}
+                style={{ width: "220px" }}
                 placeholder="Filtrar por comprador"
                 value={buyerFilter}
                 onChange={(e) => {
@@ -2005,7 +2005,7 @@ function Admin() {
               <input
                 type="search"
                 className="form-control form-control-sm"
-                style={{ width: '160px' }}
+                style={{ width: "160px" }}
                 placeholder="Nº de orden"
                 value={orderNumberFilter}
                 onChange={(e) => {
@@ -2030,16 +2030,16 @@ function Admin() {
       )}
 
       {/* Tipos de Productos */}
-      {selectedTab !== 'store' &&
-        selectedTab !== 'localty' &&
-        selectedTab !== 'province' &&
-        selectedTab !== 'orders' && (
+      {selectedTab !== "store" &&
+        selectedTab !== "localty" &&
+        selectedTab !== "province" &&
+        selectedTab !== "orders" && (
           <>
             <div className="card p-4 mb-4">
               <h5 className="mb-3">
-                {selectedTab === 'product'
-                  ? 'Crear nuevo Producto'
-                  : `Crear nuevo ${selectedTab.replace('Type', ' Type')}`}
+                {selectedTab === "product"
+                  ? "Crear nuevo Producto"
+                  : `Crear nuevo ${selectedTab.replace("Type", " Type")}`}
               </h5>
               <form onSubmit={handleCreate}>
                 <div className="row g-2">
@@ -2047,10 +2047,10 @@ function Admin() {
                   <div className="col-12 mt-3">
                     <button className="btn btn-primary" disabled={loading}>
                       {loading
-                        ? 'Creando...'
-                        : selectedTab === 'product'
-                        ? 'Crear Producto'
-                        : `Crear ${selectedTab.replace('Type', ' Type')}`}
+                        ? "Creando..."
+                        : selectedTab === "product"
+                        ? "Crear Producto"
+                        : `Crear ${selectedTab.replace("Type", " Type")}`}
                     </button>
                   </div>
                 </div>
@@ -2059,9 +2059,9 @@ function Admin() {
 
             <div className="card p-4">
               <h5 className="mb-3">
-                {selectedTab === 'product'
-                  ? 'Productos existentes'
-                  : `${selectedTab.replace('Type', ' Types')} existentes`}
+                {selectedTab === "product"
+                  ? "Productos existentes"
+                  : `${selectedTab.replace("Type", " Types")} existentes`}
               </h5>
               {renderEntityList()}
             </div>
@@ -2069,21 +2069,21 @@ function Admin() {
         )}
 
       {/* Localidades */}
-      {selectedTab === 'localty' && (
+      {selectedTab === "localty" && (
         <div className="card p-4">
           <CrearLocalidades />
         </div>
       )}
 
       {/* Provincias */}
-      {selectedTab === 'province' && (
+      {selectedTab === "province" && (
         <div className="card p-4">
           <CrearProvincias />
         </div>
       )}
 
       {/* Tiendas */}
-      {selectedTab === 'store' && (
+      {selectedTab === "store" && (
         <div className="card p-4">
           <CrearTiendas />
         </div>
